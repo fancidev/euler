@@ -39,6 +39,15 @@
     <ClCompile Include="src\p7.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\p8.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\p9.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\p10.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\euler\gcd.hpp">

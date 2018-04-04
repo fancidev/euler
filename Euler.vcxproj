@@ -125,12 +125,15 @@
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\p1.cpp" />
+    <ClCompile Include="src\p10.cpp" />
     <ClCompile Include="src\p2.cpp" />
     <ClCompile Include="src\p3.cpp" />
     <ClCompile Include="src\p4.cpp" />
     <ClCompile Include="src\p5.cpp" />
     <ClCompile Include="src\p6.cpp" />
     <ClCompile Include="src\p7.cpp" />
+    <ClCompile Include="src\p8.cpp" />
+    <ClCompile Include="src\p9.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\euler.h" />
