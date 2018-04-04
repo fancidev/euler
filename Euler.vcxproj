@@ -76,7 +76,8 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -98,7 +99,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -122,13 +124,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\p1\p1.cpp" />
-    <ClCompile Include="src\p2\p2.cpp" />
-    <ClCompile Include="src\p3\p3.cpp" />
-    <ClCompile Include="src\p4\p4.cpp" />
-    <ClCompile Include="src\p5\p5.cpp" />
-    <ClCompile Include="src\p6\p6.cpp" />
-    <ClCompile Include="src\p7\p7.cpp" />
+    <ClCompile Include="src\p1.cpp" />
+    <ClCompile Include="src\p2.cpp" />
+    <ClCompile Include="src\p3.cpp" />
+    <ClCompile Include="src\p4.cpp" />
+    <ClCompile Include="src\p5.cpp" />
+    <ClCompile Include="src\p6.cpp" />
+    <ClCompile Include="src\p7.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\euler.h" />
