@@ -4,13 +4,8 @@
 # Visual Studio 2015/2017 cache/options directory
 .vs/
 
-# CMake files
-CMakeCache.txt
-CMakeFiles
-CMakeScripts
-Testing
-Makefile
-cmake_install.cmake
-install_manifest.txt
-compile_commands.json
-CTestTestfile.cmake
+# Out-of-source build directory
+build/
+
+# VIM swap file
+*.swp
