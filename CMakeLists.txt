@@ -19,3 +19,8 @@ else()
 endif()
 
 install(TARGETS euler DESTINATION bin)
+
+# Tests
+include(CTest)
+add_test(p1 euler 1)
+set_tests_properties(p1 PROPERTIES PASS_REGULAR_EXPRESSION "233168")
