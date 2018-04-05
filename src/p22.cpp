@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <cstring>
 #include "euler.h"
 
 BEGIN_PROBLEM(22, solve_problem_22)
