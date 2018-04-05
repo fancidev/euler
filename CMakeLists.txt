@@ -1,6 +1,6 @@
-cmake_minimum_required (VERSION 3.1)
-set (CMAKE_CXX_STANDARD 11)
-project (euler)
+cmake_minimum_required(VERSION 3.1)
+set(CMAKE_CXX_STANDARD 11)
+project(euler)
 
 add_executable(euler src/main.cpp src/p1.cpp)
 
@@ -22,5 +22,4 @@ install(TARGETS euler DESTINATION bin)
 
 # Tests
 include(CTest)
-add_test(p1 euler 1)
-set_tests_properties(p1 PROPERTIES PASS_REGULAR_EXPRESSION "233168")
+add_test(p1 euler -r 1)

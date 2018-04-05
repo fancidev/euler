@@ -53,7 +53,7 @@ static PROBLEM_FUNC find_problem(int number)
 		return it->second.routine;
 }
 
-static void run_regression(int id, bool timing)
+static bool run_regression(int id, bool timing)
 {
 	//typedef std::chrono::high_resolution_clock clock;
 
@@ -128,6 +128,7 @@ static void run_regression(int id, bool timing)
 		}
 		std::cout << std::endl;
 	}
+	return (nfailed == 0);
 }
 
 static void run_solution(int id, bool verbose, bool timing)
@@ -193,6 +194,7 @@ int main(int argc, char *argv[])
 	bool pause = false;
 #endif
 	int id = 0;
+	bool test_ok = true;
 
 	// Parse command line arguments.
 	for (int i = 1; i < argc; i++)
@@ -256,7 +258,7 @@ int main(int argc, char *argv[])
 		display_statistics();
 		break;
 	case action_regression:
-		run_regression(id, timing);
+		test_ok = run_regression(id, timing);
 		break;
 	default:
 		if (id == 0)
@@ -272,5 +274,5 @@ int main(int argc, char *argv[])
 	if (pause)
 		system("PAUSE");
 #endif
-	return 0;
+	return (test_ok)? 0 : 1;
 }
