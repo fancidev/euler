@@ -4,7 +4,9 @@ project(euler)
 
 add_executable(euler src/main.cpp 
                src/p1.cpp src/p2.cpp src/p3.cpp src/p4.cpp src/p5.cpp
-               src/p6.cpp src/p7.cpp src/p8.cpp src/p9.cpp src/p10.cpp)
+               src/p6.cpp src/p7.cpp src/p8.cpp src/p9.cpp src/p10.cpp
+               src/p11.cpp src/p12.cpp src/p13.cpp src/p14.cpp src/p15.cpp
+               src/p16.cpp src/p17.cpp src/p18.cpp)
 
 # Adapted from https://stackoverflow.com/questions/2368811/
 if(MSVC)
@@ -34,3 +36,11 @@ add_test(p7 euler -r 7)
 add_test(p8 euler -r 8)
 add_test(p9 euler -r 9)
 add_test(p10 euler -r 10)
+add_test(p11 euler -r 11)
+add_test(p12 euler -r 12)
+add_test(p13 euler -r 13)
+add_test(p14 euler -r 14)
+add_test(p15 euler -r 15)
+add_test(p16 euler -r 16)
+add_test(p17 euler -r 17)
+add_test(p18 euler -r 18)

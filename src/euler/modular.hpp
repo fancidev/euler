@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @defgroup ModularArithmetic Modular Arithmetic
  * @ingroup Library
  */

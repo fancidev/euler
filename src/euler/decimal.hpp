@@ -114,7 +114,7 @@ public:
 				(c >= 'a' && c <= 'z')? c - 'a' + 10 : -1;
 			if (x < 0 || x >= base)
 				break;
-			d[nd % NDigit] = x;
+			d[nd % NDigit] = static_cast<TDigit>(x);
 		}
 
 		// If the input is too long, truncate it and set the overflow flag.
@@ -155,13 +155,13 @@ public:
 	{
 		if (shift >= nd) // zero
 		{
-			std::fill(d.begin(), d.begin() + nd, 0);
+			std::fill(d.begin(), d.begin() + nd, TDigit(0));
 			nd = 0;
 		}
 		else
 		{
 			std::copy(d.begin() + shift, d.begin() + nd, d.begin());
-			std::fill(d.begin() + nd - shift, d.begin() + nd, 0);
+			std::fill(d.begin() + nd - shift, d.begin() + nd, TDigit(0));
 			nd -= shift;
 		}
 		return *this;

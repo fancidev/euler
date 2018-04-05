@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @defgroup Binomial Binomial Coefficient
  * @ingroup Library
  */
@@ -7,6 +7,7 @@
 #define EULER_BINOMIAL_H
 
 #include "modular.hpp"
+#include <algorithm>
 #include <limits>
 #include <vector>
 #include <cassert>
@@ -157,7 +158,7 @@ T binom(TArg n, TArg k)
 	C[0] = T(1);
 	for (TArg i = 1; i < n; i++)
 	{
-		for (TArg j = std::min(i, k); j >= 1; j--)
+		for (TArg j = (std::min)(i, k); j >= 1; j--)
 		{
 			C[j] += C[j-1];
 		}
