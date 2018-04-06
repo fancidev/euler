@@ -1,4 +1,5 @@
 # Solutions to Project Euler
+[![Build Status](https://travis-ci.org/fancidev/euler.svg?branch=master)](https://travis-ci.org/fancidev/euler)
 
 [Project Euler](https://projecteuler.net/) is a website that provides programming challenges to solve math problems. The majority of problems are related to number theory, but they also cover topics in geometry, combinatorics, game theory and even physics.
 
