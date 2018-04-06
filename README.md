@@ -1,17 +1,16 @@
-# Solutions to Project Euler
 [![Build Status](https://travis-ci.org/fancidev/euler.svg?branch=master)](https://travis-ci.org/fancidev/euler)
 
 [Project Euler](https://projecteuler.net/) is a website that provides programming challenges to solve math problems. The majority of problems are related to number theory, but they also cover topics in geometry, combinatorics, game theory and even physics.
 
 This repository contains (1) code solutions to Project Euler problems, (2) well-documented C++ library of common routines used by the solutions, and (3) detailed analysis of selected problems. 
 
-I worked on the problems during 2011 to 2012. The repository was previously hosted on [Google Code](https://code.google.com/archive/p/fun-math-problems/).
+This repository is licenced under the [MIT License](LICENSE).
 
 ## What's Inside
 
-The `src/` directory contains C++ solutions to the problems that I have solved. Solution to problem number `<N>` is placed in file `p<N>.cpp`.
+The [src](src) directory contains C++ solutions to the problems that I have solved. Solution to problem number `<N>` is placed in file `p<N>.cpp`.
 
-The `src/euler/` directory contains a C++ library of common routines used by the solutions. The library covers prime generation, modular arithmetic, and more. The code is well-documented in doxygen format.
+The [src/euler](src/euler) directory contains a C++ library of common routines used by the solutions. The library covers prime generation, modular arithmetic, and more. The code is well-documented in doxygen format.
 
 The `notes/` directory contains detailed analysis of selected (usually difficult) problems, in TeX format. Analysis of problem number `<N>` is placed in file `p<N>.tex`.
 
@@ -19,11 +18,11 @@ The `notes/` directory contains detailed analysis of selected (usually difficult
 
 [CMake](https://cmake.org/) is used to build the project. Both Linux and Windows are supported.
 
-Under Linux, it is recommended that you create a directory called `build` in the root folder of the working copy and build the project out-of-source.
+Under Linux, it is recommended to perform an out-of-source build. From the root folder of the working copy, run the following:
 ```
 mkdir build
 cd build
-cmake .. && make test
+cmake .. && make && make test
 ```
 This runs the solution for each problem and verifies its answer against the known correct answer.
 
@@ -60,3 +59,7 @@ Be aware that my solution may not be optimal (in terms of complexity) for a few 
 * The scale of a problem may be too small to deserve the effort of devising a complex but optimal solution.
 
 You may refer to Project Euler's online forum to look at how others tackle the problems.
+
+## Remarks
+
+I developed this repository during 2011 to 2012 and hosted it on [Google Code](https://code.google.com/archive/p/fun-math-problems/). I take the opportunity of migrating it to github to modernize some of the workflows.
