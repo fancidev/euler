@@ -67,4 +67,4 @@ static void solve_problem_11()
 	int m4 = find_max_product(1,-1);
 	int m = std::max(std::max(m1,m2), std::max(m3,m4));
 	std::cout << m << std::endl;
-};
+}
