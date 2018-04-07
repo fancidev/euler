@@ -22,14 +22,14 @@ BEGIN_PROBLEM(39, solve_problem_39)
 	PROBLEM_SPACE_COMPLEXITY("")
 END_PROBLEM()
 
-static void solve_problem_39()
-{
 #if 0
-	const int max_p = 100;
+static const int max_p = 100;
 #else
-	const int max_p = 1000;
+static const int max_p = 1000;
 #endif
 
+static void solve_problem_39()
+{
 	std::vector<int> counter(max_p + 1);
 	generate_right_triangles<int>(max_p, [&counter](int a, int b, int c) {
 		int p = a + b + c;
