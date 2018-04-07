@@ -12,23 +12,30 @@ The [src](src) directory contains C++ solutions to the problems that I have solv
 
 The [src/euler](src/euler) directory contains a C++ library of common routines used by the solutions. The library covers prime generation, modular arithmetic, and more. The code is well-documented in doxygen format.
 
-The `notes/` directory contains detailed analysis of selected (usually difficult) problems, in TeX format. Analysis of problem number `<N>` is placed in file `p<N>.tex`.
+The [notes](notes) directory contains detailed analysis of selected (usually difficult) problems, in TeX format. Analysis of problem number `<N>` is placed in file `p<N>.tex`.
 
 ## How to Build
 
 [CMake](https://cmake.org/) is used to build the project. Both Linux and Windows are supported.
 
-Under Linux, it is recommended to perform an out-of-source build. From the root folder of the working copy, run the following:
+Under Linux, it is recommended to perform an out-of-source build. From the root directory of the working copy, run the following to generate the necessary Makefiles:
 ```
 mkdir build
 cd build
-cmake .. && make && make test
+cmake ..
 ```
-This runs the solution for each problem and verifies its answer against the known correct answer.
+The following commands should all be executed from within the `build` directory. To build the code, compute the solution to each problem and verify it against the known correct answer:
+```
+make && make test
+```
+To generate PDF files of the notes (available only if you have `pdflatex` installed):
+```
+make pdf
+```
 
 Under Windows, it is recommended to use Visual Studio 2017, which has built-in support for CMake. Choose File > Open > Folder, and select the root folder of the working copy. After the project is loaded, choose CMake > Build All. After the project is built, choose CMake > Run Tests > euler to run through the solutions.
 
-TODO: build notes and doxygen documentation with cmake.
+TODO: build doxygen documentation with cmake.
 
 ## Problem Rating
 
