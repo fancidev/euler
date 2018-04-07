@@ -58,25 +58,6 @@ bool is_prime(T n)
 }
 #endif
 
-/**
- * Tests whether an integer is prime by applying the deterministic
- * Miller-Rabin primality test.
- *
- * @param n The integer whose primality is tested. Must be positive.
- *      Must not be greater than 341550071728321.
- * @returns @c true if @c n is prime, false otherwise.
- * @timecomplexity <code>O(log<sub>2</sub>n)</code>.
- * @spacecomplexity Constant.
- * @remarks Note that the number @c 1 is not considered prime.
- *
- * @ingroup PrimeTest
- */
-template <typename T>
-bool is_prime(T n)
-{
-	return details::miller_rabin(n);
-}
-
 namespace details {
 
 // Miller-Rabin test for n = 2^s*d+1 against a given witness.
@@ -100,23 +81,6 @@ bool miller_rabin(T n, int s, T d, T witness)
 	
 	// Test failed.
 	return false;
-}
-
-template <typename TArg>
-bool miller_rabin(TArg number)
-{
-	return miller_rabin<TArg>(number, std::is_signed<TArg>());
-}
-
-template <typename TArg>
-bool miller_rabin(TArg n, std::true_type /* is_signed */)
-{
-	static_assert(std::is_signed<TArg>::value, 
-		"This function can only be called for signed types.");
-	if (n < 0)
-		return false;
-	else
-		return miller_rabin((typename std::make_unsigned<TArg>::type)n, std::false_type());
 }
 
 template <typename T>
@@ -177,7 +141,43 @@ bool miller_rabin(T n, std::false_type /* is_signed */)
 	return true;
 }
 
+template <typename TArg>
+bool miller_rabin(TArg n, std::true_type /* is_signed */)
+{
+	static_assert(std::is_signed<TArg>::value, 
+		"This function can only be called for signed types.");
+	if (n < 0)
+		return false;
+	else
+		return miller_rabin((typename std::make_unsigned<TArg>::type)n, std::false_type());
+}
+
+template <typename TArg>
+bool miller_rabin(TArg number)
+{
+	return miller_rabin<TArg>(number, std::is_signed<TArg>());
+}
+
 } // namespace details
+
+/**
+ * Tests whether an integer is prime by applying the deterministic
+ * Miller-Rabin primality test.
+ *
+ * @param n The integer whose primality is tested. Must be positive.
+ *      Must not be greater than 341550071728321.
+ * @returns @c true if @c n is prime, false otherwise.
+ * @timecomplexity <code>O(log<sub>2</sub>n)</code>.
+ * @spacecomplexity Constant.
+ * @remarks Note that the number @c 1 is not considered prime.
+ *
+ * @ingroup PrimeTest
+ */
+template <typename T>
+bool is_prime(T n)
+{
+	return details::miller_rabin(n);
+}
 
 /// Returns the smallest prime greater than a given number.
 template <typename T>
