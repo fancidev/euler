@@ -31,7 +31,7 @@ static void solve_problem_39()
 #endif
 
 	std::vector<int> counter(max_p + 1);
-	generate_right_triangles<int>(max_p, [&counter, max_p](int a, int b, int c) {
+	generate_right_triangles<int>(max_p, [&counter](int a, int b, int c) {
 		int p = a + b + c;
 		for (int pp = p; pp <= max_p; pp += p)
 			++counter[pp];
