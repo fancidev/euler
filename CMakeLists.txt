@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.1)
-set(CMAKE_CXX_STANDARD 11)
 project(euler)
+
+##############################################################################
+# Executable
+##############################################################################
+
+set(CMAKE_CXX_STANDARD 11)
 
 add_executable(euler src/main.cpp 
                src/p1.cpp src/p2.cpp src/p3.cpp src/p4.cpp src/p5.cpp
@@ -25,7 +30,10 @@ endif()
 
 install(TARGETS euler DESTINATION bin)
 
-# Tests
+##############################################################################
+# Tests -- run with `make test`
+##############################################################################
+
 include(CTest)
 add_test(p1 euler -r 1)
 add_test(p2 euler -r 2)
@@ -50,3 +58,9 @@ add_test(p21 euler -r 21)
 add_test(p22 euler -r 22)
 add_test(p23 euler -r 23)
 add_test(p24 euler -r 24)
+
+##############################################################################
+# Notes -- run with `make pdf`
+##############################################################################
+
+add_subdirectory(notes)
