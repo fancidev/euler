@@ -63,4 +63,8 @@ add_test(p24 euler -r 24)
 # Notes -- run with `make pdf`
 ##############################################################################
 
-add_subdirectory(notes)
+# Enable target only if pdflatex is available
+find_package(LATEX COMPONENTS PDFLATEX)
+if(${LATEX_PDFLATEX_FOUND})
+  add_subdirectory(notes)
+endif()
