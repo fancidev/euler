@@ -65,7 +65,7 @@ T modsub(T a, T b, T m)
 }
 
 template <typename T>
-T modmul(T a, T b, T m, std::false_type manually)
+T modmul(T a, T b, T m, std::false_type)
 {
 	typedef typename euler::int_traits<T>::wide_type calc_type;
 	return ((calc_type)a * (calc_type)b) % m;
@@ -73,7 +73,7 @@ T modmul(T a, T b, T m, std::false_type manually)
 
 /// @todo Add optimization if the product of ab will not overflow.
 template <typename T>
-T modmul(T a, T b, T m, std::true_type manually)
+T modmul(T a, T b, T m, std::true_type)
 {
 	if (a < b)
 	{
