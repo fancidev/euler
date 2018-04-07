@@ -1,0 +1,35 @@
+\input{euler.tex}
+
+\begin{document}
+
+\problem[7]{Find the 10001st Prime}
+
+By listing the first six prime numbers: 2, 3, 5, 7, 11, and 13, we can see that the 6th prime is 13.
+
+What is the 10001st prime number?
+
+\solution
+
+While the scale of the problem is small and a simple trial division algorithm would produce the answer in no time, we present here a slightly better algorithm that employs the Sieve of Eratosthenes method.
+
+A key result that enables us to implement a sieving method is the following inequality regarding the $n$th prime number, $p_n$:
+\[
+n \ln n + n \ln \ln n - n < p_n < n \ln n + n \ln \ln n \text{ for $n \ge 6$}.
+\]
+This inequality provides an upper bound on the numbers that need to be sieved to find the $n$th prime. What follows is just the standard Sieve of Eratosthenes.
+
+\answer
+
+104743
+
+\complexity
+
+Time complexity: $\BigO(n \ln n)$
+
+Space complexity: $\BigO(n \ln n)$
+
+\reference
+
+http://en.wikipedia.org/wiki/Prime\_number\_theorem
+
+\end{document}
