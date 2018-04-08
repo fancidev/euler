@@ -1,0 +1,30 @@
+\input{euler.tex}
+
+\begin{document}
+
+\problem[64]{Continued Fractions With an Odd Period}
+
+\solution
+
+Given a positive non-square integer $n$, we find the continued fraction of its square root
+$\sqrt{n} = [ a_0; (a_1, a_2, \ldots, a_k)]$ as follows.
+
+Given $(p\sqrt{n}+q)/r$ with coprime integers $p, q, r$, we write the next term in the continued fraction as
+\begin{align}
+\frac{p \sqrt{n}+q}{r}
+&= a + \frac{p \sqrt{n}+(q-ar)}{r} \notag \\
+&= a + \left[ \frac{r}{p \sqrt{n}+(q-ar)} \right]^{-1} \notag \\
+&= a + \left[ \frac{r[p \sqrt{n}-(q-ar)]}{p^2 n - (q-ar)^2} \right]^{-1} \notag \\
+&= a + \left[ \frac{rp \sqrt{n}+r(ar-q)}{p^2 n - (q-ar)^2} \right]^{-1} \notag
+\end{align}
+So the next term is $p' = rp$, $q' = r(ar-q)$, $r' = p^2 n - (q-ar)^2$. We continue the iteration until $(p,q,r)$ occurs again.
+
+\complexity
+
+To be determined.
+
+\answer
+
+1322
+
+\end{document} 
