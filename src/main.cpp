@@ -181,6 +181,7 @@ int main(int argc, char *argv[])
 #endif
 	int id = 0;
 	bool test_ok = true;
+	(void)verbose;
 
 	// Parse command line arguments.
 	for (int i = 1; i < argc; i++)
