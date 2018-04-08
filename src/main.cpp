@@ -2,7 +2,6 @@
 #include <iomanip>
 #include <sstream>
 #include <algorithm>
-// #include <chrono>
 #include <map>
 #include "euler.h"
 
@@ -131,23 +130,10 @@ static bool run_regression(int id, bool timing)
 	return (nfailed == 0);
 }
 
-static void run_solution(int id, bool verbose, bool timing)
+static void run_solution(int id)
 {
 	PROBLEM_FUNC f = find_problem(id);
-	//typedef std::chrono::high_resolution_clock clock;
-	//clock::time_point start = clock::now();
 	f();
-	//std::chrono::duration<double> t1 = clock::now() - start;
-
-#if 0
-	if (timing)
-	{
-		std::cerr.precision(4);
-		if (verbose)
-			std::cerr << "Time: ";
-		std::cerr << std::fixed << t1.count() << std::endl;
-	}
-#endif
 }
 
 static void display_statistics()
@@ -266,7 +252,7 @@ int main(int argc, char *argv[])
 			usage();
 			return 2;
 		}
-		run_solution(id, verbose, timing);
+		run_solution(id);
 		break;
 	}
 
