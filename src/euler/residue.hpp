@@ -149,7 +149,7 @@ bool operator == (const residue<T,Modulus> &a, const residue<T,Modulus> &b)
 template <typename T, T Modulus>
 bool operator == (const residue<T,Modulus> &a, const T &b)
 {
-	return (a.value() == b) || (a.value() == mod(b, m));
+	return (a.value() == b) || (a.value() == mod(b, Modulus));
 }
 
 /// Tests whether an integer belongs to a residue class.
