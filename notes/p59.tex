@@ -1,0 +1,86 @@
+\input{euler.tex}
+
+\begin{document}
+
+\problem[59]{Brute Force Attack on XOR Cipher}
+
+Each character on a computer is assigned a unique code, the ASCII code. A modern encryption method is to take a text file, convert the bytes to ASCII, then XOR each byte with a given value, taken from a secret key.
+
+For unbreakable encryption, the key is the same length as the plain text message, and the key is made up of random bytes. Unfortunately, this method is impractical for most users, so the modified method is to use a password as a key. If the password is shorter than the message, which is likely, the key is repeated cyclically throughout the message.
+
+Your task has been made easy, as the encryption key consists of three lower case characters. Using a given file containing the encrypted ASCII codes, and the knowledge that the plain text must contain common English words, decrypt the message and find the sum of the ASCII values in the original text.
+
+\solution
+
+The key to break the password is the knowledge that the plain text contains common English text. This enables us to apply letter frequency analysis to break the cipher.
+
+Letter frequency analysis studies the empirical frequency of letters, letter combinations, and punctuations from statistics on selected English articles. Of course the empirical frequencies depend on the source selected, but the following table taken from Wikipedia is good enough for this problem.
+\begin{center}
+\begin{tabular}{c c | c c | c c}
+\hline
+Letter & Weight & Letter & Weight & Letter & Weight \\
+\hline
+Space & 13.59 & i &	6.97 & r & 5.99 \\
+a & 8.17 & j & 0.15 & s & 6.33 \\
+b & 1.49 & k & 0.77 & t & 9.06 \\
+c & 2.78 & l & 4.03 & u & 2.76 \\
+d & 4.25 & m & 2.41 & v & 0.98 \\
+e & 12.7 & n & 6.75 & w & 2.36 \\
+f & 2.23 & o & 7.51 & x & 0.15 \\
+g & 2.02 & p & 1.93 & y & 1.97 \\
+h & 6.09 & q & 0.1 & z & 0.07 \\
+\hline
+\end{tabular}
+\end{center}
+
+The weights in the above table shall be interpreted as relative weights, because not all possible characters are included. For those characters not in the table (such as comma, period, etc.), we assume their weights to be zero. The total weight in the above table is 113.61.
+
+Now we can carry out letter frequency analysis on the cipher text. Let $N$ denote the number of characters in the clear text. Let $\mu_c$ denote the \emph{expected} frequency of character $c$ in the clear text, i.e. 
+\[
+\mu_{\text{space}} = \frac{13.59}{113.61} N, \,
+\mu_{\text{A+a}} = \frac{8.17}{113.61} N, \,
+\ldots, \mu_{\text{Z+z}} = \frac{0.07}{113.61} N .
+\]
+The expected frequency of all the rest characters are set to zero. %Obviously, $\sum \mu_c = N$.
+
+Next, we iterate each possible password by brute force, and analyze the letter frequency of the clear text decrypted using each iterated password. Given a string of $N$ characters decrypted using password $P$, we compute the \emph{observed} frequency, $x_c$, of each character, $c$ in this string.
+We then compute a ``Goodness-of-Fit'' statistic to measure how close (or equivalently, how different) the observed frequencies match the expected frequencies. Our goal is to \emph{guess} the password that gives the closest match.
+
+A number of well-established statistical procedures exist for evaluating the goodness-of-fit between distributions, in particular Pearson's chi-squared test. However, Pearson's test requires the exact theoretical distribution to be known, while in our case we only know (roughly) the relative weights of a subset of the outcomes. Moreover, the test puts big punishment on events with small theoretical probability, which may not be robust for our problem because, for example, an excerpt of text might well over-use punctuations, which are hypothesized to be rare.
+
+Therefore, since we just like to find a password that minimizes the mismatch, we define a simple goodness-of-fit statistic, $S$, as the sum square of error between the expected frequencies and observed frequencies. That is,
+\[
+S = \sum_{c} (x_c - \mu_c) ^2 .
+\]
+While this definition is complete and intuitive in itself, we could go a step further to expand it, which yields
+\[
+S = \sum x_c^2 + \sum \mu_c^2 - 2 \sum x_c \mu_c .
+\]
+Note that the first two terms in the above equation are not dependent on the password chosen; only the third term is. What this shows is that minimizing the sum square of error is equivalent to maximizing the inner product of the observed frequencies and expected frequencies, which is also intuitive if we think of both as multidimensional vectors in the space.
+
+%To simplify the problem, assume that each character in the clear text is independent. (This is not true because, for example, ``h'' is more likely to follow ``t'' because of the frequent use of the word ``the''.) Then each letter is supposed to follow the emperical distribution described in the above table.
+
+Finally, note that for this particular XOR cipher, it has the property that each byte in the clear text is encrypted independently. Therefore, if we know the length of the password, then each character in the password can be broken independently by applying letter frequency analysis on the part of cipher text that is encrypted by that character.
+
+\complexity
+
+Let $N$ be the length of the cipher text, $L=3$ be the length of the password, $M=26$ be the number of possibilities of each letter in the password, and $C=256$ be the value range of a character. Since the password can be broken letter by letter, $ML$ iterations are performed in all. In each iteration, $C$ operations are used to compute the goodness-of-fit statistic. The expected and observed frequency tables can be computed before the iterations and takes $N$ operations. Therefore, the overall time complexity is $\BigO(N + MLC)$.
+
+Time complexity: $\BigO(N + MLC)$.
+
+Space complexity: $\BigO(C)$.
+
+\answer
+
+107359
+
+\reference
+
+http://en.wikipedia.org/wiki/Letter\_frequency
+
+http://en.wikipedia.org/wiki/Goodness\_of\_fit
+
+http://en.wikipedia.org/wiki/Pearson\%27s\_chi-squared\_test
+
+
+\end{document} 
