@@ -141,7 +141,7 @@ class divisor_iterator :
 	public std::iterator<std::forward_iterator_tag,
 	TDivisor, std::ptrdiff_t, const TDivisor *, const TDivisor &>
 {
-	// Type of prime factos. This can be narrower than the type of divsor.
+	// Type of prime factos. This can be narrower than the type of divisor.
 	typedef typename Iter::value_type TFactor;
 
 	// Type of exponent. Unsigned char suffices.
@@ -194,7 +194,7 @@ class divisor_iterator :
 				break;
 
 			_elems[_nf].p = *it;
-			_elems[_nf].max = it.frequency();
+			_elems[_nf].max = static_cast<TExponent>(it.frequency());
 			_elems[_nf].exp = 0;
 #if EULER_LOOPLESS_DIVISOR_GENERATION
 			_elems[_nf].dec = false;
