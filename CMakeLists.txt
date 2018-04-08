@@ -114,3 +114,19 @@ find_package(LATEX COMPONENTS PDFLATEX)
 if(${LATEX_PDFLATEX_FOUND})
   add_subdirectory(notes EXCLUDE_FROM_ALL)
 endif()
+
+##############################################################################
+# Documentation -- run with `make doc`
+##############################################################################
+
+# Enable target only if doxygen is available
+find_package(Doxygen)
+if(DOXYGEN_FOUND)
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/Doxyfile.in 
+                 ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile 
+                 @ONLY)
+  add_custom_target(doc
+                    ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                    COMMENT "Generating documentation with Doxygen" VERBATIM)
+endif()
