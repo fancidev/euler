@@ -16,7 +16,7 @@ add_executable(euler src/main.cpp
                src/p26.cpp src/p27.cpp src/p28.cpp src/p29.cpp src/p30.cpp
                src/p31.cpp src/p32.cpp src/p33.cpp src/p34.cpp src/p35.cpp
                src/p36.cpp src/p37.cpp src/p38.cpp src/p39.cpp src/p40.cpp
-               src/p41.cpp src/p42.cpp src/p43.cpp src/p44.cpp)
+               src/p41.cpp src/p42.cpp src/p43.cpp src/p44.cpp src/p45.cpp)
 
 # Adapted from https://stackoverflow.com/questions/2368811/
 if(MSVC)
@@ -82,6 +82,7 @@ add_test(p41 euler -r 41)
 add_test(p42 euler -r 42)
 add_test(p43 euler -r 43)
 add_test(p44 euler -r 44)
+add_test(p45 euler -r 45)
 
 ##############################################################################
 # Notes -- run with `make pdf`
