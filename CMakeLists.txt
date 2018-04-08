@@ -107,5 +107,5 @@ add_test(p60 euler -r 60)
 # Enable target only if pdflatex is available
 find_package(LATEX COMPONENTS PDFLATEX)
 if(${LATEX_PDFLATEX_FOUND})
-  add_subdirectory(notes)
+  add_subdirectory(notes EXCLUDE_FROM_ALL)
 endif()
