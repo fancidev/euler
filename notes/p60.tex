@@ -1,0 +1,63 @@
+\input{euler.tex}
+
+\newcommand{\vC}{\mathbf{C}}
+
+\begin{document}
+
+\problem[60]{Five Primes Where Any Two Concatenated Is Prime}
+
+The primes 3, 7, 109, and 673, are quite remarkable. By taking any two primes and concatenating them in any order, the result will always be prime. For example, taking 7 and 109, both 7109 and 1097 are prime. The sum of these four primes, 792, represents the lowest sum for a set of four primes with this property.
+ 
+Find the lowest sum for a set of five primes for which any two primes concatenate to produce another prime.
+
+\solution
+
+Suppose that somehow we know that the required set of five primes can be found from a candidate set containing the first $n$ primes, $P = \{ p_1, p_2, \ldots, p_n \}$. We can then formalize the set $P$ as a graph of $n$ vertices, with vertex $i$ corresponding to $p_i$. If concatenating $p_i$ and $p_j$ in both order forms a prime, then we link vertex $i$ and $j$ in the graph. Hence, the problem is transformed into the classical problem of finding a clique (complete subgraph) of five vertices. In addition, we like to minimize the weight of the clique, which is equal to the sum of the primes on its vertices. 
+
+There is no known algorithm that solves this \emph{clique problem} in better than exponential time. The best known method is the Bron-Kerbosch algorithm with time complexity $\BigO(3^{n/3})$. However, for this problem we also need to minimize the weight of the clique, so the situation becomes a bit more complicated. Moreover, there is no good way to know in advance how many primes to include in the candidate set $P$; we may have to resort to trial and error.
+
+Because of these complications, we instead tailor our own algorithm for this problem. Keep a list of all the cliques generated so far. We will call a clique with $k$ vertices a $k$-clique. In particular, the group of 1-cliques consists of the primes themselves, and the group of 2-cliques consists of all the edges in the graph, i.e. pairs of primes that concatenate to another prime. In addition, we denote by $w(c)$ the weight of a clique, $c$.
+
+The outline of the algorithm is as follows. Iterate each prime in order. For each prime, grow the existing cliques. Repeat this process until at least one five-vertex clique is found and any other five-vertex clique will definitely have a larger weight.
+
+The algorithm is detailed below.
+
+Step 0 [Initialization]. 
+
+Let $K = 5$ be the size of the clique to find. 
+
+Let $w_0 = +\infty$ be the upper bound of the weight of the minimum $K$-clique. 
+
+Let $\vC^k = \phi$ for $1 \le k \le K$ denote the group of candidate $k$-cliques that may eventually grow into the minimum $K$-clique. Let $\vC^0 = \{ \phi \}$ contain an empty clique from which cliques of more vertices may be grown.
+
+Discard the prime 2 because it will never form a clique except of itself.
+
+Step 1 [Add vertex]. Compute the next prime, $p$, and add it to the vertex set. Connect $p$ to each prime $q$ generated so far if $(p | q)$ and $(q | p)$ are both prime, where $|$ is the concatenation operator.
+
+Step 2 [Grow cliques]. For each $k = 0$ to $K-1$, do the following:
+
+For each $k$-clique $c$ in $\vC^k$, if $w(c) + (K-k)p \ge w_0$, then remove $c$ from $\vC^k$. This is to ensure that if a $K$-clique of weight $w_0$ has already been found, we don't (need to) grow a $k$-clique of weight $w(c)$ if the smallest possible weight of a $K$-clique grown from $c$ will exceed $w_0$. If $c$ is not removed, append $(c,p)$ to the $(k+1)$-clique group $\vC^{k+1}$ if $p$ is connected to every vertex in $c$.
+
+Step 3 [Loop or terminate]. If new $K$-cliques are generated in Step 2, update the upper bound $w_0 = \min_{c \in \vC^K} w(c)$, and go to Step 1. If all clique groups $\vC^0$ through $\vC^{K-1}$ are empty, print $w_0$, the minimum $K$-clique weight, and terminate.
+
+\complexity
+
+Time complexity: $\BigO(?)$.
+
+Space complexity: $\BigO(?)$.
+
+\answer
+
+26033
+
+\reference
+
+http://en.wikipedia.org/wiki/Clique\_problem
+
+http://en.wikipedia.org/wiki/Bron\%E2\%80\%93Kerbosch\_algorithm
+
+%http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.48.4074\&rep=rep1\&type=pdf
+
+%http://drops.dagstuhl.de/opus/volltexte/2011/2935/pdf/10441.EppsteinDavid.Paper.2935.pdf
+
+\end{document} 
