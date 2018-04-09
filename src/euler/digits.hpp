@@ -1,17 +1,17 @@
 /**
  * @defgroup Digits Decimal Expansion
- * Routines to access the digits of an integer expanded in a certain base.
+ * Routines to expand the digits of an integer in a certain base.
  *
  * @ingroup Library
  *
- * This module provides routines to access the digits of an integer expanded
- * in a certain base. For example, it allows you to iterate the digits of
- * a decimal number both from left to right and from right to left.
+ * This header-only module provides routines to expand the digits of an
+ * integer in a certain base.
  */
 
 #ifndef EULER_DIGITS_H
 #define EULER_DIGITS_H
 
+#include <cassert>
 #include <iterator>
 #include <bitset>
 #include <functional>
@@ -22,28 +22,33 @@
 
 namespace euler {
 
-/// Iterator that returns the digits of a number from left (most significant
-/// digit) to right (least significant digit). Leading zeros are ignored.
+/// Iterator that returns the digits of a non-negative integer from left to
+/// right (most significant to least significant). Leading zeros are not
+/// returned, unless the number is zero, in which case a single digit of 0 is
+/// returned.
 template <int base, typename T>
 class digit_iterator 
-	: public std::iterator<std::forward_iterator_tag, int, std::ptrdiff_t, void, int>
+	: public std::iterator<std::forward_iterator_tag, int, 
+						   std::ptrdiff_t, void, int>
 {
+	static_assert(base >= 2, "base must be greater than or equal to 2.");
+
 	T _n;
 	T _b;
 
 public:
 
 	/**
-	 * Constructs the iterator. The iterator initially points to the most
-	 * significant digit of the number and moves to less significant digits
-	 * when advanced.
+	 * Constructs an iterator that initially points to the most significant
+	 * digit of a non-negative integer.
 	 *
-	 * @param n The number whose digits are iterated. Must be positive.
+	 * @param n A non-negative integer whose digits to expand.
 	 * @timecomplexity <code>log<sub>b</sub>n</code> operations.
 	 * @spacecomplexity Constant.
 	 */
-	digit_iterator(T n) : _n(n)
+	explicit digit_iterator(T n) : _n(n)
 	{
+		assert(n >= T(0));
 		for (_b = 1; n / _b >= base; _b *= base);
 	}
 
@@ -53,40 +58,61 @@ public:
 
 	/// Returns the current digit.
 	/// @complexity Constant.
-	int operator * () const { return (int)(_n / _b); }
+	int operator * () const
+	{
+		return (int)(_n / _b);
+	}
 
 	/// Advances the iterator to point to the next (less significant) digit.
 	/// @returns The advanced iterator.
 	/// @complexity Constant.
-	digit_iterator& operator ++ () { _n %= _b; _b /= base; return *this; }
+	digit_iterator& operator ++ ()
+	{
+		_n %= _b;
+		_b /= base;
+		return *this;
+	}
 
 	/// Tests whether this iterator is equal to another iterator.
-	bool operator == (const digit_iterator &it) const { 	return _n == it._n && _b == it._b; }
+	bool operator == (const digit_iterator &other) const
+	{
+		return (_n == other._n) && (_b == other._b);
+	}
 
 	/// Tests whether this iterator is not equal to another iterator.
-	bool operator != (const digit_iterator &it) const {	return _n != it._n || _b != it._b; }
+	bool operator != (const digit_iterator &other) const
+	{	
+		return ! operator == (other);
+	}
 };
 
-/// Iterator that returns the digits of a number from right (least significant
-/// digit) to left (most significant digit). Leading zeros are ignored.
+/// Iterator that returns the digits of a non-negative integer from right to
+/// left (least significant to most significant). Leading zeros are not
+/// returned, unless the number is zero, in which case a single digit of 0 is
+/// returned.
 template <int base, typename T>
 class digit_reverse_iterator 
-	: public std::iterator<std::forward_iterator_tag, int, std::ptrdiff_t, void, int>
+	: public std::iterator<std::forward_iterator_tag, int, 
+		                   std::ptrdiff_t, void, int>
 {
+	static_assert(base >= 2, "base must be greater than or equal to 2.");
+
 	T _n;
 	int _b;
 
 public:
 
 	/**
-	 * Constructs the iterator. The iterator initially points to the least
-	 * significant digit of the number and moves to more significant digits
-	 * when advanced.
+	 * Constructs an iterator that initially points to the least significant
+	 * digit of a non-negative integer.
 	 *
-	 * @param n The number whose digits are iterated. Must be positive.
+	 * @param n A non-negative integer whose digits to expand.
 	 * @complexity Constant.
 	 */
-	digit_reverse_iterator(T n) : _n(n), _b(base) 	{ }
+	explicit digit_reverse_iterator(T n) : _n(n), _b(base)
+	{
+		assert(n >= T(0));
+	}
 
 	/// Constructs an empty iterator that points <i>past-the-end</i>.
 	/// @complexity Constant.
@@ -94,7 +120,10 @@ public:
 
 	/// Returns the current digit.
 	/// @complexity Constant.
-	int operator * () const 	{ return _n % base; 	}
+	int operator * () const
+	{
+		return _n % base;
+	}
 
 	/// Advances the iterator to point to the next (more significant) digit.
 	/// @returns The advanced iterator.
@@ -107,74 +136,93 @@ public:
 	}
 
 	/// Tests whether this iterator is equal to another iterator.
-	bool operator == (const digit_reverse_iterator &it) const
+	bool operator == (const digit_reverse_iterator &other) const
 	{
-		return (_n == it._n) && (_b == it._b);
+		return (_n == other._n) && (_b == other._b);
 	}
 
 	/// Tests whether this iterator is not equal to another iterator.
-	bool operator != (const digit_reverse_iterator &it) const
+	bool operator != (const digit_reverse_iterator &other) const
 	{
-		return ! operator == (it);
+		return ! operator == (other);
 	}
 };
 
 /**
- * Returns the sequence of digits of an integer, enumerated from left (most
- * significant digit) to right (least significant digit).
+ * Expands the digits of an integer and returns them from left to right (most
+ * significant to least significant).
  *
- * @param n An integer whose digits are iterated.
- * @returns The digit sequence of @c n in base @c base.
+ * @tparam base The base to expand into. Must be greater than or equal to 2.
+ * @tparam T    An integral type.
+ *
+ * @param n A non-negative integer whose digits to expand.
+ * @returns A sequence containing the digits of @c n expanded in base @c base
+ *          from left to right. The sequence does not contain any leading
+ *          zero if @c n is positive; if @c n is zero, the sequence contains
+ *          a single digit of zero.
  * @complexity Constant.
+ * @see from_digits(), rdigits()
  *
  * @ingroup Digits
  */
 template <int base, typename T>
 sequence<digit_iterator<base, T>> digits(T n)
 {
+	static_assert(base >= 2, "base must be greater than or equal to 2.");
 	return make_sequence(
 		digit_iterator<base, T>(n), 
 		digit_iterator<base, T>());
 }
 
 /**
- * Returns the (reverse) sequence of digits of an integer, enumerate from 
- * right (least significant digit) to left (most significant digit).
+ * Expands the digits of an integer and returns them from right to left (least
+ * significant to most significant).
  *
- * @param n An integer whose digits are expanded.
- * @returns The reverse digit sequence of @c n in base @c base.
+ * @tparam base The base to expand into. Must be greater than or equal to 2.
+ * @tparam T    An integral type.
+ *
+ * @param n A non-negative integer whose digits to expand.
+ * @returns A sequence containing the digits of @c n expanded in base @c base
+ *          from right to left. The sequence does not contain any leading
+ *          zero if @c n is positive; if @c n is zero, the sequence contains
+ *          a single digit of zero.
  * @complexity Constant.
+ * @see digits()
  *
  * @ingroup Digits
  */
 template <int base, typename T>
 sequence<digit_reverse_iterator<base, T>> rdigits(T n)
 {
+	static_assert(base >= 2, "base must be greater than or equal to 2.");
 	return make_sequence(
 		digit_reverse_iterator<base, T>(n), 
 		digit_reverse_iterator<base, T>());
 }
 
 /**
- * Converts a sequence of digits in a given base into an integer.
- * The sequence is given from left (most significant digit) to right (least
- * significant digit).
+ * Converts a sequence of digits expanded in a given base into an integer.
+ * The sequence is given from left to right (most significant to least
+ * significant). Leading zeros are allowed.
  *
  * @param begin Begin iterator of the digit sequence.
  * @param end End iterator of the digit sequence.
- * @returns An integer converted from the digit sequence.
+ * @returns An (non-negative) integer converted from the digit sequence.
  * @timecomplexity <code>(end - begin)</code> operations.
  * @spacecomplexity Constant.
  * @remarks The caller must ensure that @c T has enough bits to hold the 
- *      result in order to avoid overflow.
+ *      result to avoid an overflow condition. If @c T does not have enough
+ *      bits to hold the result, the behavior is undefined.
  *
  * @ingroup Digits
  */
 template <int base, typename T, class InIt>
 T from_digits(InIt begin, InIt end)
 {
+	static_assert(base >= 2, "base must be greater than or equal to 2.");
+
 	T n = 0;
-	for (; begin < end; ++begin)
+	for (; begin != end; ++begin)
 	{
 		n = n * base + (*begin);
 	}
@@ -199,8 +247,10 @@ T from_digits(InIt begin, InIt end)
 template <int base, typename T>
 int sort_digits(T &n, bool acsending = true)
 {
+	static_assert(base >= 2, "base must be greater than or equal to 2.");
+
 	const int Bits = std::numeric_limits<T>::digits + 1;
-	std::array<int,Bits> digits;
+	std::array<int, Bits> digits;
 	auto d = euler::rdigits<base>(n);
 	auto p1 = digits.begin();
 	auto p2 = std::copy(d.begin(), d.end(), p1);
@@ -210,7 +260,7 @@ int sort_digits(T &n, bool acsending = true)
 	else
 		std::sort(p1, p2, std::greater<int>());
 
-	n = euler::from_digits<base,T>(p1,p2);
+	n = euler::from_digits<base, T>(p1,p2);
 	return (int)(p2 - p1);
 }
 
@@ -219,7 +269,7 @@ int sort_digits(T &n, bool acsending = true)
  * A number is palindromic (in some base) if it is the same when written
  * forwards or backwards.
  *
- * @param n An integer to test.
+ * @param n A non-negative integer to test.
  * @returns @c true if @c n is palindromic, @c false otherwise.
  * @timecomplexity <code>O(log<sub>b</sub>n)</code> operations.
  * @spacecomplexity Constant.
@@ -235,6 +285,7 @@ bool is_palindromic(T n)
 	auto r2 = rdigits<base>(n);
 
 	// Avoid using std::equal() to avoid VC++ warning C4996 on unchecked iterators.
+	// Requires C++14.
 	auto it2 = r2.begin();
 	for (auto it1 = r1.begin(); it1 != r1.end(); ++it1, ++it2)
 	{
