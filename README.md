@@ -24,18 +24,20 @@ mkdir build
 cd build
 cmake ..
 ```
-The following commands should all be executed from within the `build` directory. To build the code, compute the solution to each problem and verify it against the known correct answer:
+The remaining commands should be executed from the `build` directory. To build the code that computes solutions to each problem and verify them against the known correct answers:
 ```
 make && make test
+```
+To generate HTML documentation for the C++ library of math routines (available only if you have `doxygen` installed):
+```
+make doc
 ```
 To generate PDF files of the notes (available only if you have `pdflatex` installed):
 ```
 make pdf
 ```
 
-Under Windows, it is recommended to use Visual Studio 2017, which has built-in support for CMake. Choose File > Open > Folder, and select the root folder of the working copy. After the project is loaded, choose CMake > Build All. After the project is built, choose CMake > Run Tests > euler to run through the solutions.
-
-TODO: build doxygen documentation with cmake.
+Under Windows, it is recommended to use Visual Studio 2017, which has built-in support for CMake. Choose File > Open > Folder, and select the root folder of the working copy. After the project is loaded, choose CMake > Build All. After the project is built, choose CMake > Run Tests > euler to compute and verify the solutions.
 
 ## Problem Rating
 
