@@ -18,81 +18,65 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include "euler/digits.hpp"
 #include "euler/prime_table.hpp"
 #include "euler.h"
 
 BEGIN_PROBLEM(49, solve_problem_49)
-    PROBLEM_TITLE("Prime permutations")
-    PROBLEM_ANSWER("296962999629")
-    PROBLEM_DIFFICULTY(1)
-    PROBLEM_FUN_LEVEL(1)
-    PROBLEM_TIME_COMPLEXITY("?")
-    PROBLEM_SPACE_COMPLEXITY("?")
+  PROBLEM_TITLE("Prime permutations")
+  PROBLEM_ANSWER("296962999629")
+  PROBLEM_DIFFICULTY(1)
+  PROBLEM_FUN_LEVEL(1)
+  PROBLEM_TIME_COMPLEXITY("?")
+  PROBLEM_SPACE_COMPLEXITY("?")
 END_PROBLEM()
 
-static int sort_digits(int n)
-{
-    int digits[100];
-    int count = 0;
-    while (n > 0)
-    {
-        digits[count++] = n % 10;
-        n /= 10;
-    }
-
-    std::sort(digits + 0, digits + count);
-    n = 0;
-    while (count > 0)
-    {
-        n = n * 10 + digits[--count];
-    }
-    return n;
-}
-
 static void search_triple(
-    std::vector<std::pair<int, int>>::const_iterator begin, 
-    std::vector<std::pair<int, int>>::const_iterator end)
+  std::vector<std::pair<int, int>>::const_iterator begin,
+  std::vector<std::pair<int, int>>::const_iterator end)
 {
-    for (auto it1 = begin; it1 != end; ++it1)
+  for (auto it1 = begin; it1 != end; ++it1)
+  {
+    for (auto it2 = it1; ++it2 != end; )
     {
-        for (auto it2 = it1; ++it2 != end; )
+      for (auto it3 = it2; ++it3 != end; )
+      {
+        if (it2->second * 2 == it1->second+it3->second)
         {
-            for (auto it3 = it2; ++it3 != end; )
-            {
-                if (it2->second*2 == it1->second+it3->second)
-                {
-                    if (!(it1->second == 1487 && it2->second == 4817 && it3->second == 8147))
-                        std::cout << it1->second << it2->second << it3->second << std::endl;
-                }
-            }
+          if (!(it1->second == 1487 && it2->second == 4817 && it3->second == 8147))
+            std::cout << it1->second << it2->second << it3->second << std::endl;
         }
+      }
     }
+  }
 }
 
 static void solve_problem_49()
 {
-    // Find all four-digit primes.
-    euler::prime_table<int> primes(10000);
+  // Find all four-digit primes.
+  euler::prime_table<int> primes(10000);
 
-    // Map each four-digit prime to it's canonical presentation.
-    std::vector<std::pair<int, int>> map; // canonical -> number
-    for (int p: primes)
+  // Map each four-digit prime to it's canonical presentation.
+  std::vector<std::pair<int, int>> map; // canonical -> number
+  for (int p: primes)
+  {
+    if (p >= 1000)
     {
-        if (p >= 1000)
-            map.push_back(std::pair<int, int>(sort_digits(p), p));
+      map.push_back(std::pair<int, int>(euler::sort_digits<10>(p), p));
     }
+  }
 
-    // Sort the map
-    std::sort(map.begin(), map.end());
+  // Sort the map
+  std::sort(map.begin(), map.end());
 
-    // Find increasing sequence
-    for (auto it = map.cbegin(); it != map.cend(); )
-    {
-        auto it2 = it + 1;
-        while (it2 != map.cend() && it2->first == it->first)
-            ++it2;
+  // Find increasing sequence
+  for (auto it = map.cbegin(); it != map.cend(); )
+  {
+    auto it2 = it + 1;
+    while (it2 != map.cend() && it2->first == it->first)
+      ++it2;
 
-        search_triple(it, it2);
-        it = it2;
-    }
+    search_triple(it, it2);
+    it = it2;
+  }
 }
