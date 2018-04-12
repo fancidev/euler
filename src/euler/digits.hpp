@@ -283,7 +283,7 @@ T sort_digits(T n)
  *
  * @param n A non-negative integer whose digits to count.
  *
- * @returns Number of digits in @n. If @n is equal to zero, returns 1.
+ * @returns Number of digits in @c n. If @c n is equal to zero, returns 1.
  *
  * @timecomplexity <code>O(D)</code>, where @c D is the number of digits in
  *    <code>n</code>.
@@ -305,8 +305,10 @@ size_t count_digits(T n)
 }
 
 /**
- * Checks whether an integer is palindromic in a given base, i.e. if its digit
- * expansion reads the same from left to right and from right to left.
+ * Checks whether an integer is palindromic in a given base.
+ *
+ * An integer is palindromic if its digit expansion reads the same from left
+ * to right and from right to left.
  *
  * @param n A non-negative integer to test.
  *
@@ -339,8 +341,10 @@ bool is_palindromic(T n)
 }
 
 /**
- * Checks whether a digit sequence is pandigital, i.e. if it contains all of
- * the digits @c lowest to @c highest and each digit exactly once.
+ * Checks whether a digit sequence is pandigital.
+ *
+ * A digit sequence is pandigital if it contains all of the digits @c lowest
+ * to @c highest and each digit appears exactly once.
  *
  * @param begin Input iterator that points to the beginning of the sequence.
  *
