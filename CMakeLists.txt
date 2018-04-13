@@ -5,8 +5,6 @@ project(euler)
 # Executable
 ##############################################################################
 
-set(CMAKE_CXX_STANDARD 11)
-
 add_executable(euler src/main.cpp 
                src/p1.cpp src/p2.cpp src/p3.cpp src/p4.cpp src/p5.cpp
                src/p6.cpp src/p7.cpp src/p8.cpp src/p9.cpp src/p10.cpp
@@ -22,18 +20,34 @@ add_executable(euler src/main.cpp
                src/p58.cpp src/p59.cpp src/p60.cpp
                src/p61.cpp src/p62.cpp src/p63.cpp src/p64.cpp)
 
-# Adapted from https://stackoverflow.com/questions/2368811/
-if(MSVC)
+set_target_properties(
+  euler PROPERTIES
+  CXX_STANDARD 11
+  CXX_STANDARD_REQUIRED ON
+)
+
+# Compiler trait adapted from https://stackoverflow.com/questions/10046114/
+# Compiler flags adapted from https://stackoverflow.com/questions/2368811/
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+  # using Clang
+  target_compile_options(euler PUBLIC "-Wall" "-Werror" "-pedantic")
+
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  # using GCC
+  target_compile_options(euler PUBLIC "-Wall" "-Werror" "-pedantic")
+
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+  # using Intel C++
+
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+  # using Visual Studio C++
   # Force to always compile with W4
   if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
     string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
   endif()
-else()
-  # Update if necessary
-  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
-  target_compile_options(euler PUBLIC "-Wall" "-Werror" "-pedantic")
+
 endif()
 
 install(TARGETS euler DESTINATION bin)
@@ -42,7 +56,7 @@ install(TARGETS euler DESTINATION bin)
 # Tests -- run with `make test`
 ##############################################################################
 
-include(CTest)
+enable_testing()
 add_test(p1 euler -r 1)
 add_test(p2 euler -r 2)
 add_test(p3 euler -r 3)
