@@ -56,7 +56,7 @@ install(TARGETS euler DESTINATION bin)
 # Tests -- run with `make test`
 ##############################################################################
 
-include(CTest)
+enable_testing()
 add_test(p1 euler -r 1)
 add_test(p2 euler -r 2)
 add_test(p3 euler -r 3)
