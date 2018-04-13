@@ -26,18 +26,28 @@ set_target_properties(
   CXX_STANDARD_REQUIRED ON
 )
 
-# Adapted from https://stackoverflow.com/questions/2368811/
-if(MSVC)
+# Compiler trait adapted from https://stackoverflow.com/questions/10046114/
+# Compiler flags adapted from https://stackoverflow.com/questions/2368811/
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+  # using Clang
+  target_compile_options(euler PUBLIC "-Wall" "-Werror" "-pedantic")
+
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  # using GCC
+  target_compile_options(euler PUBLIC "-Wall" "-Werror" "-pedantic")
+
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+  # using Intel C++
+
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+  # using Visual Studio C++
   # Force to always compile with W4
   if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
     string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
   endif()
-else()
-  # Update if necessary
-  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
-  target_compile_options(euler PUBLIC "-Wall" "-Werror" "-pedantic")
+
 endif()
 
 install(TARGETS euler DESTINATION bin)
