@@ -5,8 +5,6 @@ project(euler)
 # Executable
 ##############################################################################
 
-set(CMAKE_CXX_STANDARD 11)
-
 add_executable(euler src/main.cpp 
                src/p1.cpp src/p2.cpp src/p3.cpp src/p4.cpp src/p5.cpp
                src/p6.cpp src/p7.cpp src/p8.cpp src/p9.cpp src/p10.cpp
@@ -21,6 +19,12 @@ add_executable(euler src/main.cpp
                src/p51.cpp src/p52.cpp src/p53.cpp src/p54.cpp
                src/p58.cpp src/p59.cpp src/p60.cpp
                src/p61.cpp src/p62.cpp src/p63.cpp src/p64.cpp)
+
+set_target_properties(
+  euler PROPERTIES
+  CXX_STANDARD 11
+  CXX_STANDARD_REQUIRED ON
+)
 
 # Adapted from https://stackoverflow.com/questions/2368811/
 if(MSVC)
