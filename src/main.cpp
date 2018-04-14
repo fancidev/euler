@@ -13,9 +13,17 @@ static std::map<int,euler_problem_info>& problems()
   return p;
 }
 
-void register_problem(const euler_problem_info &info)
+void register_problem(const euler_problem_info &info) noexcept
 {
-  problems().insert(problem_entry_t(info.id, info));
+  try
+  {
+    problems().insert(problem_entry_t(info.id, info));
+  }
+  catch (const std::exception &ex)
+  {
+    // Can't do much here as this function is called in static initializer.
+    (void)ex;
+  }
 }
 
 static void usage()

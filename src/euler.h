@@ -1,7 +1,7 @@
 #ifndef EULER_H
 #define EULER_H
 
-typedef void (*PROBLEM_FUNC) ();
+using PROBLEM_FUNC = void (*)();
 
 /// @defgroup Problems Problems
 
@@ -17,32 +17,26 @@ typedef void (*PROBLEM_FUNC) ();
  */
 struct euler_problem_info
 {
-  int id;                      /**< Problem number */
-  PROBLEM_FUNC routine;        /**< Entry point of solution routine */
-  const char *title;           /**< Problem title */
-  int difficulty;              /**< Problem difficulty (on scale of 1 to 3) */
-  int fun_level;               /**< Problem fun level (on scale of 1 to 3) */
-  const char *time_complexity; /**< Time complexity of solution */
-  const char *space_complexity;/**< Space complexity of solution */
-  const char *answer;          /**< Answer to the problem */
-  const char *keywords;        /**< Keywords separated by comma */
-
-public:
-  /// Constructs an empty object.
-  euler_problem_info() : id(0), routine(), title(), difficulty(0),
-    fun_level(0), time_complexity(), space_complexity(),
-    answer(), keywords() { }
+  int          id = 0;                     /**< Problem number              */
+  PROBLEM_FUNC routine = nullptr;          /**< Solution entry point        */
+  const char * title = nullptr;            /**< Problem title               */
+  int          difficulty = 0;             /**< Problem difficulty (1-3)    */
+  int          fun_level = 0;              /**< Problem fun level (1-3)     */
+  const char * time_complexity = nullptr;  /**< Solution time complexity    */
+  const char * space_complexity = nullptr; /**< Solution space complexity   */
+  const char * answer = nullptr;           /**< Answer to problem           */
+  const char * keywords = nullptr;         /**< Keywords separated by comma */
 };
 
 /**
- * Registers the solution in the global solution map. The solution is 
+ * Registers the solution in the global solution map. The solution is
  * identified by its problem ID. If a solution with the same ID already
  * exists in the global map, it is substituted with the new one.
  *
  * @param info Information about the solution to register.
  * @ingroup Helper
  */
-extern void register_problem(const euler_problem_info &info);
+extern void register_problem(const euler_problem_info &info) noexcept;
 
 /// Begins the declaration of a solution for a specific problem.
 /// @param pid Problem ID.
