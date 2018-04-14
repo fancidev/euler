@@ -68,14 +68,18 @@ endforeach()
 # Lint -- run with `make tidy`
 ##############################################################################
 
-# See http://www.parresianz.com/c++/clang-tidy/
-# Enable clang-tidy only if the compiler selected is clang.
+# Enable clang-tidy if the compiler selected is clang.
+# References:
+# http://www.parresianz.com/c++/clang-tidy/
+# http://mariobadr.com/using-clang-tidy-with-cmake-36.html
+# https://www.kdab.com/clang-tidy-part-1-modernize-source-code-using-c11c14/
+
 if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
   # Generate compile_commands.json (required by clang-tidy)
   set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
   find_program(CLANG_TIDY_EXE clang-tidy DOC "clang-tidy")
-  if("${CLANG_TIDY_EXE}" MATCHES "NOTFOUND")
+  if(NOT CLANG_TIDY_EXE)
     message(STATUS "Omitting target 'tidy' because clang-tidy is not found")
   else()
     set(TidyTargets "")
