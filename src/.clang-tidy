@@ -1,0 +1,8 @@
+# Default arguments for clang-tidy
+# See http://clang.llvm.org/extra/clang-tidy/
+# See https://github.com/Kitware/CMake/blob/master/Utilities/.clang-tidy
+
+Checks: '*'
+# HeaderFilterRegex: euler/.*[.]hpp
+# Checks: '-*,modernize-*'
+# Checks: '*,-clang-analyzer-alpha.*,-cppcoreguidelines-*,-google-*,-readability-*'
