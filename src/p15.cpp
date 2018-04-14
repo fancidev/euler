@@ -10,16 +10,16 @@
 #include "euler.h"
 
 BEGIN_PROBLEM(15, solve_problem_15)
-	PROBLEM_TITLE("Number of routes in a grid")
-	PROBLEM_ANSWER("137846528820")
-	PROBLEM_DIFFICULTY(1)
-	PROBLEM_FUN_LEVEL(1)
-	PROBLEM_TIME_COMPLEXITY("N^2")
-	PROBLEM_SPACE_COMPLEXITY("N")
+  PROBLEM_TITLE("Number of routes in a grid")
+  PROBLEM_ANSWER("137846528820")
+  PROBLEM_DIFFICULTY(1)
+  PROBLEM_FUN_LEVEL(1)
+  PROBLEM_TIME_COMPLEXITY("N^2")
+  PROBLEM_SPACE_COMPLEXITY("N")
 END_PROBLEM()
 
 static void solve_problem_15()
 {
-	const int N = 20;
-	std::cout << euler::binom<long long>(2*N,N) << std::endl;
+  const int N = 20;
+  std::cout << euler::binom<int64_t>(2*N,N) << std::endl;
 }
