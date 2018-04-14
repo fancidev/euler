@@ -26,6 +26,13 @@ void register_problem(const euler_problem_info &info) noexcept
   }
 }
 
+static bool s_verbose = false;
+
+bool verbose() noexcept
+{
+  return s_verbose;
+}
+
 static void usage()
 {
   std::cout << "usage: euler [options] id ..." << std::endl;
@@ -198,14 +205,12 @@ int main(int argc, char *argv[])
     action_help
   } action = action_default;
 
-  bool verbose = false;
   bool timing = false;
 #ifdef _MSC_VER
   bool pause = false;
 #endif
   int id = 0;
   bool test_ok = true;
-  (void)verbose;
 
   // Parse command line arguments.
   for (int i = 1; i < argc; i++)
@@ -238,7 +243,7 @@ int main(int argc, char *argv[])
           timing = true;
           break;
         case 'v':
-          verbose = true;
+          s_verbose = true;
           break;
         default:
           std::cerr << "Unknown option: -" << s[j] << std::endl;
@@ -248,7 +253,13 @@ int main(int argc, char *argv[])
     }
     else
     {
-      id = atoi(s);
+      char *endptr;
+      id = strtol(s, &endptr, 10);
+      if (*endptr != '\0')
+      {
+        std::cerr << "Problem ID must be an integer." << std::endl;
+        return 3;
+      }
       if (find_problem(id) == nullptr)
       {
         std::cerr << "Cannot find problem #" << id << "." << std::endl;

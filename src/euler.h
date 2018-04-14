@@ -38,6 +38,8 @@ struct euler_problem_info
  */
 extern void register_problem(const euler_problem_info &info) noexcept;
 
+extern bool verbose() noexcept;
+
 /// Begins the declaration of a solution for a specific problem.
 /// @param pid Problem ID.
 /// @param _routine Entry point of the solution routine.
