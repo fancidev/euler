@@ -23,96 +23,97 @@ namespace euler {
 template <typename T, typename TArg=int>
 class binom_table
 {
-	TArg max_n;
-	std::vector<T> _values;
+  TArg max_n;
+  std::vector<T> _values;
 
 public:
 
-	/**
-	 * Constructs a table that stores the binomial coefficients
-	 * <code>C(n,k)</code> for all <code>0 ≤ k ≤ n ≤ N</code>,
-	 * where @c N is the given threshold of the table.
-	 *
-	 * @param N Threshold of the binomial coefficient table. In practice,
-	 *      useful values of @c N is restricted by the maximum integer
-	 *      that can be represented by @c T. Specifically, @c N should not
-	 *      be greater than the number of bits in @c T.
-	 *
-	 * @timecomplexity <code>O(N^2)</code>.
-	 * @spacecomplexity <code>O(N^2)</code>.
-	 */
-	binom_table(TArg N) : max_n(N), _values((T)(N+2)*(T)(N+1)/2)
-	{
-		size_t i = 1, j = 0;
-		_values[0] = 1;
-		for (TArg n = 1; n <= N; ++n)
-		{
-			_values[i++] = 1;
-			for (TArg k = 1; k < n; ++k, ++j)
-			{
-				_values[i++] = _values[j] + _values[j+1];
-			}
-			++j;
-			_values[i++] = 1;
-		}
-	}
+  /**
+   * Constructs a table that stores the binomial coefficients
+   * <code>C(n,k)</code> for all <code>0 ≤ k ≤ n ≤ N</code>,
+   * where @c N is the given threshold of the table.
+   *
+   * @param N Threshold of the binomial coefficient table. In practice,
+   *      useful values of @c N is restricted by the maximum integer
+   *      that can be represented by @c T. Specifically, @c N should not
+   *      be greater than the number of bits in @c T.
+   *
+   * @timecomplexity <code>O(N^2)</code>.
+   * @spacecomplexity <code>O(N^2)</code>.
+   */
+  explicit binom_table(TArg N) :
+    max_n(N), _values(static_cast<size_t>(N+2)*static_cast<size_t>(N+1)/2U)
+  {
+    size_t i = 1, j = 0;
+    _values[0] = 1;
+    for (TArg n = 1; n <= N; ++n)
+    {
+      _values[i++] = 1;
+      for (TArg k = 1; k < n; ++k, ++j)
+      {
+        _values[i++] = _values[j] + _values[j+1];
+      }
+      ++j;
+      _values[i++] = 1;
+    }
+  }
 
-	/**
-	 * Returns the threshold of the table.
-	 * @complexity Constant.
-	 */
-	TArg threshold() const { return max_n; }
+  /**
+   * Returns the threshold of the table.
+   * @complexity Constant.
+   */
+  TArg threshold() const { return max_n; }
 
-	/**
-	 * Returns the binomial coefficient <code>C(n,k)</code>.
-	 * @param n First argument. Must be greater than or equal to zero and
-	 *      less than or equal to <code>threshold()</code>.
-	 * @param k Second argument.
-	 * @returns <code>C(n,k)</code> if <code>0 ≤ k ≤ n</code>; zero
-	 *      otherwise.
-	 * @complexity Constant.
-	 */
-	T operator () (TArg n, TArg k) const
-	{
-		assert(n >= 0 && n <= max_n);
-		if (k >= 0 && k <= n && n <= max_n)
-		{
-			T i = (n+1)*n/2 + k;
-			return _values[i];
-		}
-		else
-		{
-			return 0;
-		}
-	}
+  /**
+   * Returns the binomial coefficient <code>C(n,k)</code>.
+   * @param n First argument. Must be greater than or equal to zero and
+   *      less than or equal to <code>threshold()</code>.
+   * @param k Second argument.
+   * @returns <code>C(n,k)</code> if <code>0 ≤ k ≤ n</code>; zero
+   *      otherwise.
+   * @complexity Constant.
+   */
+  T operator () (TArg n, TArg k) const
+  {
+    assert(n >= 0 && n <= max_n);
+    if (k >= 0 && k <= n && n <= max_n)
+    {
+      T i = (n+1)*n/2 + k;
+      return _values[i];
+    }
+    else
+    {
+      return 0;
+    }
+  }
 };
 
 #if 0
 template <typename T>
 class binom_residue
 {
-	T p;
-	binom_table<T> C;
+  T p;
+  binom_table<T> C;
 
 public:
-	binom_residue(T modulus) : p(modulus), C(modulus - 1) { }
+  binom_residue(T modulus) : p(modulus), C(modulus - 1) { }
 
-	template <typename TArg>
-	T operator () (TArg n, TArg k) const
-	{
-		euler::residue<T> result((T)1, p);
-		do
-		{
-			T a = n % p;
-			T b = k % p;
-			if (a < b)
-				return 0;
-			n /= p;
-			k /= p;
-			result *= C(a, b);
-		} while (k);
-		return result.value();
-	}
+  template <typename TArg>
+  T operator () (TArg n, TArg k) const
+  {
+    euler::residue<T> result((T)1, p);
+    do
+    {
+      T a = n % p;
+      T b = k % p;
+      if (a < b)
+        return 0;
+      n /= p;
+      k /= p;
+      result *= C(a, b);
+    } while (k);
+    return result.value();
+  }
 };
 #endif
 
@@ -145,25 +146,33 @@ public:
 template <typename T, typename TArg>
 T binom(TArg n, TArg k)
 {
-	if (!(0 <= k && k <= n))
-		return 0;
-	if (k > n / 2)
-		k = n - k;
-	if (k == 0)
-		return T(1);
-	if (k == 1)
-		return T(n);
+  if (!(0 <= k && k <= n))
+  {
+    return 0;
+  }
+  if (k > n / 2)
+  {
+    k = n - k;
+  }
+  if (k == 0)
+  {
+    return T(1);
+  }
+  if (k == 1)
+  {
+    return T(n);
+  }
 
-	std::vector<T> C(k + 1);
-	C[0] = T(1);
-	for (TArg i = 1; i < n; i++)
-	{
-		for (TArg j = (std::min)(i, k); j >= 1; j--)
-		{
-			C[j] += C[j-1];
-		}
-	}
-	return C[k] + C[k-1];
+  std::vector<T> C(k + 1);
+  C[0] = T(1);
+  for (TArg i = 1; i < n; i++)
+  {
+    for (TArg j = (std::min)(i, k); j >= 1; j--)
+    {
+      C[j] += C[j-1];
+    }
+  }
+  return C[k] + C[k-1];
 }
 
 /**
@@ -229,108 +238,116 @@ T binom(TArg n, TArg k)
 template <typename T, typename TArg>
 T modbinom(TArg n, TArg k, T p)
 {
-	// Special cases.
-	if (n < k)
-		return 0;
-	if (k == 0 || k == n)
-		return 1;
+  // Special cases.
+  if (n < k)
+  {
+    return 0;
+  }
+  if (k == 0 || k == n)
+  {
+    return 1;
+  }
 
-	// Store the digit expansion of n and k in base p in a vector.
-	const int Bits = std::numeric_limits<TArg>::digits + 1;
-	std::pair<T,T> digits[Bits];
-	int terms = 0;
-	T max_b = 0; // Find the maximum b.
-	for (; terms < Bits && k != 0; ++terms)
-	{
-		T a = n % p;
-		T b = k % p;
-		if (a < b)
-			return 0;
-		n /= p;
-		k /= p;
-		digits[terms] = std::pair<T,T>(a, std::min(b, a - b));
-		max_b = std::max(max_b, b);
-	}
+  // Store the digit expansion of n and k in base p in a vector.
+  const int Bits = std::numeric_limits<TArg>::digits + 1;
+  std::pair<T,T> digits[Bits];
+  int terms = 0;
+  T max_b = 0; // Find the maximum b.
+  for (; terms < Bits && k != 0; ++terms)
+  {
+    T a = n % p;
+    T b = k % p;
+    if (a < b)
+    {
+      return 0;
+    }
+    n /= p;
+    k /= p;
+    digits[terms] = std::pair<T,T>(a, std::min(b, a - b));
+    max_b = std::max(max_b, b);
+  }
 
-	// Compute each C(a,b) and append to the result.
-	//euler::residue<T> result(1, p);
-	T result = 1;
-	for (int i = 0; i < terms; i++)
-	{
-		T a = digits[i].first, b = digits[i].second;
+  // Compute each C(a,b) and append to the result.
+  //euler::residue<T> result(1, p);
+  T result = 1;
+  for (int i = 0; i < terms; i++)
+  {
+    T a = digits[i].first, b = digits[i].second;
 
-		// Special case: b = 0.
-		if (b == 0)
-			continue;
+    // Special case: b = 0.
+    if (b == 0)
+    {
+      continue;
+    }
 
-		// u = a*(a-1)*...*(a-b+1) mod p.
-		// v = b*(b-1)*...*1 mod p.
+    // u = a*(a-1)*...*(a-b+1) mod p.
+    // v = b*(b-1)*...*1 mod p.
 #if 0
-		euler::residue<T> u(a,p), v(b,p);
-		for (T j = 1; j < b; j++)
-		{
-			u *= (a - j);
-			v *= (b - j);
-		}
-		result *= (u / v);
+    euler::residue<T> u(a,p), v(b,p);
+    for (T j = 1; j < b; j++)
+    {
+      u *= (a - j);
+      v *= (b - j);
+    }
+    result *= (u / v);
 #else
-		T u = a, v = b;
-		for (T j = 1; j < b; j++)
-		{
-			u = modmul(u, a - j, p);
-			v = modmul(v, b - j, p);
-		}
-		result = modmul(result, moddiv(u, v, p), p);
+    T u = a, v = b;
+    for (T j = 1; j < b; j++)
+    {
+      u = modmul(u, a - j, p);
+      v = modmul(v, b - j, p);
+    }
+    result = modmul(result, moddiv(u, v, p), p);
 #endif
-	}
-	return result;
+  }
+  return result;
 }
 
 #if 0
 template <typename T, typename TArg>
 T modbinom(TArg n, TArg k, T p)
 {
-	// Special case.
-	if (n < k)
-		return 0;
-	if (k == 0 || k == n)
-		return 1;
+  // Special case.
+  if (n < k)
+    return 0;
+  if (k == 0 || k == n)
+    return 1;
 
-	// Store the digit expansion of n and k in base p in a vector.
-	const int Bits = std::numeric_limits<TArg>::digits + 1;
-	std::pair<T,T> digits[Bits];
-	int terms = 0;
-	T max_b = 0; // Find the maximum b.
-	for (; terms < Bits && k != 0; ++terms)
-	{
-		T a = n % p;
-		T b = k % p;
-		if (a < b)
-			return 0;
-		n /= p;
-		k /= p;
-		digits[terms++] = std::pair<T,T>(a, std::min(b, a - b));
-		max_b = std::max(max_b, b);
-	}
+  // Store the digit expansion of n and k in base p in a vector.
+  const int Bits = std::numeric_limits<TArg>::digits + 1;
+  std::pair<T,T> digits[Bits];
+  int terms = 0;
+  T max_b = 0; // Find the maximum b.
+  for (; terms < Bits && k != 0; ++terms)
+  {
+    T a = n % p;
+    T b = k % p;
+    if (a < b)
+      return 0;
+    n /= p;
+    k /= p;
+    digits[terms++] = std::pair<T,T>(a, std::min(b, a - b));
+    max_b = std::max(max_b, b);
+  }
 
-	// Sort the binomial coefficients by (a, b).
-	std::sort(&digits[0], &digits[terms],
-		[](const std::pair<T,T> &t1, const std::pair<T,T> &t2) -> bool {
-			return (t1.first < t2.first) || (t1.first == t2.first && t1.second < t2.second);
-	});
+  // Sort the binomial coefficients by (a, b).
+  std::sort(&digits[0], &digits[terms],
+    [](const std::pair<T,T> &t1, const std::pair<T,T> &t2) -> bool {
+      return (t1.first < t2.first) || (t1.first == t2.first && t1.second < t2.second);
+  });
 
-	// Compute and multiply the binomial numbers in order.
-	euler::residue<T> result(1, p);
-	std::vector<euler::residue<T>> C(max_b + 1);
-	C[0] = result;
-	int current_n = 0;
-	for (int i = 0; i < terms; i++)
-	{
-		T a = digits[i].first, b = digits[i].second;
-		for (; aa < a; ++aa)
-			// to be completed
-	}
-	return result.value();
+  // Compute and multiply the binomial numbers in order.
+  euler::residue<T> result(1, p);
+  std::vector<euler::residue<T>> C(max_b + 1);
+  C[0] = result;
+  int current_n = 0;
+  for (int i = 0; i < terms; i++)
+  {
+    T a = digits[i].first, b = digits[i].second;
+    for (; aa < a; ++aa)
+      // to be completed
+  }
+  return result.value();
 }
 #endif
 
@@ -339,25 +356,25 @@ T modbinom(TArg n, TArg k, T p)
 #if 0
 static void test_binom()
 {
-	const int N = 64;
-	euler::binom_table<unsigned long long> C(N);
-	euler::prime_table<int> ptable(10000);
-	std::vector<int> primes(ptable.begin(), ptable.end());
+  const int N = 64;
+  euler::binom_table<unsigned long long> C(N);
+  euler::prime_table<int> ptable(10000);
+  std::vector<int> primes(ptable.begin(), ptable.end());
 
-	for (int n = 0; n <= N; n++)
-	{
-		for (int k = 0; k <= n; k++)
-		{
-			unsigned long long b = C(n, k);
-			for (int i = 0; i < primes.size(); i++)
-			{
-				int p = primes[i];
-				if (b % p != euler::modbinom(n, k, p))
-					std::cout << "Error: C(" << n << "," << k
-						<< ") mod " << p << std::endl;
-			}
-		}
-	}
+  for (int n = 0; n <= N; n++)
+  {
+    for (int k = 0; k <= n; k++)
+    {
+      unsigned long long b = C(n, k);
+      for (int i = 0; i < primes.size(); i++)
+      {
+        int p = primes[i];
+        if (b % p != euler::modbinom(n, k, p))
+          std::cout << "Error: C(" << n << "," << k
+            << ") mod " << p << std::endl;
+      }
+    }
+  }
 }
 #endif
 

@@ -12,15 +12,20 @@
 #define EULER_DIGITS_H
 
 #include <cassert>
+#include <limits>
 #include <iterator>
+#include <array>
 #include <bitset>
 #include <functional>
 #include <algorithm>
-#include <limits>
-#include <array>
 #include "sequence.hpp"
 
 namespace euler {
+
+/**
+ * Represents the value of a digit of an integer.
+ */
+typedef int digit_t;
 
 /// Iterator that returns the digits of a non-negative integer from left to
 /// right (most significant to least significant). Leading zeros are not
@@ -28,8 +33,8 @@ namespace euler {
 /// returned.
 template <int base, typename T>
 class digit_iterator
-  : public std::iterator<std::forward_iterator_tag, int,
-       	                 std::ptrdiff_t, void, int>
+  : public std::iterator<std::forward_iterator_tag, digit_t,
+                         std::ptrdiff_t, void, void>
 {
   static_assert(base >= 2, "base must be greater than or equal to 2.");
 
@@ -49,7 +54,7 @@ public:
   explicit digit_iterator(T n) : _n(n)
   {
     assert(n >= T(0));
-    for (_b = 1; n / _b >= base; _b *= base);
+    for (_b = 1; n / _b >= base; _b *= base) { }
   }
 
   /// Constructs an empty iterator that points <i>past-the-end</i>.
@@ -58,9 +63,9 @@ public:
 
   /// Returns the current digit.
   /// @complexity Constant.
-  int operator * () const
+  digit_t operator * () const
   {
-    return (int)(_n / _b);
+    return static_cast<digit_t>(_n / _b);
   }
 
   /// Advances the iterator to point to the next (less significant) digit.
@@ -92,8 +97,8 @@ public:
 /// returned.
 template <int base, typename T>
 class digit_reverse_iterator
-  : public std::iterator<std::forward_iterator_tag, int, 
-                         std::ptrdiff_t, void, int>
+  : public std::iterator<std::forward_iterator_tag, digit_t,
+                         std::ptrdiff_t, void, void>
 {
   static_assert(base >= 2, "base must be greater than or equal to 2.");
 
@@ -121,9 +126,9 @@ public:
 
   /// Returns the current digit.
   /// @complexity Constant.
-  int operator * () const
+  digit_t operator * () const
   {
-    return _n % base;
+    return static_cast<digit_t>(_n % base);
   }
 
   /// Advances the iterator to point to the next (more significant) digit.
@@ -132,7 +137,9 @@ public:
   digit_reverse_iterator& operator ++ ()
   {
     if ((_n /= base) == 0)
+    {
       _b = 0;
+    }
     return *this;
   }
 
@@ -335,7 +342,9 @@ bool is_palindromic(T n)
   for (auto it1 = r1.begin(); it1 != r1.end(); ++it1, ++it2)
   {
     if (*it1 != *it2)
+    {
       return false;
+    }
   }
   return true;
 }
@@ -372,9 +381,13 @@ bool is_pandigital(InIt begin, InIt end, int lowest = 1, int highest = base - 1)
   {
     int k = *it;
     if (!(k >= lowest && k <= highest))
+    {
       return false;
+    }
     if (mask.test(k))
+    {
       return false;
+    }
     ++count;
     mask.set(k);
   }

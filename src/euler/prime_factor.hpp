@@ -48,36 +48,38 @@ namespace euler {
 template <class T, class Func>
 void prime_factorize(T n, Func f)
 {
-	if (n <= 1)
-		return;
+  if (n <= 1)
+  {
+    return;
+  }
 
-	// divide by 2
-	while (n % 2 == 0)
-	{
-		n >>= 1;
-		f(2);
-	}
+  // divide by 2
+  while (n % 2 == 0)
+  {
+    n >>= 1;
+    f(2);
+  }
 
-	// divide by odd number until sqrt(n)
-	T p = 3;
-	while (n > 1)
-	{
-		T q = n / p;
-		if (n % p == 0)
-		{
-			n = q;
-			f(p);
-		}
-		else
-		{
-			if (q < p)
-			{
-				f(n);
-				break;
-			}
-			p += 2;
-		}
-	}
+  // divide by odd number until sqrt(n)
+  T p = 3;
+  while (n > 1)
+  {
+    T q = n / p;
+    if (n % p == 0)
+    {
+      n = q;
+      f(p);
+    }
+    else
+    {
+      if (q < p)
+      {
+        f(n);
+        break;
+      }
+      p += 2;
+    }
+  }
 }
 
 /**
@@ -106,29 +108,31 @@ void prime_factorize(T n, Func f)
 template <class T, class Func, class FwdIt>
 void prime_factorize(T n, Func f, FwdIt primes_begin, FwdIt primes_end)
 {
-	// divide by each prime known prime number until sqrt(n) or until there are
-	// no more known prime number.
-	for (FwdIt it = primes_begin; n > 1 && it != primes_end; )
-	{
-		T p = *it;
-		T q = n / p;
-		if (n % p == 0)
-		{
-			n = q;
-			f(p);
-		}
-		else
-		{
-			if (q < p)
-			{
-				f(n);
-				break;
-			}
-			++it;
-		}
-	}
-	if (n > 1)
-		f(n);
+  // divide by each prime known prime number until sqrt(n) or until there are
+  // no more known prime number.
+  for (FwdIt it = primes_begin; n > 1 && it != primes_end; )
+  {
+    T p = *it;
+    T q = n / p;
+    if (n % p == 0)
+    {
+      n = q;
+      f(p);
+    }
+    else
+    {
+      if (q < p)
+      {
+        f(n);
+        break;
+      }
+      ++it;
+    }
+  }
+  if (n > 1)
+  {
+    f(n);
+  }
 }
 
 /**
@@ -153,27 +157,27 @@ void prime_factorize(T n, Func f, FwdIt primes_begin, FwdIt primes_end)
 template <class T, class Func>
 void prime_factorize_distinct(T n, Func f)
 {
-	T last_p = 0;
-	int last_k = 0;
-	prime_factorize(n, [&](T p) {
-		if (p != last_p)
-		{
-			if (last_p > 0)
-			{
-				f(last_p, last_k);
-			}
-			last_p = p;
-			last_k = 1;
-		}
-		else
-		{
-			++last_k;
-		}
-	});
-	if (last_p > 0)
-	{
-		f(last_p, last_k);
-	}
+  T last_p = 0;
+  int last_k = 0;
+  prime_factorize(n, [&](T p) {
+    if (p != last_p)
+    {
+      if (last_p > 0)
+      {
+        f(last_p, last_k);
+      }
+      last_p = p;
+      last_k = 1;
+    }
+    else
+    {
+      ++last_k;
+    }
+  });
+  if (last_p > 0)
+  {
+    f(last_p, last_k);
+  }
 }
 
 /**
@@ -191,96 +195,96 @@ void prime_factorize_distinct(T n, Func f)
  */
 template <typename T>
 class factor_iterator
-	: public std::iterator<std::forward_iterator_tag, T, std::ptrdiff_t, const T*, const T&>
+  : public std::iterator<std::forward_iterator_tag, T, std::ptrdiff_t, const T*, const T&>
 {
-	T n;
-	T p;
+  T n;
+  T p;
 
-	void move_to_next_factor()
-	{
-		if (n <= 1)
-		{
-			p = 0;
-			n = 1;
-		}
-		else if (n % p == 0)
-		{
-			n /= p;
-		}
-		else
-		{
-			p = (p == 2)? 3 : p + 2;
-			while (n > 1)
-			{
-				T q = n / p;
-				if (n % p == 0)
-				{
-					n = q;
-					break;
-				}
-				else
-				{
-					if (q <= p)
-					{
-						p = n;
-						n = 1;
-						break;
-					}
-					p += 2;
-				}
-			}
-		}
-	}
+  void move_to_next_factor()
+  {
+    if (n <= 1)
+    {
+      p = 0;
+      n = 1;
+    }
+    else if (n % p == 0)
+    {
+      n /= p;
+    }
+    else
+    {
+      p = (p == 2)? 3 : p + 2;
+      while (n > 1)
+      {
+        T q = n / p;
+        if (n % p == 0)
+        {
+          n = q;
+          break;
+        }
+        else
+        {
+          if (q <= p)
+          {
+            p = n;
+            n = 1;
+            break;
+          }
+          p += 2;
+        }
+      }
+    }
+  }
 
 public:
 
-	/**
-	 * Constructs an iterator to enumerate the prime factors of an integer.
-	 * @param number An integer whose prime factors are to be iterated.
-	 *      Must be positive.
-	 * @timecomplexity <code>O(p)</code> where @c p if the smallest prime
-	 *      factor of @c n if @c is composite; <code>O(√n)</code> if @c n
-	 *      is prime.
-	 * @spacecomplexity Constant.
-	 */
-	factor_iterator(T number) : n(number), p(2)
-	{
-		move_to_next_factor();
-	}
+  /**
+   * Constructs an iterator to enumerate the prime factors of an integer.
+   * @param number An integer whose prime factors are to be iterated.
+   *      Must be positive.
+   * @timecomplexity <code>O(p)</code> where @c p if the smallest prime
+   *      factor of @c n if @c is composite; <code>O(√n)</code> if @c n
+   *      is prime.
+   * @spacecomplexity Constant.
+   */
+  explicit factor_iterator(T number) : n(number), p(2)
+  {
+    move_to_next_factor();
+  }
 
-	/// Constructs an empty factor iterator that points <i>past-the-end</i>.
-	/// @complexity Constant.
-	factor_iterator() : n(1), p(0) { }
+  /// Constructs an empty factor iterator that points <i>past-the-end</i>.
+  /// @complexity Constant.
+  factor_iterator() : n(1), p(0) { }
 
-	/// Returns the current prime factor.
-	/// @complexity Constant.
-	const T& operator * () const { return p; }
+  /// Returns the current prime factor.
+  /// @complexity Constant.
+  const T& operator * () const { return p; }
 
-	/**
-	 * Advances the iterator to point to the next prime factor of the number.
-	 * @returns The advanced iterator.
-	 * @timecomplexity <code>O(√n)</code> for the entire iteration.
-	 * @spacecomplexity Constant.
-	 */
-	factor_iterator& operator ++ ()
-	{
-		move_to_next_factor();
-		return *this;
-	}
+  /**
+   * Advances the iterator to point to the next prime factor of the number.
+   * @returns The advanced iterator.
+   * @timecomplexity <code>O(√n)</code> for the entire iteration.
+   * @spacecomplexity Constant.
+   */
+  factor_iterator& operator ++ ()
+  {
+    move_to_next_factor();
+    return *this;
+  }
 
-	/// Tests whether this iterator is equal to another iterator.
-	/// @complexity Constant.
-	bool operator == (const factor_iterator &it) const
-	{
-		return n == it.n && p == it.p;
-	}
+  /// Tests whether this iterator is equal to another iterator.
+  /// @complexity Constant.
+  bool operator == (const factor_iterator &it) const
+  {
+    return n == it.n && p == it.p;
+  }
 
-	/// Tests whether this iterator is not equal to another iterator.
-	/// @complexity Constant.
-	bool operator != (const factor_iterator &it) const
-	{
-		return ! operator == (it);
-	}
+  /// Tests whether this iterator is not equal to another iterator.
+  /// @complexity Constant.
+  bool operator != (const factor_iterator &it) const
+  {
+    return ! operator == (it);
+  }
 };
 
 /**
@@ -292,7 +296,7 @@ public:
 template <typename T>
 sequence<factor_iterator<T>> factors(T n)
 {
-	return make_sequence(factor_iterator<T>(n), factor_iterator<T>());
+  return make_sequence(factor_iterator<T>(n), factor_iterator<T>());
 }
 
 #if 0
@@ -301,94 +305,94 @@ sequence<factor_iterator<T>> factors(T n)
 template <typename T>
 class factor_table
 {
-	typedef typename make_half<T>::type TFactor;
+  typedef typename make_half<T>::type TFactor;
 
-	T max; // maximum number whose prime factor is built
-	std::vector<TFactor> factor; // smallest prime factor of odd number
+  T max; // maximum number whose prime factor is built
+  std::vector<TFactor> factor; // smallest prime factor of odd number
 
 public:
-	factor_table(T N) : max(N), factor((N+1)/2)
-	{
-		// Stores the smallest prime divisor of a number.
-		// Only the divisor of odd numbers are stored.
-		// 1 -> 0, 3 -> 1, 5 -> 2, ..., n -> (int)(n/2)
-		factor[0] = 1;
-		for (T p = 3; p*p <= N; p += 2)
-		{
-			if (factor[p/2] == 0) // p is prime
-			{
-				for (T k = p*p; k <= N; k += 2*p)
-				{
-					if (factor[k/2] == 0)
-						factor[k/2] = (TFactor)p;
-				}
-			}
-		}
-	}
+  factor_table(T N) : max(N), factor((N+1)/2)
+  {
+    // Stores the smallest prime divisor of a number.
+    // Only the divisor of odd numbers are stored.
+    // 1 -> 0, 3 -> 1, 5 -> 2, ..., n -> (int)(n/2)
+    factor[0] = 1;
+    for (T p = 3; p*p <= N; p += 2)
+    {
+      if (factor[p/2] == 0) // p is prime
+      {
+        for (T k = p*p; k <= N; k += 2*p)
+        {
+          if (factor[k/2] == 0)
+            factor[k/2] = (TFactor)p;
+        }
+      }
+    }
+  }
 
-	T operator [](T n) const
-	{
-		assert(n > 0);
-		assert(n <= max);
-		if (n % 2 == 0)
-			return 2;
-		else if (factor[n/2] == 0) // is prime
-			return n;
-		else
-			return factor[n/2];
-	}
+  T operator [](T n) const
+  {
+    assert(n > 0);
+    assert(n <= max);
+    if (n % 2 == 0)
+      return 2;
+    else if (factor[n/2] == 0) // is prime
+      return n;
+    else
+      return factor[n/2];
+  }
 
-	bool is_prime(T n) const
-	{
-		assert(n > 0);
-		assert(n <= max);
-		if (n == 2)
-			return true;
-		if (n % 2 == 0)
-			return false;
-		return factor[n/2] == 0;
-	}
+  bool is_prime(T n) const
+  {
+    assert(n > 0);
+    assert(n <= max);
+    if (n == 2)
+      return true;
+    if (n % 2 == 0)
+      return false;
+    return factor[n/2] == 0;
+  }
 
 };
 #endif
 
-} // namespace euler::prime
+} // namespace euler
 
 #if 0
 static void test()
 {
-	int a = 12345678, b = 87654321;
-	namespace p = euler::prime;
+  int a = 12345678, b = 87654321;
+  namespace p = euler::prime;
 
-	std::cout << a << " =";
-	for (auto it = p::factors(a).begin(); it != p::factors(a).end(); ++it)
-	{
-		std::cout << ' ' << *it;
-	}
-	std::cout << std::endl;
+  std::cout << a << " =";
+  for (auto it = p::factors(a).begin(); it != p::factors(a).end(); ++it)
+  {
+    std::cout << ' ' << *it;
+  }
+  std::cout << std::endl;
 
-	std::cout << b << " =";
-	for (auto it = p::factors(b).begin(); it != p::factors(b).end(); ++it)
-	{
-		std::cout << ' ' << *it;
-	}
-	std::cout << std::endl;
+  std::cout << b << " =";
+  for (auto it = p::factors(b).begin(); it != p::factors(b).end(); ++it)
+  {
+    std::cout << ' ' << *it;
+  }
+  std::cout << std::endl;
 
-	std::cout << a << " * " << b << " =";
-	for (auto it = p::factors(p::product(a, b)).begin();
-		it != p::factors(p::product(a, b)).end(); ++it)
-	{
-		std::cout << ' ' << *it;
-	}
-	std::cout << std::endl;
+  std::cout << a << " * " << b << " =";
+  for (auto it = p::factors(p::product(a, b)).begin();
+    it != p::factors(p::product(a, b)).end(); ++it)
+  {
+    std::cout << ' ' << *it;
+  }
+  std::cout << std::endl;
 
-	std::cout << a << " * " << b << " =";
-	for (auto it = p::distinct_factors(p::product(a, b)).begin();
-		it != p::distinct_factors(p::product(a, b)).end(); ++it)
-	{
-		std::cout << ' ' << it->first << "^" << it->second;
-	}
-	std::cout << std::endl;
+  std::cout << a << " * " << b << " =";
+  for (auto it = p::distinct_factors(p::product(a, b)).begin();
+    it != p::distinct_factors(p::product(a, b)).end(); ++it)
+  {
+    std::cout << ' ' << it->first << "^" << it->second;
+  }
+  std::cout << std::endl;
 }
 #endif
 

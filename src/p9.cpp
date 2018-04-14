@@ -14,22 +14,22 @@
 #include "euler.h"
 
 BEGIN_PROBLEM(9, solve_problem_9)
-	PROBLEM_TITLE("Find the unique Pythagorean triplet that sums to 1000")
-	PROBLEM_ANSWER("31875000")
-	PROBLEM_DIFFICULTY(2)
-	PROBLEM_FUN_LEVEL(1)
-	PROBLEM_TIME_COMPLEXITY("N^2")
-	PROBLEM_SPACE_COMPLEXITY("1")
-	PROBLEM_KEYWORDS("pythagorean")
+  PROBLEM_TITLE("Find the unique Pythagorean triplet that sums to 1000")
+  PROBLEM_ANSWER("31875000")
+  PROBLEM_DIFFICULTY(2)
+  PROBLEM_FUN_LEVEL(1)
+  PROBLEM_TIME_COMPLEXITY("N^2")
+  PROBLEM_SPACE_COMPLEXITY("1")
+  PROBLEM_KEYWORDS("pythagorean")
 END_PROBLEM()
 
 static void solve_problem_9()
 {
-	generate_right_triangles<int>(1000, [](int a, int b, int c) {
-		if (1000 % (a+b+c) == 0)
-		{
-			int x = 1000/(a+b+c);
-			std::cout << a*b*c*x*x*x << std::endl;
-		}
-	});
+  euler::generate_right_triangles<int>(1000, [](int a, int b, int c) {
+    if (1000 % (a+b+c) == 0)
+    {
+      int x = 1000/(a+b+c);
+      std::cout << a*b*c*x*x*x << std::endl;
+    }
+  });
 }

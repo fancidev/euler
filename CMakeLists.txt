@@ -5,20 +5,23 @@ project(euler)
 # Executable
 ##############################################################################
 
-add_executable(euler src/main.cpp 
-               src/p1.cpp src/p2.cpp src/p3.cpp src/p4.cpp src/p5.cpp
-               src/p6.cpp src/p7.cpp src/p8.cpp src/p9.cpp src/p10.cpp
-               src/p11.cpp src/p12.cpp src/p13.cpp src/p14.cpp src/p15.cpp
-               src/p16.cpp src/p17.cpp src/p18.cpp
-               src/p21.cpp src/p22.cpp src/p23.cpp src/p24.cpp
-               src/p26.cpp src/p27.cpp src/p28.cpp src/p29.cpp src/p30.cpp
-               src/p31.cpp src/p32.cpp src/p33.cpp src/p34.cpp src/p35.cpp
-               src/p36.cpp src/p37.cpp src/p38.cpp src/p39.cpp src/p40.cpp
-               src/p41.cpp src/p42.cpp src/p43.cpp src/p44.cpp src/p45.cpp
-               src/p46.cpp src/p47.cpp src/p48.cpp src/p49.cpp src/p50.cpp
-               src/p51.cpp src/p52.cpp src/p53.cpp src/p54.cpp
-               src/p58.cpp src/p59.cpp src/p60.cpp
-               src/p61.cpp src/p62.cpp src/p63.cpp src/p64.cpp)
+set(SolutionNumbers
+    1   2   3   4   5   6   7   8   9  10
+   11  12  13  14  15  16  17  18
+   21  22  23  24      26  27  28  29  30
+   31  32  33  34  35  36  37  38  39  40
+   41  42  43  44  45  46  47  48  49  50
+   51  52  53  54              58  59  60
+   61  62  63  64
+  )
+
+set(SolutionFiles "")
+foreach(SolutionNumber ${SolutionNumbers})
+  set(SolutionFiles ${SolutionFiles} "src/p${SolutionNumber}.cpp")
+endforeach()
+# message(STATUS "SolutionFiles: ${SolutionFiles}")
+
+add_executable(euler src/main.cpp ${SolutionFiles})
 
 set_target_properties(
   euler PROPERTIES
@@ -28,18 +31,20 @@ set_target_properties(
 
 # Compiler trait adapted from https://stackoverflow.com/questions/10046114/
 # Compiler flags adapted from https://stackoverflow.com/questions/2368811/
-if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
   # using Clang
-  target_compile_options(euler PUBLIC "-Wall" "-Werror" "-pedantic")
+  target_compile_options(euler PUBLIC
+    "-Wall" "-Werror" "-pedantic" "-Wdocumentation" "-Wextra"
+  )
 
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   # using GCC
   target_compile_options(euler PUBLIC "-Wall" "-Werror" "-pedantic")
 
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   # using Intel C++
 
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   # using Visual Studio C++
   # Force to always compile with W4
   if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
@@ -57,67 +62,43 @@ install(TARGETS euler DESTINATION bin)
 ##############################################################################
 
 enable_testing()
-add_test(p1 euler -r 1)
-add_test(p2 euler -r 2)
-add_test(p3 euler -r 3)
-add_test(p4 euler -r 4)
-add_test(p5 euler -r 5)
-add_test(p6 euler -r 6)
-add_test(p7 euler -r 7)
-add_test(p8 euler -r 8)
-add_test(p9 euler -r 9)
-add_test(p10 euler -r 10)
-add_test(p11 euler -r 11)
-add_test(p12 euler -r 12)
-add_test(p13 euler -r 13)
-add_test(p14 euler -r 14)
-add_test(p15 euler -r 15)
-add_test(p16 euler -r 16)
-add_test(p17 euler -r 17)
-add_test(p18 euler -r 18)
-# ...
-add_test(p21 euler -r 21)
-add_test(p22 euler -r 22)
-add_test(p23 euler -r 23)
-add_test(p24 euler -r 24)
-# ...
-add_test(p26 euler -r 26)
-add_test(p27 euler -r 27)
-add_test(p28 euler -r 28)
-add_test(p29 euler -r 29)
-add_test(p30 euler -r 30)
-add_test(p31 euler -r 31)
-add_test(p32 euler -r 32)
-add_test(p33 euler -r 33)
-add_test(p34 euler -r 34)
-add_test(p35 euler -r 35)
-add_test(p36 euler -r 36)
-add_test(p37 euler -r 37)
-add_test(p38 euler -r 38)
-add_test(p39 euler -r 39)
-add_test(p40 euler -r 40)
-add_test(p41 euler -r 41)
-add_test(p42 euler -r 42)
-add_test(p43 euler -r 43)
-add_test(p44 euler -r 44)
-add_test(p45 euler -r 45)
-add_test(p46 euler -r 46)
-add_test(p47 euler -r 47)
-add_test(p48 euler -r 48)
-add_test(p49 euler -r 49)
-add_test(p50 euler -r 50)
-add_test(p51 euler -r 51)
-add_test(p52 euler -r 52)
-add_test(p53 euler -r 53)
-add_test(p54 euler -r 54)
-# ...
-add_test(p58 euler -r 58)
-add_test(p59 euler -r 59)
-add_test(p60 euler -r 60)
-add_test(p61 euler -r 61)
-add_test(p62 euler -r 62)
-add_test(p63 euler -r 63)
-add_test(p64 euler -r 64)
+foreach(SolutionNumber ${SolutionNumbers})
+  add_test("p${SolutionNumber}" euler -r ${SolutionNumber})
+endforeach()
+
+##############################################################################
+# Lint -- run with `make tidy`
+##############################################################################
+
+# Enable clang-tidy if the compiler selected is clang.
+# References:
+# http://www.parresianz.com/c++/clang-tidy/
+# http://mariobadr.com/using-clang-tidy-with-cmake-36.html
+# https://www.kdab.com/clang-tidy-part-1-modernize-source-code-using-c11c14/
+
+if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+  # Generate compile_commands.json (required by clang-tidy)
+  set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+  find_program(CLANG_TIDY_EXE clang-tidy DOC "clang-tidy")
+  if(NOT CLANG_TIDY_EXE)
+    message(STATUS "Omitting target 'tidy' because clang-tidy is not found")
+  else()
+    set(TidyTargets "")
+    foreach(SolutionNumber ${SolutionNumbers})
+      set(TidyTarget "tidy-p${SolutionNumber}")
+      add_custom_target("${TidyTarget}"
+        COMMAND "${CLANG_TIDY_EXE}"
+        "-p" "${CMAKE_CURRENT_BINARY_DIR}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/p${SolutionNumber}.cpp"
+        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/p${SolutionNumber}.cpp"
+        COMMENT "Running clang-tidy on p${SolutionNumber}.cpp"
+      )
+      set(TidyTargets ${TidyTargets} ${TidyTarget})
+    endforeach()
+    add_custom_target(tidy DEPENDS ${TidyTargets})
+  endif()
+endif()
 
 ##############################################################################
 # Notes -- run with `make pdf`

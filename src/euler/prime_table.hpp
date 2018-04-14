@@ -91,17 +91,17 @@ namespace euler {
 template <typename T>
 std::pair<T,T> nth_prime_bounds(T n)
 {
-	if (n < 6)
-	{
-		return std::pair<T,T>(2, 11);
-	}
-	else
-	{
-		long double ln_n = std::log((long double)n);
-		long double ln_ln_n = log(ln_n);
-		long double t = ln_n + ln_ln_n;
-		return std::pair<T,T>((T)(n*t)-n-1, (T)(n*t)+1);
-	}
+  if (n < 6)
+  {
+    return std::pair<T,T>(2, 11);
+  }
+  else
+  {
+    long double ln_n = std::log(static_cast<long double>(n));
+    long double ln_ln_n = log(ln_n);
+    long double t = ln_n + ln_ln_n;
+    return std::pair<T,T>(static_cast<T>(n*t)-n-1, static_cast<T>(n*t)+1);
+  }
 }
 
 template <class T> class prime_table;
@@ -120,218 +120,230 @@ template <class T> class prime_reverse_iterator;
 template <typename T>
 class prime_table
 {
-	T _limit;
-	dynamic_bitset<> table;
+  T _limit;
+  dynamic_bitset<> table;
 
-	void mark_non_prime(T n) 
-	{ 
-		table.reset(n/2);
-	}
+  void mark_non_prime(T n) 
+  { 
+    table.reset(n/2);
+  }
 
 public:
 
-	/**
-	 * Constructs a prime number table that stores all the primes not larger
-	 * than a given limit.
-	 *
-	 * @param limit Limit of the prime number table. Must be positive or zero.
-	 *      The primality of all numbers smaller than or equal to this limit
-	 *      are tested and stored.
-	 * @timecomplexity <code>O(N log log N)</code>.
-	 * @spacecomplexity Object size is <code>O(N)</code>.
-	 */
-	prime_table(T N) : _limit(N), table((N+1)/2, true)
-	{
-		assert(N >= 0);
+  /**
+   * Constructs a prime number table that stores all the primes not larger
+   * than a given limit.
+   *
+   * @param N Limit of the prime number table. Must be positive. All integers
+   *    less than or equal to @c N are tested for primality and the result
+   *    stored.
+   *
+   * @timecomplexity <code>O(N log log N)</code>.
+   *
+   * @spacecomplexity Object size is <code>O(N)</code>.
+   */
+  explicit prime_table(T N) : _limit(N), table((N+1)/2, true)
+  {
+    assert(N >= 0);
 
 #if USE_SEGMENTED_SIEVE
-		// Use a bit-array to store whether each odd number is prime.
-		// 1 -> 0, 3 -> 1, 5 -> 2, ..., odd n -> (n-1)/2.
-		// table[k] is true <=> (2k+1) is prime.
-		T K = (N-1)/2;
+    // Use a bit-array to store whether each odd number is prime.
+    // 1 -> 0, 3 -> 1, 5 -> 2, ..., odd n -> (n-1)/2.
+    // table[k] is true <=> (2k+1) is prime.
+    T K = (N-1)/2;
 
-		// Mark 1 as non-prime.
-		table.reset(0);
+    // Mark 1 as non-prime.
+    table.reset(0);
 
-		// First sieve small primes up to sqrt(N) using ordinary method.
-		// This is equivalent to sieving primes (2k+1) up to SK (small_k).
-		// SK is such that (2*SK+1)^2 <= N < [2*(SK+1)+1]^2.
-		T SMALL_N = euler::isqrt(N);
-		T SMALL_K = (SMALL_N-1)/2;
-		T estimated_small_count = (T)(SMALL_N / std::log((double)SMALL_N));
+    // First sieve small primes up to sqrt(N) using ordinary method.
+    // This is equivalent to sieving primes (2k+1) up to SK (small_k).
+    // SK is such that (2*SK+1)^2 <= N < [2*(SK+1)+1]^2.
+    T SMALL_N = euler::isqrt(N);
+    T SMALL_K = (SMALL_N-1)/2;
+    T estimated_small_count = static_cast<T>(SMALL_N / std::log(SMALL_N));
 
-		// Store each small prime.
-		std::vector<T> prime_p;
-		prime_p.reserve(estimated_small_count);
+    // Store each small prime.
+    std::vector<T> prime_p;
+    prime_p.reserve(estimated_small_count);
 
-		// Store the next odd multiple of each prime that should be crossed out.
-		std::vector<T> next_multiple_t;
-		next_multiple_t.reserve(estimated_small_count);
+    // Store the next odd multiple of each prime that should be crossed out.
+    std::vector<T> next_multiple_t;
+    next_multiple_t.reserve(estimated_small_count);
 
-		// Sieve small primes.
-		for (T k = 1; k <= SMALL_K; k++)
-		{
-			if (table.test(k)) // (2k+1) is prime
-			{
-				T p = k*2+1;
-				T t = 2*k*(k+1); // 2t+1 = p^2
-				for (; t <= SMALL_K; t += p)
-				{
-					table.reset(t);
-				}
-				prime_p.push_back(p);
-				next_multiple_t.push_back(t);
-			}
-		}
-	
-		// Use the small prime table to sieve the whole range.
-		T window = 32*1000*16/2; // 16 numbers per byte, ~ 32k window
-		for (T segment_start = SMALL_K + 1; segment_start <= K; segment_start += window)
-		{
-			T segment_end = std::min(segment_start+window, K+1);
-			for (size_t i = 0; i < prime_p.size(); ++i)
-			{
-				T t = next_multiple_t[i];
-				if (t < segment_end)
-				{
-					T p = prime_p[i];
-					for (; t < segment_end; t += p)
-					{
-						table.reset(t);
-					}
-					next_multiple_t[i] = t;
-				}
-			}
-		}
+    // Sieve small primes.
+    for (T k = 1; k <= SMALL_K; k++)
+    {
+      if (table.test(k)) // (2k+1) is prime
+      {
+        T p = k*2+1;
+        T t = 2*k*(k+1); // 2t+1 = p^2
+        for (; t <= SMALL_K; t += p)
+        {
+          table.reset(t);
+        }
+        prime_p.push_back(p);
+        next_multiple_t.push_back(t);
+      }
+    }
+  
+    // Use the small prime table to sieve the whole range.
+    T window = 32*1000*16/2; // 16 numbers per byte, ~ 32k window
+    for (T segment_start = SMALL_K + 1; segment_start <= K; segment_start += window)
+    {
+      T segment_end = std::min(segment_start+window, K+1);
+      for (size_t i = 0; i < prime_p.size(); ++i)
+      {
+        T t = next_multiple_t[i];
+        if (t < segment_end)
+        {
+          T p = prime_p[i];
+          for (; t < segment_end; t += p)
+          {
+            table.reset(t);
+          }
+          next_multiple_t[i] = t;
+        }
+      }
+    }
 #else
-		// Each odd number n is mapped to (n/2) in the bitset.
-		// 1 => 0, 3 => 1, 5 => 2, etc.
-		mark_non_prime(1);
-		for (T p = 3; p*p <= limit; p += 2)
-		{
-			if (test_odd(p)) // is prime
-			{
-				T t = p*p;
-				do
-				{
-					mark_non_prime(t);
-				}
-				while ((t += 2*p) <= limit);
-			}
-		}
+    // Each odd number n is mapped to (n/2) in the bitset.
+    // 1 => 0, 3 => 1, 5 => 2, etc.
+    mark_non_prime(1);
+    for (T p = 3; p*p <= limit; p += 2)
+    {
+      if (test_odd(p)) // is prime
+      {
+        T t = p*p;
+        do
+        {
+          mark_non_prime(t);
+        }
+        while ((t += 2*p) <= limit);
+      }
+    }
 #endif
-	}
+  }
 
 #if 0
-	/// Tests whether the prime number table contains no primes.
-	/// @return @c true if there are no primes in the table, @c false otherwise.
-	bool empty() const 	{
-		return _max < 2;
-	}
+  /// Tests whether the prime number table contains no primes.
+  /// @return @c true if there are no primes in the table, @c false otherwise.
+  bool empty() const   {
+    return _max < 2;
+  }
 #endif
 
-	/// Returns the limit of the prime table.
-	T limit() const { return _limit; }
+  /// Returns the limit of the prime table.
+  T limit() const { return _limit; }
 
-	/**
-	 * Tests whether an odd integer, @c n, is prime by looking up the prime
-	 * table. @c n must be smaller than or equal to the limit of the table.
-	 * @param n An odd integer whose primality is checked.
-	 * @return @c true if @c n is prime, @c false if @c n is composite.
-	 * @timecomplexity Constant.
-	 * @spacecomplexity Constant.
-	 */
-	bool test_odd(T n) const
-	{
-		assert(n > 0 && n % 2 != 0);
-		return table[n/2]; 
-	}
+  /**
+   * Tests whether an odd integer, @c n, is prime by looking up the prime
+   * table. @c n must be smaller than or equal to the limit of the table.
+   * @param n An odd integer whose primality is checked.
+   * @return @c true if @c n is prime, @c false if @c n is composite.
+   * @timecomplexity Constant.
+   * @spacecomplexity Constant.
+   */
+  bool test_odd(T n) const
+  {
+    assert(n > 0 && n % 2 != 0);
+    return table[n/2]; 
+  }
 
-	/**
-	 * Tests whether an integer, @c n, is prime by looking up the prime table.
-	 * @c n must be smaller than or equal to the limit of the table.
-	 * @param n The number whose primality is to be tested.
-	 * @return @c true if @c n is prime, @c false if @c n is composite.
-	 * @timecomplexity Constant.
-	 * @spacecomplexity Constant.
-	 */
-	bool test(T n) const
-	{
-		assert(n >= 1 && n <= _limit);
-		if (n == 1)
-			return false;
-		else if (n == 2)
-			return true;
-		else if (n % 2 == 0)
-			return false;
-		else
-			return test_odd(n);
-	}
+  /**
+   * Tests whether an integer, @c n, is prime by looking up the prime table.
+   * @c n must be smaller than or equal to the limit of the table.
+   * @param n The number whose primality is to be tested.
+   * @return @c true if @c n is prime, @c false if @c n is composite.
+   * @timecomplexity Constant.
+   * @spacecomplexity Constant.
+   */
+  bool test(T n) const
+  {
+    assert(n >= 1 && n <= _limit);
+    if (n == 1)
+    {
+      return false;
+    }
+    else if (n == 2)
+    {
+      return true;
+    }
+    else if (n % 2 == 0)
+    {
+      return false;
+    }
+    else
+    {
+      return test_odd(n);
+    }
+  }
 
-	/// Gets an iterator that points to the smallest prime in the table.
-	prime_iterator<T> begin() const { return prime_iterator<T>(*this, 2); }
+  /// Gets an iterator that points to the smallest prime in the table.
+  prime_iterator<T> begin() const { return prime_iterator<T>(*this, 2); }
 
-	/// Gets an iterator that points past the largest prime in the table.
-	prime_iterator<T> end() const 	{ return prime_iterator<T>(*this, 0); }
+  /// Gets an iterator that points past the largest prime in the table.
+  prime_iterator<T> end() const   { return prime_iterator<T>(*this, 0); }
 
-	/**
-	 * Finds the smallest prime in the table that is greater than or equal 
-	 * to a given number.
-	 * @param n The lower bound.
-	 * @returns An iterator that points to the smallest prime in the table
-	 *      that is greater than or equal to @c n. If such a prime is not
-	 *      found, returns <code>end()</code>.
-	 * @timecomplexity 
-	 * @spacecomplexity Constant.
-	 */
-	prime_iterator<T> lower_bound(T n) const
-	{
-		prime_iterator<T> it = begin();
-		while (it != end() && *it < n)
-			++it;
-		return it;
-	}
+  /**
+   * Finds the smallest prime in the table that is greater than or equal 
+   * to a given number.
+   * @param n The lower bound.
+   * @returns An iterator that points to the smallest prime in the table
+   *      that is greater than or equal to @c n. If such a prime is not
+   *      found, returns <code>end()</code>.
+   * @timecomplexity 
+   * @spacecomplexity Constant.
+   */
+  prime_iterator<T> lower_bound(T n) const
+  {
+    prime_iterator<T> it = begin();
+    while (it != end() && *it < n)
+    {
+      ++it;
+    }
+    return it;
+  }
 
 #if 0
-	/// Gets a reverse iterator that points to the largest prime in the table.
-	const_reverse_iterator crbegin() const
-	{
-		int p = (_max % 2 == 0)? _max - 1 : _max;
-		for (; p >= 3; p -= 2)
-		{
-			if (_table[p/2])
-				break;
-		}
-		if (p < 3)
-		{
-			p = (_max >= 2)? 2 : 0;
-		}
-		return const_reverse_iterator(*this, p);
-	}
+  /// Gets a reverse iterator that points to the largest prime in the table.
+  const_reverse_iterator crbegin() const
+  {
+    int p = (_max % 2 == 0)? _max - 1 : _max;
+    for (; p >= 3; p -= 2)
+    {
+      if (_table[p/2])
+        break;
+    }
+    if (p < 3)
+    {
+      p = (_max >= 2)? 2 : 0;
+    }
+    return const_reverse_iterator(*this, p);
+  }
 
-	/// Gets a reverse iterator that points before the smallest prime in the table.
-	const_reverse_iterator crend() const
-	{
-		return const_reverse_iterator(*this, 0);
-	}
+  /// Gets a reverse iterator that points before the smallest prime in the table.
+  const_reverse_iterator crend() const
+  {
+    return const_reverse_iterator(*this, 0);
+  }
 
-	/// Gets an iterator that points to the smallest prime in the table.
-	iterator begin() const { return cbegin(); }
+  /// Gets an iterator that points to the smallest prime in the table.
+  iterator begin() const { return cbegin(); }
 
-	/// Gets an iterator that points past the largest prime in the table.
-	iterator end() const { return cend(); }
+  /// Gets an iterator that points past the largest prime in the table.
+  iterator end() const { return cend(); }
 
-	/// Gets a reverse iterator that points to the largest prime in the table.
-	reverse_iterator rbegin() const { return crbegin(); }
+  /// Gets a reverse iterator that points to the largest prime in the table.
+  reverse_iterator rbegin() const { return crbegin(); }
 
-	/// Gets a reverse iterator that points before the smallest prime in the table.
-	reverse_iterator rend() const { return crend(); }
+  /// Gets a reverse iterator that points before the smallest prime in the table.
+  reverse_iterator rend() const { return crend(); }
 
-	/// Returns the number of prime numbers in the table.
-	size_type size() const
-	{
-		return (size_type)std::count(_table.cbegin(), _table.cend(), true);
-	}
+  /// Returns the number of prime numbers in the table.
+  size_type size() const
+  {
+    return (size_type)std::count(_table.cbegin(), _table.cend(), true);
+  }
 #endif
 };
 
@@ -339,127 +351,129 @@ public:
 /// precomputed prime number table.
 template <class T>
 class prime_iterator : 
-	public std::iterator<std::forward_iterator_tag, int, std::ptrdiff_t, void, T>
+  public std::iterator<std::forward_iterator_tag, int, std::ptrdiff_t, void, T>
 {
 private:
-	const prime_table<T> &_table;
-	T _current;
+  const prime_table<T> &_table;
+  T _current;
 
 public:
-	
-	/// Constructs the iterator.
-	prime_iterator(const prime_table<T> &table, T current)
-		: _table(table), _current(current) { }
+  
+  /// Constructs the iterator.
+  prime_iterator(const prime_table<T> &table, T current)
+    : _table(table), _current(current) { }
 
 #if 0
-	/// Constructs the iterator.
-	prime_iterator(const prime_table<T> &table)
-		: _table(table), _current(table.limit() >= 2? 2 : 0) { }
+  /// Constructs the iterator.
+  prime_iterator(const prime_table<T> &table)
+    : _table(table), _current(table.limit() >= 2? 2 : 0) { }
 #endif
 
-	/// Returns the current prime.
-	T operator * () const { 	return _current; }
+  /// Returns the current prime.
+  T operator * () const {   return _current; }
 
-	/// Advances the iterator.
-	prime_iterator& operator ++ ()
-	{
-		assert(_current != 0);
+  /// Advances the iterator.
+  prime_iterator& operator ++ ()
+  {
+    assert(_current != 0);
 
-		T p;
-		if (_current == 2)
-		{
-			p = 3;
-		}
-		else
-		{
-			for (p = _current + 2; p <= _table.limit(); p += 2)
-			{
-				if (_table.test_odd(p))
-					break;
-			}
-		}
+    T p;
+    if (_current == 2)
+    {
+      p = 3;
+    }
+    else
+    {
+      for (p = _current + 2; p <= _table.limit(); p += 2)
+      {
+        if (_table.test_odd(p))
+        {
+          break;
+        }
+      }
+    }
 
-		_current = (p <= _table.limit())? p : 0;
-		return *this;
-	}
+    _current = (p <= _table.limit())? p : 0;
+    return *this;
+  }
 
-	/// Tests whether this iterator is equal to another iterator.
-	/// For performance reason, two prime iterator are equal if and only if
-	/// they are both past-the-end.
-	/// @complexity Constant.
-	bool operator == (const prime_iterator &it) const
-	{
-		return (_current == 0) && (it._current == 0);
-	}
+  /// Tests whether this iterator is equal to another iterator.
+  /// For performance reason, two prime iterator are equal if and only if
+  /// they are both past-the-end.
+  /// @complexity Constant.
+  bool operator == (const prime_iterator &it) const
+  {
+    return (_current == 0) && (it._current == 0);
+  }
 
-	/// Tests whether this iterator is not equal to another iterator.
-	/// @complexity Constant.
-	bool operator != (const prime_iterator &it) const
-	{
-		return ! operator == (it);
-	}
+  /// Tests whether this iterator is not equal to another iterator.
+  /// @complexity Constant.
+  bool operator != (const prime_iterator &it) const
+  {
+    return ! operator == (it);
+  }
 };
 
 
 #if 0
-	/// Iterator used to enumerate the primes from largest to smallest
-	/// in a precomputed prime number table.
-	class const_reverse_iterator : public std::iterator<std::forward_iterator_tag, int>
-	{
-	private:
-		const prime_numbers &_primes;
-		int _current;
+  /// Iterator used to enumerate the primes from largest to smallest
+  /// in a precomputed prime number table.
+  class const_reverse_iterator : public std::iterator<std::forward_iterator_tag, int>
+  {
+  private:
+    const prime_numbers &_primes;
+    int _current;
 
-	public:
-		/// Constructs the iterator.
-		const_reverse_iterator(const prime_numbers &primes, int current)
-			: _primes(primes), _current(current) { }
+  public:
+    /// Constructs the iterator.
+    const_reverse_iterator(const prime_numbers &primes, int current)
+      : _primes(primes), _current(current) { }
 
-		/// Advances the iterator.
-		const_reverse_iterator& operator ++ ()
-		{
-			assert(_current != 0);
+    /// Advances the iterator.
+    const_reverse_iterator& operator ++ ()
+    {
+      assert(_current != 0);
 
-			int p;
-			if (_current == 2)
-			{
-				p = 0;
-			}
-			else if (_current == 3)
-			{
-				p = 2;
-			}
-			else
-			{
-				for (p = _current - 2; p >= 3; p -= 2)
-				{
-					if (_primes._table[p/2])
-						break;
-				}
-			}
+      int p;
+      if (_current == 2)
+      {
+        p = 0;
+      }
+      else if (_current == 3)
+      {
+        p = 2;
+      }
+      else
+      {
+        for (p = _current - 2; p >= 3; p -= 2)
+        {
+          if (_primes._table[p/2])
+            break;
+        }
+      }
 
-			_current = p;
-			return *this;
-		}
+      _current = p;
+      return *this;
+    }
 
-		/// Returns the current value.
-		int operator * () const
-		{
-			return _current;
-		}
+    /// Returns the current value.
+    int operator * () const
+    {
+      return _current;
+    }
 
-		/// Tests whether this iterator is equal to another iterator.
-		bool operator == (const const_reverse_iterator &it) const
-		{
-			return (&_primes == &it._primes && _current == it._current);
-		}
+    /// Tests whether this iterator is equal to another iterator.
+    bool operator == (const const_reverse_iterator &it) const
+    {
+      return (&_primes == &it._primes && _current == it._current);
+    }
 
-		/// Tests whether this iterator is not equal to another iterator.
-		bool operator != (const const_reverse_iterator &it) const
-		{
-			return !(&_primes == &it._primes && _current == it._current);
-		}
-	};
+    /// Tests whether this iterator is not equal to another iterator.
+    bool operator != (const const_reverse_iterator &it) const
+    {
+      return !(&_primes == &it._primes && _current == it._current);
+    }
+  };
 #endif
 
 

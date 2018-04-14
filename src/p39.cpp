@@ -14,12 +14,12 @@
 #include "euler.h"
 
 BEGIN_PROBLEM(39, solve_problem_39)
-	PROBLEM_TITLE("Find the perimeter with the most right angle triangles")
-	PROBLEM_ANSWER("840")
-	PROBLEM_DIFFICULTY(1)
-	PROBLEM_FUN_LEVEL(1)
-	PROBLEM_TIME_COMPLEXITY("")
-	PROBLEM_SPACE_COMPLEXITY("")
+  PROBLEM_TITLE("Find the perimeter with the most right angle triangles")
+  PROBLEM_ANSWER("840")
+  PROBLEM_DIFFICULTY(1)
+  PROBLEM_FUN_LEVEL(1)
+  PROBLEM_TIME_COMPLEXITY("")
+  PROBLEM_SPACE_COMPLEXITY("")
 END_PROBLEM()
 
 #if 0
@@ -30,11 +30,15 @@ static const int max_p = 1000;
 
 static void solve_problem_39()
 {
-	std::vector<int> counter(max_p + 1);
-	generate_right_triangles<int>(max_p, [&counter](int a, int b, int c) {
-		int p = a + b + c;
-		for (int pp = p; pp <= max_p; pp += p)
-			++counter[pp];
-	});
-	std::cout << (std::max_element(counter.cbegin(), counter.cend()) - counter.cbegin()) << std::endl;
+  std::vector<int> counter(max_p + 1);
+  euler::generate_right_triangles<int>(max_p, [&counter](int a, int b, int c)
+  {
+    int p = a + b + c;
+    for (int pp = p; pp <= max_p; pp += p)
+    {
+      ++counter[pp];
+    }
+  });
+  std::cout << (std::max_element(counter.cbegin(), counter.cend()) -
+                counter.cbegin()) << std::endl;
 }
