@@ -90,9 +90,9 @@ if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
       add_custom_target("${TidyTarget}"
         COMMAND "${CLANG_TIDY_EXE}"
         "-p" "${CMAKE_CURRENT_BINARY_DIR}"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/p${SolutionNumber}.cpp"
-	DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/p${SolutionNumber}.cpp"
-	COMMENT "Running clang-tidy on p${SolutionNumber}.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/p${SolutionNumber}.cpp"
+        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/p${SolutionNumber}.cpp"
+        COMMENT "Running clang-tidy on p${SolutionNumber}.cpp"
       )
       set(TidyTargets ${TidyTargets} ${TidyTarget})
     endforeach()
