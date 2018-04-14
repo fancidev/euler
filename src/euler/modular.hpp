@@ -67,7 +67,7 @@ T modsub(T a, T b, T m)
 template <typename T>
 T modmul(T a, T b, T m, std::false_type)
 {
-	typedef typename euler::int_traits<T>::wide_type calc_type;
+	typedef typename euler::make_wide<T>::type calc_type;
 	return ((calc_type)a * (calc_type)b) % m;
 }
 
@@ -114,7 +114,7 @@ template <typename T>
 T modmul(T a, T b, T m)
 {
 	return modmul(a, b, m, 
-		typename std::is_void<typename euler::int_traits<T>::wide_type>());
+		typename std::is_void<typename euler::make_wide<T>::type>());
 }
 
 /**
