@@ -17,31 +17,33 @@
 #include "euler.h"
 
 BEGIN_PROBLEM(31, solve_problem_31)
-    PROBLEM_TITLE("Coin sums")
-    PROBLEM_ANSWER("73682")
-    PROBLEM_DIFFICULTY(1)
-    PROBLEM_FUN_LEVEL(2)
-    PROBLEM_TIME_COMPLEXITY("?")
-    PROBLEM_SPACE_COMPLEXITY("?")
+  PROBLEM_TITLE("Coin sums")
+  PROBLEM_ANSWER("73682")
+  PROBLEM_DIFFICULTY(1)
+  PROBLEM_FUN_LEVEL(2)
+  PROBLEM_TIME_COMPLEXITY("?")
+  PROBLEM_SPACE_COMPLEXITY("?")
 END_PROBLEM()
 
 static const int units[] = { 1, 2, 5, 10, 20, 50, 100, 200 };
 
 static int number_of_ways(int sum, int max_unit)
 {
-	if (max_unit == 0)
-		return 1;
+  if (max_unit == 0)
+  {
+    return 1;
+  }
 
-	int ways = 0;
-	for (int partial_sum = 0; partial_sum <= sum; partial_sum += units[max_unit])
-	{
-		ways += number_of_ways(sum - partial_sum, max_unit - 1);
-	}
-	return ways;
+  int ways = 0;
+  for (int partial_sum = 0; partial_sum <= sum; partial_sum += units[max_unit])
+  {
+    ways += number_of_ways(sum - partial_sum, max_unit - 1);
+  }
+  return ways;
 }
 
 static void solve_problem_31()
 {
-	int ways = number_of_ways(200, sizeof(units)/sizeof(units[0])-1);
-	std::cout << ways << std::endl;
+  int ways = number_of_ways(200, sizeof(units)/sizeof(units[0])-1);
+  std::cout << ways << std::endl;
 }
