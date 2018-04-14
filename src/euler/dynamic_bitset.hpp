@@ -37,32 +37,33 @@ namespace euler {
 template <typename TMask = unsigned char>
 class dynamic_bitset
 {
-	static const int BitsPerWord = sizeof(TMask)*8;
+  static const int BitsPerWord = sizeof(TMask)*8;
 
-	std::vector<TMask> table;
+  std::vector<TMask> table;
 
 public:
-	dynamic_bitset(size_t N, bool value)
-		: table((N+BitsPerWord-1)/BitsPerWord, (TMask)(value? -1 : 0))
-	{
-	}
+  dynamic_bitset(size_t N, bool value)
+    : table((N+BitsPerWord-1)/BitsPerWord, TMask(value? -1 : 0))
+  {
+  }
 
-	bool test(size_t index) const
-	{
-		return (table[index / BitsPerWord] & ((TMask)1 << (index % BitsPerWord))) != 0;
-	}
+  bool test(size_t index) const
+  {
+    return
+      (table[index / BitsPerWord] & (TMask(1) << (index % BitsPerWord))) != 0;
+  }
 
-	bool operator [](size_t index) const { return test(index); }
+  bool operator [](size_t index) const { return test(index); }
 
-	void set(size_t index)
-	{
-		table[index/BitsPerWord] |= ((TMask)1 << (index % BitsPerWord));
-	}
+  void set(size_t index)
+  {
+    table[index/BitsPerWord] |= (TMask(1) << (index % BitsPerWord));
+  }
 
-	void reset(size_t index)
-	{
-		table[index/BitsPerWord] &= ~((TMask)1 << (index % BitsPerWord));
-	}
+  void reset(size_t index)
+  {
+    table[index/BitsPerWord] &= ~(TMask(1) << (index % BitsPerWord));
+  }
 };
 
 } // namespace euler
