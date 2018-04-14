@@ -97,7 +97,7 @@ std::pair<T,T> nth_prime_bounds(T n)
   }
   else
   {
-    long double ln_n = std::log((long double)n);
+    long double ln_n = std::log(static_cast<long double>(n));
     long double ln_ln_n = log(ln_n);
     long double t = ln_n + ln_ln_n;
     return std::pair<T,T>(static_cast<T>(n*t)-n-1, static_cast<T>(n*t)+1);
@@ -160,7 +160,7 @@ public:
     // SK is such that (2*SK+1)^2 <= N < [2*(SK+1)+1]^2.
     T SMALL_N = euler::isqrt(N);
     T SMALL_K = (SMALL_N-1)/2;
-    T estimated_small_count = (T)(SMALL_N / std::log((double)SMALL_N));
+    T estimated_small_count = static_cast<T>(SMALL_N / std::log(SMALL_N));
 
     // Store each small prime.
     std::vector<T> prime_p;
@@ -261,13 +261,21 @@ public:
   {
     assert(n >= 1 && n <= _limit);
     if (n == 1)
+    {
       return false;
+    }
     else if (n == 2)
+    {
       return true;
+    }
     else if (n % 2 == 0)
+    {
       return false;
+    }
     else
+    {
       return test_odd(n);
+    }
   }
 
   /// Gets an iterator that points to the smallest prime in the table.
@@ -290,7 +298,9 @@ public:
   {
     prime_iterator<T> it = begin();
     while (it != end() && *it < n)
+    {
       ++it;
+    }
     return it;
   }
 
@@ -377,7 +387,9 @@ public:
       for (p = _current + 2; p <= _table.limit(); p += 2)
       {
         if (_table.test_odd(p))
+        {
           break;
+        }
       }
     }
 
