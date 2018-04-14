@@ -41,16 +41,16 @@ namespace euler {
 template <typename T, typename TExponent, typename Func>
 T binexp(T base, TExponent exponent, const T &identity, Func multiplies)
 {
-	T result = identity;
-	for (; exponent > 0; exponent >>= 1)
-	{
-		if (exponent & 1)
-		{
-			result = multiplies(result, base);
-		}
-		base = multiplies(base, base);
-	}
-	return result;
+  T result = identity;
+  for (; exponent > 0; exponent >>= 1)
+  {
+    if (exponent & 1)
+    {
+      result = multiplies(result, base);
+    }
+    base = multiplies(base, base);
+  }
+  return result;
 }
 
 /**
@@ -78,89 +78,107 @@ T binexp(T base, TExponent exponent, const T &identity, Func multiplies)
 template <typename T, typename TExponent>
 T ipow(const T &base, TExponent exponent)
 {
-	return binexp(base, exponent, T(1), std::multiplies<T>());
+  return binexp(base, exponent, T(1), std::multiplies<T>());
 }
 
 /**
- * Computes the integer square root of a number.
- * @param a A number whose integer square root is computed.
- * @returns The largest integer that is less than or equal to the square root 
- *      of @c a.
+ * Computes the integral part of the square root an integer.
+ *
+ * @tparam T An integral type.
+ *
+ * @param n A non-negative integer whose square root is computed.
+ *
+ * @returns If @c n is non-negative, returns the largest integer that is less
+ *    than or equal to the square root of @c n. If @c n is negative, returns
+ *    @c -1.
+ *
  * @complexity Constant.
- * @ingroup IMath
- */
-template <class T>
-T isqrt(T a)
-{
-	if (a < 0)
-		return -1;
-	return (T)std::sqrt((double)a);
-}
-
-/**
- * Computes the integral logarithm of a number.
- * @param x The number.
- * @param base The base.
- * @returns <code>⌊ log<sub>base</sub> x ⌋</code>.
- * @timecomplexity <code>O(ln x)</code>.
- * @spacecomplexity Constant.
+ *
  * @ingroup IMath
  */
 template <typename T>
-T ilog(T x, T base)
+T isqrt(T n)
 {
-	T ub = x / base;
-	T e = 0;
-	for (T v = 1; v <= ub; v *= base)
-	{
-		e++;
-	}
-	return e;
+  if (n < 0)
+  {
+    return -1;
+  }
+  return static_cast<T>(std::sqrt(n));
+}
+
+/**
+ * Computes the integral part of the logarithm of an integer.
+ *
+ * @tparam T An integral type.
+ *
+ * @param n A positive integer whose logarithm to take.
+ *
+ * @param base Base of the logarithm.
+ *
+ * @returns <code>⌊ log<sub>base</sub> x ⌋</code>.
+ *
+ * @timecomplexity <code>O(ln x)</code>.
+ *
+ * @spacecomplexity Constant.
+ *
+ * @ingroup IMath
+ */
+template <typename T>
+T ilog(T n, T base)
+{
+  T ub = n / base;
+  T e = 0;
+  for (T v = 1; v <= ub; v *= base)
+  {
+    e++;
+  }
+  return e;
 }
 
 #if 0
+// TODO: revive the following implementation.
 template <class T>
 T isqrt_safe(T n)
 {
-	if (n < 0)
-		return -1;
-	if (n == 0)
-		return 0;
+  if (n < 0)
+    return -1;
+  if (n == 0)
+    return 0;
 
-	typedef typename std::make_unsigned<T>::type UnsignedT;
-	const int bits = std::numeric_limits<UnsignedT>::digits;
+  typedef typename std::make_unsigned<T>::type UnsignedT;
+  const int bits = std::numeric_limits<UnsignedT>::digits;
 
-	UnsignedT a = n;
-	UnsignedT rem = 0;
-	UnsignedT root = 0;
-	for (int i = 0; i < bits/2; i++)
-	{
-		root <<= 1;
-		rem = (rem << 2) + (a >> (bits - 2));
-		a <<= 2;
-		root++;
-		if (root <= rem)
-		{
-			rem -= root;
-			root++;
-		}
-		else
-		{
-			root--;
-		}
-	}
-	return (root >> 1);
+  UnsignedT a = n;
+  UnsignedT rem = 0;
+  UnsignedT root = 0;
+  for (int i = 0; i < bits/2; i++)
+  {
+    root <<= 1;
+    rem = (rem << 2) + (a >> (bits - 2));
+    a <<= 2;
+    root++;
+    if (root <= rem)
+    {
+      rem -= root;
+      root++;
+    }
+    else
+    {
+      root--;
+    }
+  }
+  return (root >> 1);
 }
 
 static void test_sqrt()
 {
-	for (int n = 1; n < 100000000; n++)
-	{
-		int x = (int)sqrt((double)n);
-		int y = isqrt(n);
-		if (x != y)
-			std::cout << "Failed for n = " << n << std::endl;
-	}
+  for (int n = 1; n < 100000000; n++)
+  {
+    int x = (int)sqrt((double)n);
+    int y = isqrt(n);
+    if (x != y)
+      std::cout << "Failed for n = " << n << std::endl;
+  }
 }
 #endif
 
