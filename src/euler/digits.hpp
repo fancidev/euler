@@ -34,7 +34,7 @@ typedef int digit_t;
 template <int base, typename T>
 class digit_iterator
   : public std::iterator<std::forward_iterator_tag, digit_t,
-       	                 std::ptrdiff_t, void, void>
+                         std::ptrdiff_t, void, void>
 {
   static_assert(base >= 2, "base must be greater than or equal to 2.");
 
