@@ -98,6 +98,11 @@ if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
     endforeach()
     add_custom_target(tidy DEPENDS ${TidyTargets})
   endif()
+
+  # Run clang-tidy as part of the build process
+  if(CLANG_TIDY_EXE)
+    set_target_properties(euler PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
+  endif()
 endif()
 
 ##############################################################################
