@@ -33,7 +33,9 @@ set_target_properties(
 # Compiler flags adapted from https://stackoverflow.com/questions/2368811/
 if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
   # using Clang
-  target_compile_options(euler PUBLIC "-Wall" "-Werror" "-pedantic")
+  target_compile_options(euler PUBLIC
+    "-Wall" "-Werror" "-pedantic" "-Wdocumentation" "-Wextra"
+  )
 
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   # using GCC

@@ -124,8 +124,8 @@ T sum_divisors(T n)
  * \code
  * #define EULER_LOOPLESS_DIVISOR_GENERATION 1
  * \endcode
- * More details on the loopless algorithm can be found from <a href=
- * "http://www.cs.utsa.edu/~wagner/knuth/fasc2a.pdf">this excerpt</a>
+ * More details on the loopless algorithm can be found from
+ * <a href="http://www.cs.utsa.edu/~wagner/knuth/fasc2a.pdf">this excerpt</a>
  * from <i>The Art of Computer Programming</i>, Vol 4A, Section 7.2.1.1.
  *
  * @todo Find out a way to return only half of the divisors (i.e. iterate
