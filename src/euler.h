@@ -44,9 +44,9 @@ extern void register_problem(const euler_problem_info &info) noexcept;
 /// @ingroup Helper
 #define BEGIN_PROBLEM(pid, _routine) \
   static void _routine(); \
-  static int _init_problem_##pid(); \
+  static int _init_problem_##pid() noexcept; \
   static int _var_problem_##pid = _init_problem_##pid(); \
-  static int _init_problem_##pid() { \
+  static int _init_problem_##pid() noexcept { \
   euler_problem_info info; \
   info.id = pid; \
   info.routine = _routine;
