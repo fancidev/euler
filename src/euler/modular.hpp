@@ -13,11 +13,11 @@
 
 namespace euler {
 
-	/*
+  /*
 void normalize(std::true_type)
 {
-	if (x < 0)
-		x += modulus();
+  if (x < 0)
+    x += modulus();
 }
 
 void normalize(std::false_type) { }
@@ -38,48 +38,50 @@ void normalize(std::false_type) { }
 template <class TVal, class T>
 T mod(TVal n, T m)
 {
-	T r = (T)(n % m);
+  T r = static_cast<T>(n % m);
 #if 1
-	if (r < 0)
-		r += m;
+  if (r < 0)
+  {
+    r += m;
+  }
 #else
-	normalize(std::is_signed<T>());
+  normalize(std::is_signed<T>());
 #endif
-	return r;
+  return r;
 }
 
 template <typename T>
 T modadd(T a, T b, T m)
 {
-	assert(a >= 0 && a < m);
-	assert(b >= 0 && b < m);
-	return (a >= m - b)? a - (m - b) : a + b;
+  assert(a >= 0 && a < m);
+  assert(b >= 0 && b < m);
+  return (a >= m - b)? a - (m - b) : a + b;
 }
 
 template <typename T>
 T modsub(T a, T b, T m)
 {
-	assert(a >= 0 && a < m);
-	assert(b >= 0 && b < m);
-	return (a >= b)? a - b : a + (m - b);
+  assert(a >= 0 && a < m);
+  assert(b >= 0 && b < m);
+  return (a >= b)? a - b : a + (m - b);
 }
 
 template <typename T>
-T modmul(T a, T b, T m, std::false_type)
+T modmul(T a, T b, T m, std::false_type /* unused */)
 {
-	typedef typename euler::make_wide<T>::type calc_type;
-	return ((calc_type)a * (calc_type)b) % m;
+  typedef typename euler::make_wide<T>::type calc_type;
+  return (static_cast<calc_type>(a) * static_cast<calc_type>(b)) % m;
 }
 
 /// @todo Add optimization if the product of ab will not overflow.
 template <typename T>
-T modmul(T a, T b, T m, std::true_type)
+T modmul(T a, T b, T m, std::true_type /* unused */)
 {
-	if (a < b)
-	{
-		std::swap(a, b);
-	}
-	return binexp(a, b, T(0), [m](T x, T y) -> T { return modadd(x, y, m); });
+  if (a < b)
+  {
+    std::swap(a, b);
+  }
+  return binexp(a, b, T(0), [m](T x, T y) -> T { return modadd(x, y, m); });
 }
 
 /**
@@ -113,8 +115,8 @@ T modmul(T a, T b, T m, std::true_type)
 template <typename T>
 T modmul(T a, T b, T m)
 {
-	return modmul(a, b, m, 
-		typename std::is_void<typename euler::make_wide<T>::type>());
+  return modmul(a, b, m, 
+    typename std::is_void<typename euler::make_wide<T>::type>());
 }
 
 /**
@@ -132,31 +134,33 @@ T modmul(T a, T b, T m)
 template <typename T>
 T modinv(T a, T m)
 {
-	T r_2 = a, r_1 = m;
-	T x_2 = 1, x_1 = 0;
-	while (1)
-	{
-		T q = r_2 / r_1;
-		T r = r_2 % r_1;
-		T x = x_2 - q*x_1;
-		if (r == 1)
-		{
-			if (x < 0)
-				x += m;
-			return x;
-		}
-		r_2 = r_1;
-		r_1 = r;
-		x_2 = x_1;
-		x_1 = x;
-	}
-	return 1;
+  T r_2 = a, r_1 = m;
+  T x_2 = 1, x_1 = 0;
+  while (1)
+  {
+    T q = r_2 / r_1;
+    T r = r_2 % r_1;
+    T x = x_2 - q*x_1;
+    if (r == 1)
+    {
+      if (x < 0)
+      {
+        x += m;
+      }
+      return x;
+    }
+    r_2 = r_1;
+    r_1 = r;
+    x_2 = x_1;
+    x_1 = x;
+  }
+  return 1;
 }
 
 template <typename T>
 T moddiv(T a, T b, T m)
 {
-	return modmul(a, modinv(b, m), m);
+  return modmul(a, modinv(b, m), m);
 }
 
 
@@ -185,8 +189,8 @@ T moddiv(T a, T b, T m)
 template <class T, class TExponent>
 T modpow(T base, TExponent exponent, T modulus)
 {
-	return binexp(base, exponent, T(1), 
-		[modulus](T x, T y) -> T { return modmul(x, y, modulus); });
+  return binexp(base, exponent, T(1), 
+    [modulus](T x, T y) -> T { return modmul(x, y, modulus); });
 }
 
 } // namespace euler
@@ -206,50 +210,50 @@ T modpow(T base, TExponent exponent, T modulus)
 
 unsigned int modmult(unsigned int a, unsigned int b, unsigned int m)
 {
-	// a, b must be < m.
-	unsigned int result;
-	__asm
-	{
-		mov eax, a;
-		mul b;
-		div m;
-		mov result, edx;
-	}
-	return result;
+  // a, b must be < m.
+  unsigned int result;
+  __asm
+  {
+    mov eax, a;
+    mul b;
+    div m;
+    mov result, edx;
+  }
+  return result;
 }
 
 unsigned int modpow3(unsigned int a, unsigned int exponent, unsigned int m)
 {
-	unsigned int power = a % m;
-	unsigned int result;
-	__asm
-	{
-		mov ebx, 1;			// ebx = remainder
-		mov ecx, exponent;	// ecx = exponent
-		mov esi, m;			// esi = modulus
-		mov edi, power;		// edi = power
+  unsigned int power = a % m;
+  unsigned int result;
+  __asm
+  {
+    mov ebx, 1;      // ebx = remainder
+    mov ecx, exponent;  // ecx = exponent
+    mov esi, m;      // esi = modulus
+    mov edi, power;    // edi = power
 
 begin_of_loop:
-		shr ecx, 1;			// exponent >>= 1
-		jnc update_power;	// if the last bit of exponent is zero, do nothing
+    shr ecx, 1;      // exponent >>= 1
+    jnc update_power;  // if the last bit of exponent is zero, do nothing
 
-		mov eax, edi;		// remainder = remainder * power mod m
-		mul ebx;
-		div esi;
-		mov ebx, edx;
+    mov eax, edi;    // remainder = remainder * power mod m
+    mul ebx;
+    div esi;
+    mov ebx, edx;
 
 update_power:
-		jecxz end_of_loop;
-		mov eax, edi;		// power = power^2 mod m
-		mul eax;
-		div esi;
-		mov edi, edx;
-		jmp begin_of_loop;
+    jecxz end_of_loop;
+    mov eax, edi;    // power = power^2 mod m
+    mul eax;
+    div esi;
+    mov edi, edx;
+    jmp begin_of_loop;
 
 end_of_loop:
-		mov result, ebx;
-	}
-	return result;
+    mov result, ebx;
+  }
+  return result;
 }
 #endif
 
