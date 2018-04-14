@@ -36,7 +36,9 @@ void generate_right_triangles(T max_perimeter, Func f)
     {
       // make sure m and n are co-prime.
       if (euler::gcd(m, n) != 1)
+      {
         continue;
+      }
 
       T a = m*m - n*n;
       T b = 2*m*n;
@@ -46,12 +48,16 @@ void generate_right_triangles(T max_perimeter, Func f)
         break;
 #else
       if (a + b + c > max_perimeter)
+      {
         break;
+      }
       f(a, b, c);
 #endif
     }
     if (n <= 2)
+    {
       break;
+    }
   }
 }
 
@@ -99,11 +105,15 @@ void generate_60_degree_triangles(integer_t max_perimeter, Func f)
     {
       // make sure m is not congruent to n (mod 3)
       if (m % 3 == n % 3)
+      {
         continue;
+      }
 
       // make sure m and n are co-prime
       if (greatest_common_divisor(m, n) != 1)
+      {
         continue;
+      }
 
       integer_t a = m*m + m*n + n*n;
       integer_t b = m*m + 2*m*n;
@@ -117,12 +127,16 @@ void generate_60_degree_triangles(integer_t max_perimeter, Func f)
         integer_t c = m*m - n*n;
         gen_2 = f(a, b, c);
       }
-      
+
       if (!gen_1 && !gen_2)
+      {
         break;
+      }
     }
     if (n == 1)
+    {
       break;
+    }
   }
 }
 
@@ -167,20 +181,28 @@ void generate_120_degree_triangles(integer_t max_perimeter, Func f)
     {
       // make sure m is not congruent to n (mod 3)
       if (m % 3 == n % 3)
+      {
         continue;
+      }
 
       // make sure m and n are co-prime
       if (greatest_common_divisor(m, n) != 1)
+      {
         continue;
+      }
 
       integer_t a = m*m + m*n + n*n;
       integer_t b = 2*m*n + n*n;
       integer_t c = m*m - n*n;
       if (!f(a, b, c))
+      {
         break;
+      }
     }
     if (n == min_n)
+    {
       break;
+    }
   }
 }
 
