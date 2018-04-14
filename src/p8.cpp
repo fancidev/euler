@@ -6,12 +6,12 @@
 #include "euler.h"
 
 BEGIN_PROBLEM(8, solve_problem_8)
-	PROBLEM_TITLE("Largest product of five consecutive digits in a 1000-digit number")
-	PROBLEM_ANSWER("40824")
-	PROBLEM_DIFFICULTY(1)
-	PROBLEM_FUN_LEVEL(1)
-	PROBLEM_TIME_COMPLEXITY("n*m")
-	PROBLEM_SPACE_COMPLEXITY("n")
+  PROBLEM_TITLE("Largest product of five consecutive digits in a 1000-digit number")
+  PROBLEM_ANSWER("40824")
+  PROBLEM_DIFFICULTY(1)
+  PROBLEM_FUN_LEVEL(1)
+  PROBLEM_TIME_COMPLEXITY("n*m")
+  PROBLEM_SPACE_COMPLEXITY("n")
 END_PROBLEM()
 
 static const char *input = 
@@ -38,16 +38,18 @@ static const char *input =
 
 static void solve_problem_8()
 {
-	int max_prod = 0;
-	for (int i = 0; i <= 995; i++)
-	{
-		int prod = 1;
-		for (int j = i; j < i + 5; j++)
-		{
-			prod *= (input[j] - '0');
-		}
-		if (prod > max_prod)
-			max_prod = prod;
-	}
-	std::cout << max_prod << std::endl;
+  int max_prod = 0;
+  for (int i = 0; i <= 995; i++)
+  {
+    int prod = 1;
+    for (int j = i; j < i + 5; j++)
+    {
+      prod *= (input[j] - '0');
+    }
+    if (prod > max_prod)
+    {
+      max_prod = prod;
+    }
+  }
+  std::cout << max_prod << std::endl;
 }
