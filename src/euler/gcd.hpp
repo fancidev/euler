@@ -41,7 +41,7 @@ T gcd(T a, T b)
   {
     return a;
   }
-  while (1)
+  while (true)
   {
     T rem = a % b;
     if (rem == 0)
@@ -122,7 +122,7 @@ T egcd(T a, T b,
   typedef typename std::make_signed<T>::type TCalc;
   T r_2 = a, r_1 = b;
   TCalc x_2 = 1, x_1 = 0;
-  while (1)
+  while (true)
   {
     T q = r_2 / r_1;
     T r = r_2 % r_1;

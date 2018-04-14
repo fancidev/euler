@@ -136,7 +136,7 @@ T modinv(T a, T m)
 {
   T r_2 = a, r_1 = m;
   T x_2 = 1, x_1 = 0;
-  while (1)
+  while (true)
   {
     T q = r_2 / r_1;
     T r = r_2 % r_1;

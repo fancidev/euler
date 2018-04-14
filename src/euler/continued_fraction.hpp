@@ -62,101 +62,105 @@ namespace euler {
  */
 template <class T>
 class continued_fraction_sqrt_iterator 
-	: public std::iterator<std::input_iterator_tag, T>
+  : public std::iterator<std::input_iterator_tag, T>
 {
-	T D, a0, a, P, Q;
+  T D, a0, a, P, Q;
 
 public:
 
-	/**
-	 * Constructs an iterator to enumerate the terms in the continued fraction
-	 * representation of a squarefree integer.
-	 *
-	 * @param n A squarefree integer. If @c n is not squarefree, the result is
-	 *      undefined.
-	 * @timecomplexity Constant.
-	 * @spacecomplexity Constant.
-	 */
-	continued_fraction_sqrt_iterator(T n) 
-		: D(n), a0(isqrt(D)), a(a0), P(0), Q(1) 
-	{
-		// Skip the a0 term.
-		if (!(a0*a0 == D))
-			++(*this);
-	}
+  /**
+   * Constructs an iterator to enumerate the terms in the continued fraction
+   * representation of a squarefree integer.
+   *
+   * @param n A squarefree integer. If @c n is not squarefree, the result is
+   *      undefined.
+   * @timecomplexity Constant.
+   * @spacecomplexity Constant.
+   */
+  explicit continued_fraction_sqrt_iterator(T n)
+    : D(n), a0(isqrt(D)), a(a0), P(0), Q(1)
+  {
+    // Skip the a0 term.
+    if (!(a0*a0 == D))
+    {
+      ++(*this);
+    }
+  }
 
-	/// Returns the current term in the continued fraction expansion.
-	/// @timecomplexity Constant.
-	/// @spacecomplexity Constant.
-	T operator * () const { 	return a; }
+  /// Returns the current term in the continued fraction expansion.
+  /// @timecomplexity Constant.
+  /// @spacecomplexity Constant.
+  T operator * () const {   return a; }
 
-	/// Advances the iterator to point to the next term in the continued 
-	/// fraction expansion.
-	/// @return The advanced iterator.
-	/// @timecomplexity Constant.
-	/// @spacecomplexity Constant.
-	continued_fraction_sqrt_iterator<T>& operator ++ ()
-	{
-		P = a*Q - P;
-		Q = (D - P*P) / Q;
-		a = (a0 + P) / Q;
-		return *this;
-	}
+  /// Advances the iterator to point to the next term in the continued 
+  /// fraction expansion.
+  /// @return The advanced iterator.
+  /// @timecomplexity Constant.
+  /// @spacecomplexity Constant.
+  continued_fraction_sqrt_iterator<T>& operator ++ ()
+  {
+    P = a*Q - P;
+    Q = (D - P*P) / Q;
+    a = (a0 + P) / Q;
+    return *this;
+  }
 
-	/// Tests whether this iterator is equal to another iterator.
-	/// @return @c true if the two iterators are equal, @c false otherwise.
-	/// @timecomplexity Constant.
-	/// @spacecomplexity Constant.
-	bool operator == (const continued_fraction_sqrt_iterator<T> &it) const
-	{
-		return (D == it.D) && (a == it.a) && (P == it.P) && (Q == it.Q);
-	}
+  /// Tests whether this iterator is equal to another iterator.
+  /// @return @c true if the two iterators are equal, @c false otherwise.
+  /// @timecomplexity Constant.
+  /// @spacecomplexity Constant.
+  bool operator == (const continued_fraction_sqrt_iterator<T> &it) const
+  {
+    return (D == it.D) && (a == it.a) && (P == it.P) && (Q == it.Q);
+  }
 
-	/// Tests whether this iterator is not equal to another iterator.
-	/// @return @c true if the two iterators are not equal, @c false otherwise.
-	/// @timecomplexity Constant.
-	/// @spacecomplexity Constant.
-	bool operator != (const continued_fraction_sqrt_iterator<T> &it) const
-	{
-		return ! operator == (it);
-	}
+  /// Tests whether this iterator is not equal to another iterator.
+  /// @return @c true if the two iterators are not equal, @c false otherwise.
+  /// @timecomplexity Constant.
+  /// @spacecomplexity Constant.
+  bool operator != (const continued_fraction_sqrt_iterator<T> &it) const
+  {
+    return ! operator == (it);
+  }
 
-	/**
-	 * Checks whether the fractional part of the continued fraction expansion
-	 * is empty. This is the case if and only if @c n is a perfect square.
-	 * @returns @c true if the fractional part of the continued fraction 
-	 *      is empty; @c false otherwise.
-	 * @timecomplexity Constant.
-	 * @spacecomplexity Constant.
-	 */
-	bool empty() const { return a0*a0 == D; }
+  /**
+   * Checks whether the fractional part of the continued fraction expansion
+   * is empty. This is the case if and only if @c n is a perfect square.
+   * @returns @c true if the fractional part of the continued fraction 
+   *      is empty; @c false otherwise.
+   * @timecomplexity Constant.
+   * @spacecomplexity Constant.
+   */
+  bool empty() const { return a0*a0 == D; }
 
-	/// Returns the integer part <code>a<sub>0</sub></code> of the continued
-	/// fraction expansion.
-	/// @timecomplexity Constant.
-	/// @spacecomplexity Constant.
-	T integer_part() const { return a0; }
+  /// Returns the integer part <code>a<sub>0</sub></code> of the continued
+  /// fraction expansion.
+  /// @timecomplexity Constant.
+  /// @spacecomplexity Constant.
+  T integer_part() const { return a0; }
 
-	/// Returns the period length of the continued fraction.
-	/// @returns The period length of the fractional part of the continued 
-	///      fraction. If the continued fraction has no fractional part
-	///      (i.e. if @c D is a perfect square), returns zero.
-	/// @timecomplexity <code>O(D)</code>.
-	/// @spacecomplexity Constant.
-	T period() const 
-	{
-		if (empty())
-			return 0;
+  /// Returns the period length of the continued fraction.
+  /// @returns The period length of the fractional part of the continued 
+  ///      fraction. If the continued fraction has no fractional part
+  ///      (i.e. if @c D is a perfect square), returns zero.
+  /// @timecomplexity <code>O(D)</code>.
+  /// @spacecomplexity Constant.
+  T period() const
+  {
+    if (empty())
+    {
+      return 0;
+    }
 
-		continued_fraction_sqrt_iterator it(D);
-		T period = 1;
-		while (*it != 2*a0)
-		{
-			++period;
-			++it;
-		}
-		return period;
-	}
+    continued_fraction_sqrt_iterator it(D);
+    T period = 1;
+    while (*it != 2*a0)
+    {
+      ++period;
+      ++it;
+    }
+    return period;
+  }
 };
 
 /**
@@ -175,29 +179,29 @@ public:
 template <class T>
 continued_fraction_sqrt_iterator<T> continued_fraction_sqrt(T n)
 {
-	return continued_fraction_sqrt_iterator<T>(n);
+  return continued_fraction_sqrt_iterator<T>(n);
 }
 
 #if 0
 template <class T>
 continued_fraction_sqrt_iterator<T> continued_fraction_sqrt(T n)
 {
-	int a0 = (int)sqrt((double)n);
-	frac.resize(1);
-	frac[0] = a0;
-	if (a0*a0 == n)
-		return;
+  int a0 = (int)sqrt((double)n);
+  frac.resize(1);
+  frac[0] = a0;
+  if (a0*a0 == n)
+    return;
 
-	int P = 0, Q = 1;
-	int a = a0;
-	do
-	{
-		P = a*Q - P;
-		Q = (n - P*P)/Q;
-		a = (a0 + P) / Q;
-		frac.push_back(a);
-	}
-	while (a != 2*a0);
+  int P = 0, Q = 1;
+  int a = a0;
+  do
+  {
+    P = a*Q - P;
+    Q = (n - P*P)/Q;
+    a = (a0 + P) / Q;
+    frac.push_back(a);
+  }
+  while (a != 2*a0);
 }
 #endif
 
@@ -206,22 +210,22 @@ continued_fraction_sqrt_iterator<T> continued_fraction_sqrt(T n)
 #if 0
 static void test_continued_fraction()
 {
-	for (int n = 1; n <= 100; n++)
-	{
-		auto it = euler::continued_fraction_sqrt(n);
-		int a0 = *it;
-		if (a0 * a0 != n)
-		{
-			std::cout << n << " = [" << a0 << ";";
-			int a;
-			do
-			{
-				a = *(++it);
-				std::cout << " " << a;
-			} while (a != 2*a0);
-			std::cout << "]" << std::endl;
-		}
-	}
+  for (int n = 1; n <= 100; n++)
+  {
+    auto it = euler::continued_fraction_sqrt(n);
+    int a0 = *it;
+    if (a0 * a0 != n)
+    {
+      std::cout << n << " = [" << a0 << ";";
+      int a;
+      do
+      {
+        a = *(++it);
+        std::cout << " " << a;
+      } while (a != 2*a0);
+      std::cout << "]" << std::endl;
+    }
+  }
 }
 #endif
 

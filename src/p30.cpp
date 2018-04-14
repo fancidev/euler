@@ -38,74 +38,76 @@ END_PROBLEM()
 // it is the biggest number that satisfies 10^(K-1) <= K*(9^P).
 static int max_possible_digits(int P)
 {
-	int nine_P = euler::ipow(9, P);
-	int K = 1;
-	for (int ten_K_1 = 1; ten_K_1 <= K*nine_P; ten_K_1 *= 10)
-		K++;
-	return K - 1;
+  int nine_P = euler::ipow(9, P);
+  int K = 1;
+  for (int ten_K_1 = 1; ten_K_1 <= K*nine_P; ten_K_1 *= 10)
+  {
+    K++;
+  }
+  return K - 1;
 }
 
 static int sort_digits(int n)
 {
-	int digits[100];
-	int count = 0;
-	while (n > 0)
-	{
-		digits[count++] = n % 10;
-		n /= 10;
-	}
+  int digits[100];
+  int count = 0;
+  while (n > 0)
+  {
+    digits[count++] = n % 10;
+    n /= 10;
+  }
 
-	std::sort(digits + 0, digits + count);
-	n = 0;
-	for (int i = 0; i < count; i++)
-	{
-		n = n * 10 + digits[i];
-	}
-	return n;
+  std::sort(digits + 0, digits + count);
+  n = 0;
+  for (int i = 0; i < count; i++)
+  {
+    n = n * 10 + digits[i];
+  }
+  return n;
 }
 
 static int find_numbers(int ndigits, int current, int partial_sum, const int power[10])
 {
-	int start = current % 10;
-	current *= 10;
+  int start = current % 10;
+  current *= 10;
 
-	int sum = 0;
-	if (ndigits == 1)
-	{
-		for (int d = start; d <= 9; d++)
-		{
-			int s = partial_sum + power[d];
-			if (sort_digits(s) == current + d)
-			{
-				// std::cout << "Found " << s << std::endl;
-				sum += s;
-			}
-		}
-	}
-	else
-	{
-		for (int d = start; d <= 9; d++)
-		{
-			sum += find_numbers(ndigits-1, current + d, partial_sum+power[d], power);
-		}
-	}
-	return sum;
+  int sum = 0;
+  if (ndigits == 1)
+  {
+    for (int d = start; d <= 9; d++)
+    {
+      int s = partial_sum + power[d];
+      if (sort_digits(s) == current + d)
+      {
+        // std::cout << "Found " << s << std::endl;
+        sum += s;
+      }
+    }
+  }
+  else
+  {
+    for (int d = start; d <= 9; d++)
+    {
+      sum += find_numbers(ndigits-1, current + d, partial_sum+power[d], power);
+    }
+  }
+  return sum;
 }
 
 static void solve_problem_30()
 {
-	const int P = 5;
+  const int P = 5;
 
-	int K = max_possible_digits(P);
+  int K = max_possible_digits(P);
 
-	// Compute the power of d^P
-	int power[10];
-	for (int d = 0; d < 10; d++)
-	{
-		power[d] = euler::ipow(d, P);
-	}
+  // Compute the power of d^P
+  int power[10];
+  for (int d = 0; d < 10; d++)
+  {
+    power[d] = euler::ipow(d, P);
+  }
 
-	// Find the sum of all such numbers, excluding 1.
-	int sum = find_numbers(K, 0, 0, power);
-	std::cout << (sum - 1) << std::endl;
+  // Find the sum of all such numbers, excluding 1.
+  int sum = find_numbers(K, 0, 0, power);
+  std::cout << (sum - 1) << std::endl;
 }

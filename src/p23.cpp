@@ -25,44 +25,50 @@
 #include "euler.h"
 
 BEGIN_PROBLEM(23, solve_problem_23)
-	PROBLEM_TITLE("Integers that cannot be written as the sum of two abundant numbers")
-	PROBLEM_ANSWER("4179871")
-	PROBLEM_DIFFICULTY(1)
-	PROBLEM_FUN_LEVEL(1)
-	PROBLEM_TIME_COMPLEXITY("N^2")
-	PROBLEM_SPACE_COMPLEXITY("N")
+  PROBLEM_TITLE("Integers that cannot be written as the sum of two abundant numbers")
+  PROBLEM_ANSWER("4179871")
+  PROBLEM_DIFFICULTY(1)
+  PROBLEM_FUN_LEVEL(1)
+  PROBLEM_TIME_COMPLEXITY("N^2")
+  PROBLEM_SPACE_COMPLEXITY("N")
 END_PROBLEM()
 
 static void solve_problem_23()
 {
-	const int N = 28123;
+  const int N = 28123;
 
-	// Find all abundant numbers less than or equal to N.
-	std::vector<int> abundant_numbers;
-	for (int n = 1; n <= N; n++)
-	{
-		if (euler::sum_divisors(n) > 2*n)
-			abundant_numbers.push_back(n);
-	}
+  // Find all abundant numbers less than or equal to N.
+  std::vector<int> abundant_numbers;
+  for (int n = 1; n <= N; n++)
+  {
+    if (euler::sum_divisors(n) > 2*n)
+    {
+      abundant_numbers.push_back(n);
+    }
+  }
 
-	// Find all possible sums of abundant numbers.
-	std::vector<int> is_sum(N+1);
-	for (auto it1 = abundant_numbers.cbegin(); it1 != abundant_numbers.cend(); ++it1)
-	{
-		for (auto it2 = it1; it2 != abundant_numbers.cend(); ++it2)
-		{
-			int s = *it1 + *it2;
-			if (s <= N)
-				is_sum[s] = true;
-		}
-	}
+  // Find all possible sums of abundant numbers.
+  std::vector<bool> is_sum(N+1);
+  for (auto it1 = abundant_numbers.cbegin(); it1 != abundant_numbers.cend(); ++it1)
+  {
+    for (auto it2 = it1; it2 != abundant_numbers.cend(); ++it2)
+    {
+      int s = *it1 + *it2;
+      if (s <= N)
+      {
+        is_sum[s] = true;
+      }
+    }
+  }
 
-	// Add up all numbers which are not the sum of two abundant numbers.
-	int total = 0;
-	for (int n = 1; n <= N; n++)
-	{
-		if (!is_sum[n])
-			total += n;
-	}
-	std::cout << total << std::endl;
+  // Add up all numbers which are not the sum of two abundant numbers.
+  int total = 0;
+  for (int n = 1; n <= N; n++)
+  {
+    if (!is_sum[n])
+    {
+      total += n;
+    }
+  }
+  std::cout << total << std::endl;
 }
