@@ -28,18 +28,18 @@ set_target_properties(
 
 # Compiler trait adapted from https://stackoverflow.com/questions/10046114/
 # Compiler flags adapted from https://stackoverflow.com/questions/2368811/
-if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
   # using Clang
   target_compile_options(euler PUBLIC "-Wall" "-Werror" "-pedantic")
 
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   # using GCC
   target_compile_options(euler PUBLIC "-Wall" "-Werror" "-pedantic")
 
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   # using Intel C++
 
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   # using Visual Studio C++
   # Force to always compile with W4
   if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
@@ -118,6 +118,29 @@ add_test(p61 euler -r 61)
 add_test(p62 euler -r 62)
 add_test(p63 euler -r 63)
 add_test(p64 euler -r 64)
+
+##############################################################################
+# Lint -- run with `make tidy`
+##############################################################################
+
+# See http://www.parresianz.com/c++/clang-tidy/
+# Enable clang-tidy only if the compiler selected is clang.
+if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+  # Generate compile_commands.json (required by clang-tidy)
+  set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+  # message(STATUS "Compiler version is ${CMAKE_CXX_COMPILER_VERSION}")
+  string(REGEX REPLACE
+    "([0-9]+[.][0-9]+).*" "\\1"
+    CLANG_MAJOR_MINOR "${CMAKE_CXX_COMPILER_VERSION}")
+  # message(STATUS "Compiler major.minor = ${CLANG_MAJOR_MINOR}")
+  set(RUN_CLANG_TIDY_PY "run-clang-tidy-${CLANG_MAJOR_MINOR}.py")
+  # message(STATUS "script: ${RUN_CLANG_TIDY_PY}")
+
+  add_custom_target(tidy
+    COMMAND "${RUN_CLANG_TIDY_PY}"
+    "-checks" "modernize-*"
+  )
+endif()
 
 ##############################################################################
 # Notes -- run with `make pdf`
