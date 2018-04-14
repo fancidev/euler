@@ -38,35 +38,37 @@ END_PROBLEM()
 // Space complexity: 4*q bytes
 static unsigned int get_recurring_cycle(unsigned int p, unsigned int q)
 {
-	std::vector<unsigned int> pos(q);
-	unsigned int r = 1;
-	for (p %= q; p != 0; r++)
-	{
-		if (pos[p] > 0)
-			return r - pos[p];
-		pos[p] = r;
-		p = (p * 10) % q;
-	}
-	return 0;
+  std::vector<unsigned int> pos(q);
+  unsigned int r = 1;
+  for (p %= q; p != 0; r++)
+  {
+    if (pos[p] > 0)
+    {
+      return r - pos[p];
+    }
+    pos[p] = r;
+    p = (p * 10) % q;
+  }
+  return 0;
 }
 
 static void solve_problem_26()
 {
-	unsigned int max_cycle = 0;
-	unsigned int max_q = 0;
-	for (unsigned int q = 1; q < 1000; q++)
-	{
-		unsigned int cycle = get_recurring_cycle(1, q);
-		if (cycle > max_cycle)
-		{
-			max_cycle = cycle;
-			max_q = q;
-		}
-		//std::cout << "q = " << q << ", cycle = " << cycle << std::endl;
-	}
+  unsigned int max_cycle = 0;
+  unsigned int max_q = 0;
+  for (unsigned int q = 1; q < 1000; q++)
+  {
+    unsigned int cycle = get_recurring_cycle(1, q);
+    if (cycle > max_cycle)
+    {
+      max_cycle = cycle;
+      max_q = q;
+    }
+    //std::cout << "q = " << q << ", cycle = " << cycle << std::endl;
+  }
 #if 0
-	std::cout << "Longest recurring cycle is cycle(" << max_q << ") = " 
-		<< max_cycle << std::endl;
+  std::cout << "Longest recurring cycle is cycle(" << max_q << ") = " 
+    << max_cycle << std::endl;
 #else
     std::cout << max_q << std::endl;
 #endif
