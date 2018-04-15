@@ -200,10 +200,10 @@ static void solve_problem_60()
   if (verbose())
   {
     std::cout << "Found clique:";
-    auto &vv = clique_groups[K][min_clique].vertices;
-    for (int i = 0; i < K; i++)
+    const auto &vv = clique_groups[K][min_clique].vertices;
+    for (int v: vv)
     {
-      std::cout << " " << G.get_vertex(vv[i]);
+      std::cout << " " << G.get_vertex(v);
     }
     std::cout << std::endl;
   }
