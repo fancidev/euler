@@ -57,7 +57,8 @@ static int64_t search(const int multi[], int k, int tail, int number[10], std::b
           if (!mask.test(d))
           {
             number[0] = d;
-            long long x = euler::from_digits<10, long long>(&number[0], &number[10]);
+            int64_t x = euler::from_digits<10, int64_t>(
+                &number[0], &number[10]);
             sum += x;
             // std::cout << "Found " << x << std::endl;
           }
@@ -73,7 +74,7 @@ static void solve_problem_43()
 {
   const int multi[] = { 2, 3, 5, 7, 11, 13, 17 };
 
-  long long sum = 0;
+  int64_t sum = 0;
   const int k = 6;
   for (int n = multi[k]; n < 1000; n += multi[k])
   {
