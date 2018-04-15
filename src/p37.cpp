@@ -29,7 +29,7 @@ END_PROBLEM()
 
 static std::vector<int> truncatable_primes;
 
-// Check whether a prime number n is still a prime when removing 
+// Check whether a prime number n is still a prime when removing
 // one digit from the left iteratively.
 static bool is_truncatable_from_left(int n)
 {
