@@ -80,25 +80,43 @@ static rank_t reorder_hand(card_t h[5])
     });
 
     if (is_flush && h[0].value == 12)
+    {
         return RoyalFlush;
+    }
     if (is_flush && is_straight)
+    {
         return StraightFlush;
+    }
     if (h[0].value == h[1].value && h[1].value == h[2].value &&
         h[2].value == h[3].value)
+    {
         return FourOfAKind;
+    }
     if (h[0].value == h[1].value && h[1].value == h[2].value &&
         h[3].value == h[4].value)
+    {
         return FullHouse;
+    }
     if (is_flush)
+    {
         return Flush;
+    }
     if (is_straight)
+    {
         return Straight;
+    }
     if (h[0].value == h[1].value && h[1].value == h[2].value)
+    {
         return ThreeOfAKind;
+    }
     if (h[0].value == h[1].value && h[2].value == h[3].value)
+    {
         return TwoPairs;
+    }
     if (h[0].value == h[1].value)
+    {
         return OnePair;
+    }
     return HighCard;
 }
 
@@ -107,15 +125,23 @@ static int compare_hands(card_t a[5], card_t b[5])
     rank_t r1 = reorder_hand(a);
     rank_t r2 = reorder_hand(b);
     if (r1 < r2)
+    {
         return -1;
+    }
     if (r1 > r2)
+    {
         return 1;
+    }
     for (int i = 0; i < 5; i++)
     {
         if (a[i].value < b[i].value)
+        {
             return -1;
+        }
         if (a[i].value > b[i].value)
+        {
             return 1;
+        }
     }
     return 0;
 }
