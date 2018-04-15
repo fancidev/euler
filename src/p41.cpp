@@ -16,13 +16,13 @@
 #include "euler.h"
 
 BEGIN_PROBLEM(41, solve_problem_41)
-	PROBLEM_TITLE("Find the largest pandigital prime")
-	PROBLEM_ANSWER("7652413")
-	PROBLEM_DIFFICULTY(1)
-	PROBLEM_FUN_LEVEL(1)
-	PROBLEM_TIME_COMPLEXITY("b^(2b)/ln(b)")
-	PROBLEM_SPACE_COMPLEXITY("b^(b-1)/ln(b)")
-	PROBLEM_KEYWORDS("pandigital,prime")
+  PROBLEM_TITLE("Find the largest pandigital prime")
+  PROBLEM_ANSWER("7652413")
+  PROBLEM_DIFFICULTY(1)
+  PROBLEM_FUN_LEVEL(1)
+  PROBLEM_TIME_COMPLEXITY("b^(2b)/ln(b)")
+  PROBLEM_SPACE_COMPLEXITY("b^(b-1)/ln(b)")
+  PROBLEM_KEYWORDS("pandigital,prime")
 END_PROBLEM()
 
 // Complexity analysis:
@@ -43,32 +43,32 @@ END_PROBLEM()
 
 static void solve_problem_41()
 {
-	// Generate prime table to speed up prime testing.
-	euler::prime_table<int> pp(3163); // 3163=sqrt(10^7)
-	std::vector<int> primes(pp.begin(), pp.end());
-	int result = 0;
+  // Generate prime table to speed up prime testing.
+  euler::prime_table<int> pp(3163); // 3163=sqrt(10^7)
+  std::vector<int> primes(pp.begin(), pp.end());
+  int result = 0;
 
-	// Test each 1-n pandigital number, starting from the largest one.
-	// Note that the sum of 1-9 is divisible by three, so there can't exist
-	// 9-digit pandigital primes. In fact, only 7,4,1-digit pandigital primes
-	// are possible
-	for (int n = 7; n >= 1 && result == 0; n -= 3)
-	{
-		std::vector<int> digits(n);
-		for (int i = 0; i < n; i++)
-		{
-			digits[i] = n - i;
-		}
-		do 
-		{
-			int number = euler::from_digits<10,int>(digits.cbegin(), digits.cend());
-			if (euler::is_prime(number, primes.begin(), primes.end()))
-			{
-				result = number;
-				break;
-			}
-		}
-		while (std::next_permutation(digits.begin(), digits.end(), std::greater<int>()));
-	}
-	std::cout << result << std::endl;
+  // Test each 1-n pandigital number, starting from the largest one.
+  // Note that the sum of 1-9 is divisible by three, so there can't exist
+  // 9-digit pandigital primes. In fact, only 7,4,1-digit pandigital primes
+  // are possible
+  for (int n = 7; n >= 1 && result == 0; n -= 3)
+  {
+    std::vector<int> digits(n);
+    for (int i = 0; i < n; i++)
+    {
+      digits[i] = n - i;
+    }
+    do 
+    {
+      int number = euler::from_digits<int>(digits.cbegin(), digits.cend());
+      if (euler::is_prime(number, primes.begin(), primes.end()))
+      {
+        result = number;
+        break;
+      }
+    }
+    while (std::next_permutation(digits.begin(), digits.end(), std::greater<int>()));
+  }
+  std::cout << result << std::endl;
 }

@@ -66,7 +66,7 @@ static void solve_problem_49()
   {
     if (p >= 1000)
     {
-      map.push_back(std::pair<int, int>(euler::sort_digits<10>(p), p));
+      map.push_back(std::pair<int, int>(euler::sort_digits(p), p));
     }
   }
 

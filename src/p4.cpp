@@ -27,7 +27,7 @@ static void solve_problem_4()
       {
         break;
       }
-      if (euler::is_palindromic<10>(n))
+      if (euler::is_palindromic(n))
       {
         max_n = n;
       }

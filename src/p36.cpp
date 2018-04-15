@@ -34,12 +34,12 @@ static void solve_problem_36()
   for (int a = 1; a < 1000; a++)
   {
     auto p0 = digits.begin();
-    auto p1 = std::copy(euler::digits<10>(a).begin(), euler::digits<10>(a).end(), p0);
+    auto p1 = std::copy(euler::digits(a).begin(), euler::digits(a).end(), p0);
 
     // Mirror abc => abcba
     {
       auto p2 = std::reverse_copy(p0, p1 - 1, p1);
-      int n = euler::from_digits<10,int>(p0, p2);
+      int n = euler::from_digits<int>(p0, p2);
       if (euler::is_palindromic<2>(n))
       {
         if (verbose())
@@ -53,7 +53,7 @@ static void solve_problem_36()
     // Mirror abc => abccba
     {
       auto p2 = std::reverse_copy(p0, p1, p1);
-      int n = euler::from_digits<10,int>(p0, p2);
+      int n = euler::from_digits<int>(p0, p2);
       if (euler::is_palindromic<2>(n))
       {
         if (verbose())

@@ -15,7 +15,7 @@ END_PROBLEM()
 
 static int get_nth_digit(int m, int p)
 {
-  auto digits = euler::digits<10>(m);
+  auto digits = euler::digits(m);
   auto it = digits.begin();
   std::advance(it, (p - 1));
   return *it;

@@ -157,8 +157,8 @@ public:
 };
 
 /**
- * Expands the digits of an integer and returns them from left to right (most
- * significant to least significant).
+ * Expands the digits of an integer from left to right (most significant to
+ * least significant).
  *
  * @tparam base The base to expand into. Must be greater than or equal to 2.
  *
@@ -177,7 +177,7 @@ public:
  *
  * @ingroup Digits
  */
-template <int base, typename T>
+template <int base = 10, typename T>
 sequence<digit_iterator<base, T>> digits(T n)
 {
   static_assert(base >= 2, "base must be greater than or equal to 2.");
@@ -187,8 +187,8 @@ sequence<digit_iterator<base, T>> digits(T n)
 }
 
 /**
- * Expands the digits of an integer and returns them from right to left (least
- * significant to most significant).
+ * Expands the digits of an integer from right to left (least significant to
+ * most significant).
  *
  * @tparam base The base to expand into. Must be greater than or equal to 2.
  *
@@ -207,7 +207,7 @@ sequence<digit_iterator<base, T>> digits(T n)
  *
  * @ingroup Digits
  */
-template <int base, typename T>
+template <int base = 10, typename T>
 sequence<digit_reverse_iterator<base, T>> rdigits(T n)
 {
   static_assert(base >= 2, "base must be greater than or equal to 2.");
@@ -237,7 +237,7 @@ sequence<digit_reverse_iterator<base, T>> rdigits(T n)
  *
  * @ingroup Digits
  */
-template <int base, typename T, class InIt>
+template <typename T, int base = 10, class InIt>
 T from_digits(InIt begin, InIt end)
 {
   static_assert(base >= 2, "base must be greater than or equal to 2.");
@@ -269,20 +269,20 @@ T from_digits(InIt begin, InIt end)
  *
  * @ingroup Digits
  */
-template <int base, typename T>
+template <int base = 10, typename T>
 T sort_digits(T n)
 {
   static_assert(base >= 2, "base must be greater than or equal to 2.");
 
   const int Bits = std::numeric_limits<T>::digits + 1;
   std::array<int, Bits> digits;
-  auto d = euler::rdigits<base>(n);
+  auto d = rdigits<base>(n);
   auto p1 = digits.begin();
   auto p2 = std::copy(d.begin(), d.end(), p1);
 
   std::sort(p1, p2, std::greater<int>());
 
-  return euler::from_digits<base, T>(p1, p2);
+  return from_digits<T, base>(p1, p2);
 }
 
 /**
@@ -299,7 +299,7 @@ T sort_digits(T n)
  *
  * @ingroup Digits
  */
-template <int base, typename T>
+template <int base = 10, typename T>
 size_t count_digits(T n)
 {
   assert(n >= T(0));
@@ -330,7 +330,7 @@ size_t count_digits(T n)
  * @todo Preferrably we should find a way to use <code>std::equal</code>
  *      and avoid generating @c C4996 warning from VC++.
  */
-template <int base, typename T>
+template <int base = 10, typename T>
 bool is_palindromic(T n)
 {
   auto r1 = digits<base>(n);
@@ -371,7 +371,7 @@ bool is_palindromic(T n)
  *
  * @ingroup Digits
  */
-template <int base, class InIt>
+template <int base = 10, class InIt>
 bool is_pandigital(InIt begin, InIt end, int lowest = 1, int highest = base - 1)
 {
   std::bitset<base> mask;

@@ -57,8 +57,7 @@ static int64_t search(const int multi[], int k, int tail, int number[10], std::b
           if (!mask.test(d))
           {
             number[0] = d;
-            int64_t x = euler::from_digits<10, int64_t>(
-                &number[0], &number[10]);
+            int64_t x = euler::from_digits<int64_t>(&number[0], &number[10]);
             sum += x;
             // std::cout << "Found " << x << std::endl;
           }

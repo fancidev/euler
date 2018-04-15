@@ -45,8 +45,8 @@ static void solve_problem_62()
   for (int64_t k = 1; ; k++)
   {
     const int64_t cube = k*k*k;
-    const int64_t norm = euler::sort_digits<10>(cube);
-    const size_t ndigits = euler::count_digits<10>(cube);
+    const int64_t norm = euler::sort_digits(cube);
+    const size_t ndigits = euler::count_digits(cube);
 
     // If k^3 has more digits than the last iteration, check whether
     // the last batch of cubes contain 5-permutations.

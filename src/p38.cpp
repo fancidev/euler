@@ -42,16 +42,16 @@ static void solve_problem_38()
       digits.clear();
       for (int k = 1; k <= n; k++)
       {
-        std::copy(euler::digits<10>(k*m).begin(), euler::digits<10>(k*m).end(), 
+        std::copy(euler::digits(k*m).begin(), euler::digits(k*m).end(),
           std::back_inserter(digits));
       }
       if (digits.size() > 9)
       {
         break;
       }
-      if (euler::is_pandigital<10>(digits.cbegin(), digits.cend()))
+      if (euler::is_pandigital(digits.cbegin(), digits.cend()))
       {
-        int number = euler::from_digits<10,int>(digits.cbegin(), digits.cend());
+        int number = euler::from_digits<int>(digits.cbegin(), digits.cend());
         max_number = std::max(max_number, number);
         if (verbose())
         {

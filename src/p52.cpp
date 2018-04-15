@@ -31,12 +31,12 @@ static void solve_problem_52()
 {
   for (unsigned int n = 100000; ; n++)
   {
-    unsigned int sig = euler::sort_digits<10>(n);
-    if (sig == euler::sort_digits<10>(n*2) &&
-        sig == euler::sort_digits<10>(n*3) &&
-        sig == euler::sort_digits<10>(n*4) &&
-        sig == euler::sort_digits<10>(n*5) &&
-        sig == euler::sort_digits<10>(n*6))
+    unsigned int sig = euler::sort_digits(n);
+    if (sig == euler::sort_digits(n*2) &&
+        sig == euler::sort_digits(n*3) &&
+        sig == euler::sort_digits(n*4) &&
+        sig == euler::sort_digits(n*5) &&
+        sig == euler::sort_digits(n*6))
     {
       std::cout << n << std::endl;
       break;
