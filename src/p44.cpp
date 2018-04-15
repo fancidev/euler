@@ -33,6 +33,7 @@
  */
 
 #define EULER_LOOPLESS_DIVISOR_GENERATION 1
+#include <cstdint>
 #include <iostream>
 #include "euler/prime_factor.hpp"
 #include "euler/divisor.hpp"
@@ -40,72 +41,82 @@
 #include "euler.h"
 
 BEGIN_PROBLEM(44, solve_problem_44)
-	PROBLEM_TITLE("Pentagonal numbers whose sum and difference are also pentagonal")
-	PROBLEM_ANSWER("5482660")
-	PROBLEM_DIFFICULTY(2)
-	PROBLEM_FUN_LEVEL(3)
-	PROBLEM_TIME_COMPLEXITY("n^2")
-	PROBLEM_SPACE_COMPLEXITY("log(n)")
-	PROBLEM_KEYWORDS("polygonal number")
+  PROBLEM_TITLE("Pentagonal numbers whose sum and difference are also pentagonal")
+  PROBLEM_ANSWER("5482660")
+  PROBLEM_DIFFICULTY(2)
+  PROBLEM_FUN_LEVEL(3)
+  PROBLEM_TIME_COMPLEXITY("n^2")
+  PROBLEM_SPACE_COMPLEXITY("log(n)")
+  PROBLEM_KEYWORDS("polygonal number")
 END_PROBLEM()
 
 // Find the minimum difference between two r-gonal numbers
 // whose sum and difference are both r-gonal numbers.
-static long long find_min_diff(int r, bool verbose)
+static int64_t find_min_diff(int r)
 {
-	int count1 = 0, count2 = 0;
+  int count1 = 0, count2 = 0;
 
-	typedef long long calc_t;
-	for (int i = 1; ; i++)
-	{
-		calc_t D = (calc_t)i*(calc_t)((r-2)*i-(r-4));
+  typedef int64_t calc_t;
+  for (int i = 1; ; i++)
+  {
+    calc_t D = static_cast<calc_t>(i) * static_cast<calc_t>((r-2)*i-(r-4));
 
-		// Enumerate the divisors of D.
-		auto f = euler::merge(euler::factors(i), euler::factors((r-2)*i-(r-4)));
-		auto dv = euler::divisors<calc_t>(f);
-		for (auto it = dv.begin(); it != dv.end(); ++it)
-		{
-			++count1;
-			calc_t a = *it, b = D/a;
-			if (a >= b)
-				continue;
-			if ((b+(r-4))%(r-2) != 0)
-				continue;
-			b=(b+(r-4))/(r-2);
-			if ((a+b)%2 != 0)
-				continue;
-			calc_t j = (a+b)/2;
-			calc_t k = (b-a)/2;
-			if (k <= 0)
-				continue;
+    // Enumerate the divisors of D.
+    auto f = euler::merge(euler::factors(i), euler::factors((r-2)*i-(r-4)));
+    auto dv = euler::divisors<calc_t>(f);
+    for (auto it = dv.begin(); it != dv.end(); ++it)
+    {
+      ++count1;
+      calc_t a = *it, b = D/a;
+      if (a >= b)
+      {
+        continue;
+      }
+      if ((b+(r-4))%(r-2) != 0)
+      {
+        continue;
+      }
+      b=(b+(r-4))/(r-2);
+      if ((a+b)%2 != 0)
+      {
+        continue;
+      }
+      calc_t j = (a+b)/2;
+      calc_t k = (b-a)/2;
+      if (k <= 0)
+      {
+        continue;
+      }
 
-			// Check whether P_j + P_k is a polygonal number of rank r.
-			++count2;
-			calc_t Pl = euler::polygonal(r, j) + euler::polygonal(r, k);
-			if (euler::is_polygonal(r, Pl))
-			{
-				if (verbose)
-				{
-					std::cout << "D(" << r << ") = " << D/2 << ", i,j,k = " 
-						<< i << "," << j << "," << k << std::endl;
-					std::cout << "    # divisors checked: " << count1 << std::endl;
-					std::cout << "    # polygonal tested: " << count2 << std::endl;
-				}
-				return D/2;
-			}
-		}
-	}
+      // Check whether P_j + P_k is a polygonal number of rank r.
+      ++count2;
+      calc_t Pl = euler::polygonal(r, j) + euler::polygonal(r, k);
+      if (euler::is_polygonal(r, Pl))
+      {
+        if (verbose())
+        {
+          std::cout << "D(" << r << ") = " << D/2 << ", i,j,k = "
+            << i << "," << j << "," << k << std::endl;
+          std::cout << "    # divisors checked: " << count1 << std::endl;
+          std::cout << "    # polygonal tested: " << count2 << std::endl;
+        }
+        return D/2;
+      }
+    }
+  }
 }
 
 static void solve_problem_44()
 {
 #if 0
-	for (int r = 3; r <= 16; r++)
-	{
-		if (r != 4)
-			find_min_diff(r, true);
-	}
+  for (int r = 3; r <= 16; r++)
+  {
+    if (r != 4)
+    {
+      find_min_diff(r);
+    }
+  }
 #else
-	std::cout << find_min_diff(5, false) << std::endl;
+  std::cout << find_min_diff(5) << std::endl;
 #endif
 }
