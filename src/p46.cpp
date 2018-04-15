@@ -18,7 +18,7 @@
  */
 
 #include <iostream>
-#include <cmath>
+#include "euler/imath.hpp"
 #include "euler/prime_table.hpp"
 #include "euler.h"
 
@@ -42,11 +42,13 @@ void solve_problem_46()
     {
         // skip prime number itself
         if (primes.test(n))
+        {
             continue;
+        }
 
         // test each possible square number
         bool found = false;
-        for (int b = (int)sqrt((double)(n-3)/2); b >= 1; b--)
+        for (int b = euler::isqrt((n-3)/2); b >= 1; b--)
         {
             int a = n - 2*b*b;
             if (primes.test(a))
