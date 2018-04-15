@@ -16,14 +16,16 @@ static bool is_triangle_word(const char *s)
 {
     // Compute the sum of alphabet positions.
     int k = 0;
-    while (*s)
+    while (*s != '\0')
+    {
         k += ((*s++) - 'A' + 1);
+    }
 
     // Check whether k is triangle number, i.e. whether the equation
     // n^2 + n - 2k = 0 has an integer root. We just need to check
     // Delta = 1+8k is a square number.
     k = 1 + 8 * k;
-    int r = (int)std::sqrt((double)k);
+    int r = static_cast<int>(std::sqrt(k));
     return (r * r == k);
 }
 

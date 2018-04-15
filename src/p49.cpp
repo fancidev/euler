@@ -43,8 +43,12 @@ static void search_triple(
       {
         if (it2->second * 2 == it1->second+it3->second)
         {
-          if (!(it1->second == 1487 && it2->second == 4817 && it3->second == 8147))
+          if (!(it1->second == 1487 &&
+                it2->second == 4817 &&
+                it3->second == 8147))
+          {
             std::cout << it1->second << it2->second << it3->second << std::endl;
+          }
         }
       }
     }
@@ -74,7 +78,9 @@ static void solve_problem_49()
   {
     auto it2 = it + 1;
     while (it2 != map.cend() && it2->first == it->first)
+    {
       ++it2;
+    }
 
     search_triple(it, it2);
     it = it2;

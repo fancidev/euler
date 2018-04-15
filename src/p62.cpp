@@ -52,10 +52,10 @@ static void solve_problem_62()
     // the last batch of cubes contain 5-permutations.
     if (ndigits != last_ndigits)
     {
-      for (auto it = cube_counter.cbegin(); it != cube_counter.cend(); ++it)
+      for (const auto &cube_count: cube_counter)
       {
-        int64_t cube_repr = it->first;
-        int count = it->second;
+        const int64_t cube_repr = cube_count.first;
+        const int count = cube_count.second;
         if (count == max_perm)
         {
           std::cout << cube_repr << std::endl;
@@ -71,7 +71,9 @@ static void solve_problem_62()
 
     int64_t &first = norm_to_cube[norm];
     if (first == 0)
+    {
       first = cube;
+    }
     ++cube_counter[first];
   }
 }

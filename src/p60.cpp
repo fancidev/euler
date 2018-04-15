@@ -81,7 +81,7 @@ public:
   int add_vertex(unsigned int p)
   {
     int index = static_cast<int>(V.size());
-    V.push_back(vertex(p));
+    V.emplace_back(p);
     cache.resize(V.size());
     std::fill(cache.begin(), cache.end(), edge());
     return index;
@@ -129,7 +129,7 @@ static void solve_problem_60()
 
   // Initialize group[0] with an empty clique from which cliques of more
   // vertices may be grown.
-  clique_groups[0].push_back(clique());
+  clique_groups[0].emplace_back();
 
   unsigned int min_weight = std::numeric_limits<unsigned int>::max();
   int min_clique = -1;
@@ -200,10 +200,10 @@ static void solve_problem_60()
   if (verbose())
   {
     std::cout << "Found clique:";
-    auto &vv = clique_groups[K][min_clique].vertices;
-    for (int i = 0; i < K; i++)
+    const auto &vv = clique_groups[K][min_clique].vertices;
+    for (int v: vv)
     {
-      std::cout << " " << G.get_vertex(vv[i]);
+      std::cout << " " << G.get_vertex(v);
     }
     std::cout << std::endl;
   }

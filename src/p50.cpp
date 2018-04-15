@@ -41,10 +41,9 @@ static void solve_problem_50()
     euler::prime_table<int> primes(N);
 
     // Compute cumulative sum of the primes.
-    std::vector<long long> cumsum;
-    if (true)
+    std::vector<int64_t> cumsum;
     {
-        long long s = 0;
+        int64_t s = 0;
         cumsum.push_back(0);
         for (int p : primes)
         {
@@ -55,22 +54,28 @@ static void solve_problem_50()
     // Find the longest consecutive sum that is a prime.
     int max_length = 0;
     int max_p = 0;
-    int count = (int)cumsum.size();
+    int count = static_cast<int>(cumsum.size());
     for (int i = 0; i < count; i++)
     {
         for (int j = i + max_length + 1; j < count; j++)
         {
-            long long s = cumsum[j] - cumsum[i];
+            int64_t s = cumsum[j] - cumsum[i];
             if (s >= N)
+            {
                 break;
-            if (primes.test((int)s))
+            }
+            if (primes.test(static_cast<int>(s)))
             {
                 max_length = j - i;
-                max_p = (int)s;
+                max_p = static_cast<int>(s);
             }
         }
     }
 
-    //std::cout << "Max P = " << max_p << ", max_length = " << max_length << std::endl;
+    if (verbose())
+    {
+      std::cout << "Max P = " << max_p << ", max_length = "
+                << max_length << std::endl;
+    }
     std::cout << max_p << std::endl;
 }

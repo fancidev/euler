@@ -21,8 +21,9 @@
  * tie then the next highest cards are compared, and so on.
  */
 
-#include <iostream>
 #include <algorithm>
+#include <cstdint>
+#include <iostream>
 #include "euler.h"
 
 BEGIN_PROBLEM(54, solve_problem_54)
@@ -39,8 +40,8 @@ static const char suit_s[] = { 'S','H','D','C' };
 
 struct card_t
 {
-    unsigned char value; // corresponds to value_s
-    unsigned char suit;  // corresponds to suit_s
+    uint8_t value; // corresponds to value_s
+    uint8_t suit;  // corresponds to suit_s
 };
 
 enum rank_t
@@ -80,25 +81,43 @@ static rank_t reorder_hand(card_t h[5])
     });
 
     if (is_flush && h[0].value == 12)
+    {
         return RoyalFlush;
+    }
     if (is_flush && is_straight)
+    {
         return StraightFlush;
+    }
     if (h[0].value == h[1].value && h[1].value == h[2].value &&
         h[2].value == h[3].value)
+    {
         return FourOfAKind;
+    }
     if (h[0].value == h[1].value && h[1].value == h[2].value &&
         h[3].value == h[4].value)
+    {
         return FullHouse;
+    }
     if (is_flush)
+    {
         return Flush;
+    }
     if (is_straight)
+    {
         return Straight;
+    }
     if (h[0].value == h[1].value && h[1].value == h[2].value)
+    {
         return ThreeOfAKind;
+    }
     if (h[0].value == h[1].value && h[2].value == h[3].value)
+    {
         return TwoPairs;
+    }
     if (h[0].value == h[1].value)
+    {
         return OnePair;
+    }
     return HighCard;
 }
 
@@ -107,15 +126,23 @@ static int compare_hands(card_t a[5], card_t b[5])
     rank_t r1 = reorder_hand(a);
     rank_t r2 = reorder_hand(b);
     if (r1 < r2)
+    {
         return -1;
+    }
     if (r1 > r2)
+    {
         return 1;
+    }
     for (int i = 0; i < 5; i++)
     {
         if (a[i].value < b[i].value)
+        {
             return -1;
+        }
         if (a[i].value > b[i].value)
+        {
             return 1;
+        }
     }
     return 0;
 }
@@ -123,8 +150,12 @@ static int compare_hands(card_t a[5], card_t b[5])
 static card_t read_card(char value, char suit)
 {
     card_t c;
-    c.value = (unsigned char)(std::find(value_s + 0, value_s + sizeof(value_s), value) - value_s);
-    c.suit = (unsigned char)(std::find(suit_s + 0, suit_s + sizeof(suit_s), suit) - suit_s);
+    c.value = static_cast<uint8_t>(
+        std::find(std::begin(value_s), std::end(value_s), value) -
+        std::begin(value_s));
+    c.suit = static_cast<uint8_t>(
+        std::find(std::begin(suit_s), std::end(suit_s), suit) -
+        std::begin(suit_s));
     return c;
 }
 
@@ -146,17 +177,27 @@ static void solve_problem_54()
         }
 
         int winner = compare_hands(&cards[0], &cards[5]);
-#if 0
-        std::cout << row << "   ";
-        if (winner > 0)
+        if (verbose())
+        {
+          std::cout << round << "   ";
+          if (winner > 0)
+          {
             std::cout << "Player 1 wins" << std::endl;
-        else if (winner < 0)
+          }
+          else if (winner < 0)
+          {
             std::cout << "Player 2 wins" << std::endl;
-        else
-            std::cout << "Tie";
-#endif
+          }
+          else
+          {
+            std::cout << "Tie" << std::endl;
+          }
+        }
+
         if (winner > 0)
+        {
             ++count;
+        }
     }
     std::cout << count << std::endl;
 }

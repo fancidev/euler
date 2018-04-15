@@ -26,91 +26,94 @@
  * ANSWER: 28684.
  */
 
-#include <iostream>
-#include <vector>
 #include <algorithm>
+#include <cstdint>
+#include <iostream>
 #include <numeric>
+#include <vector>
 #include "euler.h"
 
 BEGIN_PROBLEM(61, solve_problem_61)
-    PROBLEM_TITLE("Cyclical figurate numbers")
-    PROBLEM_ANSWER("28684")
-    PROBLEM_DIFFICULTY(1)
-    PROBLEM_FUN_LEVEL(1)
-    PROBLEM_TIME_COMPLEXITY("?")
-    PROBLEM_SPACE_COMPLEXITY("?")
+  PROBLEM_TITLE("Cyclical figurate numbers")
+  PROBLEM_ANSWER("28684")
+  PROBLEM_DIFFICULTY(1)
+  PROBLEM_FUN_LEVEL(1)
+  PROBLEM_TIME_COMPLEXITY("?")
+  PROBLEM_SPACE_COMPLEXITY("?")
 END_PROBLEM()
 
 // Generate four-digit figurate numbers n and store them in vector P.
 // n = (a*n^2 + b*n) / d
-static void generate(std::vector<unsigned short> &P, int a, int b, int d)
+static void generate(std::vector<uint16_t> &P, int a, int b, int d)
 {
-	int p = (a + b) / d;
-	int n = 1;
-	while (p < 10000)
-	{
-		if (p >= 1000)
-			P.push_back(static_cast<unsigned short>(p));
-		p += (2*a*n + a + b) / d;
-		n++;
-	}
+  int p = (a + b) / d;
+  int n = 1;
+  while (p < 10000)
+  {
+    if (p >= 1000)
+    {
+      P.push_back(static_cast<uint16_t>(p));
+    }
+    p += (2*a*n + a + b) / d;
+    n++;
+  }
 }
 
-static std::vector<unsigned short> P[6];
+static std::vector<uint16_t> P[6];
 
-void find_cycle(bool exists[6], unsigned short list[6], int count)
+void find_cycle(bool exists[6], uint16_t list[6], int count)
 {
-	if (count == 6)
-	{
-		if (list[5] % 100 == list[0] / 100)
-		{
-			// std::cout << list[0] << std::endl;
-			int sum = std::accumulate(list+0, list+6, 0);
-			std::cout << sum << std::endl;
-		}
-	}
-	else if (count == 0)
-	{
-		exists[0] = true;
-		for (auto it = P[0].cbegin(); it != P[0].cend(); ++it)
-		{
-			list[0] = *it;
-			find_cycle(exists, list, 1);
-		}
-		exists[0] = false;
-	}
-	else
-	{
-		unsigned short match = list[count-1] % 100;
-		for (int k = 1; k <= 5; k++)
-		{
-			if (!exists[k])
-			{
-				exists[k] = true;
-				auto it = std::lower_bound(P[k].cbegin(), P[k].cend(), match * 100);
-				for (; (it != P[k].cend()) && (*it / 100 == match); ++it)
-				{
-					list[count] = *it;
-					find_cycle(exists, list, count+1);
-				}
-				exists[k] = false;
-			}
-		}
-	}
+  if (count == 6)
+  {
+    if (list[5] % 100 == list[0] / 100)
+    {
+      // std::cout << list[0] << std::endl;
+      int sum = std::accumulate(list+0, list+6, 0);
+      std::cout << sum << std::endl;
+    }
+  }
+  else if (count == 0)
+  {
+    exists[0] = true;
+    for (uint16_t v: P[0])
+    {
+      list[0] = v;
+      find_cycle(exists, list, 1);
+    }
+    exists[0] = false;
+  }
+  else
+  {
+    uint16_t match = list[count-1] % 100;
+    for (int k = 1; k <= 5; k++)
+    {
+      if (!exists[k])
+      {
+        exists[k] = true;
+        auto it = std::lower_bound(P[k].cbegin(), P[k].cend(), match * 100);
+        for (; (it != P[k].cend()) && (*it / 100 == match); ++it)
+        {
+          list[count] = *it;
+          find_cycle(exists, list, count+1);
+        }
+        exists[k] = false;
+      }
+    }
+  }
 }
 
 static void solve_problem_61()
 {
-	// Generate four-digit triangle-octagonal numbers.
-	generate(P[0], 1,  1, 2); // triangle
-	generate(P[1], 1,  0, 1); // square
-	generate(P[2], 3, -1, 2); // pentagonal
-	generate(P[3], 2, -1, 1); // hexagonal
-	generate(P[4], 5, -3, 2); // heptagonal
-	generate(P[5], 3, -2, 1); // octagonal
+  // Generate four-digit triangle-octagonal numbers.
+  generate(P[0], 1,  1, 2); // triangle
+  generate(P[1], 1,  0, 1); // square
+  generate(P[2], 3, -1, 2); // pentagonal
+  generate(P[3], 2, -1, 1); // hexagonal
+  generate(P[4], 5, -3, 2); // heptagonal
+  generate(P[5], 3, -2, 1); // octagonal
 
-	// Find the cyclic list.
-	bool exists[6] = {false};
-	unsigned short list[6];
-	find_cycle(exists, list, 0);
+  // Find the cyclic list.
+  bool exists[6] = {false};
+  uint16_t list[6];
+  find_cycle(exists, list, 0);
 }
