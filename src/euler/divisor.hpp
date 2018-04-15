@@ -180,7 +180,19 @@ class divisor_iterator :
   int _nf;        // number of factors
   TDivisor _d;  // current divisor
 
-  void initialize(const sequence<Iter> &factors)
+public:
+
+  /**
+   * Constructs a divisor iterator from a sequence of prime factors.
+   * The factors need not come in order, but equal factors must be adjacent.
+   *
+   * @param factors A sequence of prime factors.
+   * @timecomplexity <code>O(m)</code> where @c m is the number of supplied
+   *      factors.
+   * @spacecomplexity Object size is <code>O(1) + O(b)</code>
+   *      where @c b is the number of bits in @c TDivisor.
+   */
+  explicit divisor_iterator(const sequence<Iter> &factors)
   {
     _d = 1;
     _nf = 0;
@@ -210,8 +222,6 @@ class divisor_iterator :
 #endif
   }
 
-public:
-
   /**
    * Constructs a divisor iterator from a sequence of prime factors.
    * The factors need not come in order, but equal factors must be adjacent.
@@ -224,24 +234,7 @@ public:
    *      where @c b is the number of bits in @c TDivisor.
    */
   divisor_iterator(const Iter &begin, const Iter &end)
-  {
-    initialize(make_sequence(begin, end));
-  }
-
-  /**
-   * Constructs a divisor iterator from a sequence of prime factors.
-   * The factors need not come in order, but equal factors must be adjacent.
-   *
-   * @param factors A sequence of prime factors.
-   * @timecomplexity <code>O(m)</code> where @c m is the number of supplied
-   *      factors.
-   * @spacecomplexity Object size is <code>O(1) + O(b)</code>
-   *      where @c b is the number of bits in @c TDivisor.
-   */
-  explicit divisor_iterator(const sequence<Iter> &factors)
-  {
-    initialize(factors);
-  }
+    : divisor_iterator(make_sequence(begin, end)) { }
 
   /**
    * Constructs a divisor iterator for an integer.
@@ -255,15 +248,13 @@ public:
    *      number of bits in @c TDivisor.
    */
   explicit divisor_iterator(TDivisor n)
-  {
-    initialize(make_sequence(Iter(n), Iter()));
-  }
+    : divisor_iterator(Iter(n), Iter()) { }
 
   /// Constructs an empty divisor iterator that points <i>past-the-end</i>.
   /// @timecomplexity Constant.
   /// @spacecomplexity Object size is <code>O(b)</code> where @c b is the
   ///      number of bits in @c TDivisor.
-  divisor_iterator() : _d(0) { }
+  divisor_iterator() : _nf(0), _d(0) { }
 
   /// Returns the current divisor.
   /// @returns The current divisor.
