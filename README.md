@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/fancidev/euler.svg?branch=master)](https://travis-ci.org/fancidev/euler)
+[![Linux Build Status](https://travis-ci.org/fancidev/euler.svg?branch=master)](https://travis-ci.org/fancidev/euler)
+[![Window Build Status](https://ci.appveyor.com/api/projects/status/q88yfg3w89bmxk54/branch/master?svg=true)](https://ci.appveyor.com/project/fancidev/euler/branch/master)
 
 [Project Euler](https://projecteuler.net/) is a website that provides programming challenges to solve math problems. The majority of problems are related to number theory, but they also cover topics in geometry, combinatorics, game theory and even physics.
 
