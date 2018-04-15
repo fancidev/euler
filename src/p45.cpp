@@ -25,7 +25,7 @@
  */
 
 #include <iostream>
-#include <cmath>
+#include "euler/imath.hpp"
 #include "euler.h"
 
 BEGIN_PROBLEM(45, solve_problem_45)
@@ -37,32 +37,27 @@ BEGIN_PROBLEM(45, solve_problem_45)
     PROBLEM_SPACE_COMPLEXITY("?")
 END_PROBLEM()
 
-static long long sqrt(long long n)
-{
-	return (long long)sqrt((double)n);
-}
-
 static void solve_problem_45()
 {
-	for (long long n = 1; n <= 0xffffffffLL; n++)
-	{
-		long long y = n*(n+n-1);
-		long long d = sqrt(1+24*y);
-		if (d*d == 1+24*y)
-		{
-			long long m = (1+d)/6;
-			if (m*6 == 1+d)
-			{
-				if (y <= 40755)
-				{
-					// std::cout << "Found " << y << std::endl;
-				}
-				else
-				{
-					std::cout << y << std::endl;
-					break;
-				}
-			}
-		}
-	}
+  for (int64_t n = 1; n <= 0xffffffffLL; n++)
+  {
+    int64_t y = n*(n+n-1);
+    int64_t d = euler::isqrt(1+24*y);
+    if (d*d == 1+24*y)
+    {
+      int64_t m = (1+d)/6;
+      if (m*6 == 1+d)
+      {
+        if (y <= 40755)
+        {
+          // std::cout << "Found " << y << std::endl;
+        }
+        else
+        {
+          std::cout << y << std::endl;
+          break;
+        }
+      }
+    }
+  }
 }
