@@ -1,0 +1,33 @@
+image:
+  - Visual Studio 2015
+  - Visual Studio 2017
+  
+configuration:
+  - Release
+#  - Debug
+  
+platform:
+  - Win32
+  - x64
+
+shallow_clone: true
+
+init:
+  - echo APPVEYOR_BUILD_WORKER_IMAGE = "%APPVEYOR_BUILD_WORKER_IMAGE%"
+  - if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017" (set GENERATOR=Visual Studio 15 2017)
+  - if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015" (set GENERATOR=Visual Studio 14 2015)
+  - echo PLATFORM = "%PLATFORM%"
+  - if "%PLATFORM%"=="x64" (set GENERATOR=%GENERATOR% Win64)
+  - echo GENERATOR = "%GENERATOR%"
+
+before_build:
+  - mkdir build
+  - cd build
+  - cmake --version
+  - cmake .. -G "%GENERATOR%"
+  
+build:
+  project: build\euler.sln
+  
+test_script:
+  - ctest
