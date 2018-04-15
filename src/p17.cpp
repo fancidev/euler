@@ -56,7 +56,7 @@ static std::string number_to_words(unsigned int n)
 
   if (n >= 100)
   {
-    if (s.size() > 0)
+    if (!s.empty())
     {
       s += ' ';
     }
