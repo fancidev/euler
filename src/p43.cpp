@@ -16,19 +16,20 @@
  * Find the sum of all 0 to 9 pandigital numbers with this property.
  */
 
-#include <iostream>
 #include <algorithm>
 #include <bitset>
+#include <cstdint>
+#include <iostream>
 #include "euler/digits.hpp"
 #include "euler.h"
 
 BEGIN_PROBLEM(43, solve_problem_43)
-	PROBLEM_TITLE("Pandigital numbers with sub-string divisibility property")
-	PROBLEM_ANSWER("16695334890")
-	PROBLEM_DIFFICULTY(1)
-	PROBLEM_FUN_LEVEL(1)
-	PROBLEM_TIME_COMPLEXITY("n!")
-	PROBLEM_SPACE_COMPLEXITY("n")
+  PROBLEM_TITLE("Pandigital numbers with sub-string divisibility property")
+  PROBLEM_ANSWER("16695334890")
+  PROBLEM_DIFFICULTY(1)
+  PROBLEM_FUN_LEVEL(1)
+  PROBLEM_TIME_COMPLEXITY("n!")
+  PROBLEM_SPACE_COMPLEXITY("n")
 END_PROBLEM()
 
 // multi - list of multipliers
@@ -36,62 +37,64 @@ END_PROBLEM()
 // tail - last two digits required
 // number - current partial number
 // mask - current digit mask
-static long long search(const int multi[], int k, int tail, int number[10], std::bitset<10> &mask)
+static int64_t search(const int multi[], int k, int tail, int number[10], std::bitset<10> &mask)
 {
-	long long sum = 0;
-	for (int n = multi[k]; n < 1000; n += multi[k])
-	{
-		if (n % 100 == tail && !mask.test(n / 100))
-		{
-			number[k + 1] = n / 100;
-			mask.set(n / 100);
-			if (k > 0)
-			{
-				sum += search(multi, k - 1, n / 10, number, mask);
-			}
-			else if (mask.test(0))
-			{
-				for (int d = 1; d <= 9; d++)
-				{
-					if (!mask.test(d))
-					{
-						number[0] = d;
-						long long x = euler::from_digits<10, long long>(&number[0], &number[10]);
-						sum += x;
-						// std::cout << "Found " << x << std::endl;
-					}
-				}
-			}
-			mask.reset(n / 100);
-		}
-	}
-	return sum;
+  int64_t sum = 0;
+  for (int n = multi[k]; n < 1000; n += multi[k])
+  {
+    if (n % 100 == tail && !mask.test(n / 100))
+    {
+      number[k + 1] = n / 100;
+      mask.set(n / 100);
+      if (k > 0)
+      {
+        sum += search(multi, k - 1, n / 10, number, mask);
+      }
+      else if (mask.test(0))
+      {
+        for (int d = 1; d <= 9; d++)
+        {
+          if (!mask.test(d))
+          {
+            number[0] = d;
+            long long x = euler::from_digits<10, long long>(&number[0], &number[10]);
+            sum += x;
+            // std::cout << "Found " << x << std::endl;
+          }
+        }
+      }
+      mask.reset(n / 100);
+    }
+  }
+  return sum;
 }
 
 static void solve_problem_43()
 {
-	const int multi[] = { 2, 3, 5, 7, 11, 13, 17 };
+  const int multi[] = { 2, 3, 5, 7, 11, 13, 17 };
 
-	long long sum = 0;
-	const int k = 6;
-	for (int n = multi[k]; n < 1000; n += multi[k])
-	{
-		int d1 = n % 10;
-		int d2 = (n / 10) % 10;
-		int d3 = (n / 100) % 10;
-		if (d1 == d2 || d2 == d3 || d1 == d3)
-			continue;
+  long long sum = 0;
+  const int k = 6;
+  for (int n = multi[k]; n < 1000; n += multi[k])
+  {
+    int d1 = n % 10;
+    int d2 = (n / 10) % 10;
+    int d3 = (n / 100) % 10;
+    if (d1 == d2 || d2 == d3 || d1 == d3)
+    {
+      continue;
+    }
 
-		std::bitset<10> mask;
-		mask.set(d1);
-		mask.set(d2);
-		mask.set(d3);
-		int number[10] = {-1};
-		number[9] = d1;
-		number[8] = d2;
-		number[7] = d3;
-		long long x = search(multi, 5, n / 10, number, mask);
-		sum += x;
-	}
-	std::cout << sum << std::endl;
+    std::bitset<10> mask;
+    mask.set(d1);
+    mask.set(d2);
+    mask.set(d3);
+    int number[10] = {-1};
+    number[9] = d1;
+    number[8] = d2;
+    number[7] = d3;
+    int64_t x = search(multi, 5, n / 10, number, mask);
+    sum += x;
+  }
+  std::cout << sum << std::endl;
 }
