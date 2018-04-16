@@ -1,0 +1,4 @@
+[submodule "src/tests/googletest"]
+	path = tests/googletest
+	shallow = true
+	url = https://github.com/google/googletest.git
