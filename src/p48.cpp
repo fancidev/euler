@@ -22,7 +22,7 @@ static void solve_problem_48()
 {
   const int64_t M = 10000000000;
 
-  euler::residue<int64_t, M> sum;
+  euler::residue<int64_t, M> sum(0);
   for (int n = 1; n <= 1000; n++)
   {
     sum += euler::residue<int64_t, M>(n) ^ n;
