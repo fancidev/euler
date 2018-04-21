@@ -10,7 +10,8 @@ platform:
   - Win32
   - x64
 
-shallow_clone: true
+# shallow_clone doesn't seem to work well with sub-repo.
+# shallow_clone: true
 
 init:
   - echo APPVEYOR_BUILD_WORKER_IMAGE = "%APPVEYOR_BUILD_WORKER_IMAGE%"
