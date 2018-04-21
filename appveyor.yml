@@ -32,4 +32,4 @@ build:
   project: build\euler.sln
   
 test_script:
-  - ctest
+  - ctest -C %CONFIGURATION%
