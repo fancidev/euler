@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.1)
 # Required to link with gtest library on Windows.
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
+enable_testing()
+
 add_subdirectory(googletest EXCLUDE_FROM_ALL)
 
 add_executable(tests tests.cpp test_digits.cpp)
@@ -17,7 +19,6 @@ target_include_directories(tests PRIVATE "../src/")
 
 target_link_libraries(tests gtest_main)
 
-enable_testing()
 add_test(NAME tests COMMAND tests)
 
 #include(GoogleTest.cmake)
