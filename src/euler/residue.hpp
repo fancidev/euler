@@ -1,3 +1,11 @@
+/**
+ * @defgroup residue Modular Arithmetic (Classes)
+ *
+ * Class-based interface to modular arithmetic operations.
+ *
+ * @ingroup Library
+ */
+
 #ifndef EULER_RESIDUE_H
 #define EULER_RESIDUE_H
 
@@ -8,104 +16,89 @@ namespace euler {
 /**
  * Represents a residue class in a residue system modulo a given modulus.
  *
- * This class supports the basic modular operations: addition, subtraction,
- * multiplication, and exponentiation. As long as the modulus is of a
- * built-in integral type, the operations are guaranteed to be free of integer
- * overflow problem.
+ * This class supports basic modular arithmetic operations including addition,
+ * subtraction, multiplication, multiplicative inverse, and exponentiation.
+ * As long as the modulus is of a built-in integral type, the operations are
+ * guaranteed to be free of integer overflow problem.
+ *
+ * The <modular.hpp> header provides a function-based interface to modular
+ * arithmetic operations.
  *
  * For more information, see the following pages.
  *    - http://en.wikipedia.org/wiki/Modular_arithmetic
  *
- * @ingroup ModularArithmetic
+ * @ingroup residue
  */
-template <class T, T Modulus>
+template <class T, T M>
 class residue
 {
+  static_assert(std::is_integral<T>::value, "T must be an integral type.");
+  static_assert(M >= 2, "Modulus M must be greater than or equal to 2.");
+
   T x;
 
 public:
 
   /**
-   * Constructs the residue class @c value mod <code>Modulus</code>.
+   * Constructs the residue class @c value modulo <code>M</code>.
    *
    * @param value An integer whose residue class is to be created.
    *
    * @complexity Constant.
    */
-  template <typename TArg>
-  explicit residue(TArg value) : x(mod(value, Modulus)) { }
-
-#if 0
-  /**
-   * Constructs the residue zero.
-   *
-   * @complexity Constant.
-   */
-  residue() : x(0) { }
-#endif
+  explicit residue(T value) : x(mod(value, M)) { }
 
   /**
    * Gets the modulus of the residue system.
    *
-   * @returns Modulus of the residue system.
+   * @returns Template parameter @c M.
    *
    * @complexity Constant.
    * */
-  T modulus() const { return Modulus; }
+  T modulus() const { return M; }
 
   /**
    * Gets the representative of the residue class.
    *
-   * @returns An integer between @c 0 and <code>(Modulus - 1)</code>
-   *   (inclusive) to which all integers in the residue class are congruent.
+   * @returns The unique integer between <code>[0, M)</code> to which all
+   * integers in the residue class are congruent.
    *
    * @complexity Constant.
    */
   T value() const { return x; }
 
-#if 0
-  /// Tests whether the residue class is empty.
-  /// @returns @c true if the residue class is empty, @c false otherwise.
-  /// @remarks An empty residue class may be returned by certain functions
-  ///      (such as @c modinv) to indicate failure. It can also be explicitly
-  ///      constructed by calling the the constructor without parameters.
-  /// @complexity Constant.
-  bool empty() const { return m == 0; }
-#endif
-
-  /// Modular addition.
-  /// @complexity Constant.
-  residue& operator += (const residue &a)
+  /**
+   * In-place residue addition.
+   *
+   * @complexity Constant.
+   */
+  residue& operator += (const residue &other)
   {
-    x = modadd(x, a.x, modulus());
+    x = modadd(x, other.x, modulus());
     return *this;
   }
 
-  /// Modular subtraction.
-  /// @complexity Constant.
-  residue& operator -= (const residue &a)
+  /**
+   * In-place residue subtraction.
+   *
+   * @complexity Constant.
+   */
+  residue& operator -= (const residue &other)
   {
-    x = modsub(x, a.x, modulus());
+    x = modsub(x, other.x, modulus());
     return *this;
   }
 
-#if 0
-  residue& operator *= (const residue &a)
+  /**
+   * In-place residue multiplication.
+   *
+   * @see <code>modmul()</code>.
+   */
+  residue& operator *= (const residue &other)
   {
-    assert(a.m == m);
-    x = multiply(x, a.x, m,
-      typename std::is_void<typename euler::int_traits<T>::wide_type>());
+    x = modmul(x, other.x, modulus());
     return *this;
   }
-#endif
-
-#if 0
-  /// Modular multiplication with an integer.
-  residue& operator *= (T a)
-  {
-    return operator *= (residue(a, m));
-  }
-#endif
 };
 
 /**
@@ -119,10 +112,10 @@ public:
  *
  * @complexity Constant.
  *
- * @ingroup ModularArithmetic
+ * @ingroup residue
  */
-template <typename T, T Modulus>
-std::ostream& operator << (std::ostream &os, const residue<T, Modulus> &x)
+template <typename T, T M>
+std::ostream& operator << (std::ostream &os, const residue<T, M> &x)
 {
   return os << x.value();
 }
@@ -132,34 +125,38 @@ std::ostream& operator << (std::ostream &os, const residue<T, Modulus> &x)
  *
  * @complexity Constant.
  *
- * @ingroup ModularArithmetic
+ * @ingroup residue
  */
-template <typename T, T Modulus>
-bool operator == (const residue<T, Modulus> &a, const residue<T, Modulus> &b)
+template <typename T, T M>
+bool operator == (const residue<T, M> &a, const residue<T, M> &b)
 {
   return (a.value() == b.value());
 }
 
+#if 0
 /// Tests whether an integer belongs to a residue class.
 /// @complexity Constant.
-/// @ingroup ModularArithmetic
+/// @ingroup residue
 template <typename T, T Modulus>
 bool operator == (const residue<T,Modulus> &a, const T &b)
 {
   return (a.value() == b) || (a.value() == mod(b, Modulus));
 }
+#endif
 
+#if 0
 /// Tests whether an integer belongs to a residue class.
 /// @complexity Constant.
-/// @ingroup ModularArithmetic
+/// @ingroup residue
 template <typename T1, typename T2, T2 Modulus>
 bool operator == (const T1 &a, const residue<T2,Modulus> &b)
 {
   return b == a;
 }
+#endif
 
 /**
- * Adds two residue classes.
+ * Residue addition.
  *
  * @param a A residue class modulo @c M.
  *
@@ -170,7 +167,7 @@ bool operator == (const T1 &a, const residue<T2,Modulus> &b)
  *
  * @complexity Constant.
  *
- * @ingroup ModularArithmetic
+ * @ingroup residue
  */
 template <typename T, T M>
 residue<T, M> operator + (const residue<T, M> &a, const residue<T, M> &b)
@@ -180,7 +177,7 @@ residue<T, M> operator + (const residue<T, M> &a, const residue<T, M> &b)
 
 #if 0
 /// @complexity Constant.
-/// @ingroup ModularArithmetic
+/// @ingroup residue
 template <typename T, T Modulus, class TArg>
 residue<T,Modulus> operator + (const residue<T,Modulus> &a, const TArg &b)
 {
@@ -191,7 +188,7 @@ residue<T,Modulus> operator + (const residue<T,Modulus> &a, const TArg &b)
 #if 0
 /// Adds two residues.
 /// @complexity Constant.
-/// @ingroup ModularArithmetic
+/// @ingroup residue
 template <class T1, class T2>
 residue<T2> operator + (const T1 &a, const residue<T2> &b)
 {
@@ -200,7 +197,7 @@ residue<T2> operator + (const T1 &a, const residue<T2> &b)
 #endif
 
 /**
- * Subtracts two residue classes.
+ * Residue subtraction.
  *
  * @param a A residue class modulo @c M.
  *
@@ -211,7 +208,7 @@ residue<T2> operator + (const T1 &a, const residue<T2> &b)
  *
  * @complexity Constant.
  *
- * @ingroup ModularArithmetic
+ * @ingroup residue
  */
 template <class T, T M>
 residue<T, M> operator - (const residue<T, M> &a, const residue<T, M> &b)
@@ -220,7 +217,7 @@ residue<T, M> operator - (const residue<T, M> &a, const residue<T, M> &b)
 }
 
 /**
- * Multiplies two residue classes.
+ * Residue multiplication.
  *
  * @param a A residue class modulo @c M.
  *
@@ -231,10 +228,8 @@ residue<T, M> operator - (const residue<T, M> &a, const residue<T, M> &b)
  *
  * @complexity Constant.
  *
- * @ingroup ModularArithmetic
+ * @ingroup residue
  */
-/// Multiplies two residues.
-/// @ingroup ModularArithmetic
 template <class T, T M>
 residue<T, M> operator * (const residue<T, M> &a, const residue<T, M> &b)
 {
@@ -243,7 +238,7 @@ residue<T, M> operator * (const residue<T, M> &a, const residue<T, M> &b)
 
 #if 0
 /// Multiplies two residues.
-/// @ingroup ModularArithmetic
+/// @ingroup residue
 template <class T, T Modulus, class TArg>
 residue<T,Modulus> operator * (const residue<T,Modulus> &a, const TArg &b)
 {
@@ -251,7 +246,7 @@ residue<T,Modulus> operator * (const residue<T,Modulus> &a, const TArg &b)
 }
 
 /// Multiplies two residues.
-/// @ingroup ModularArithmetic
+/// @ingroup residue
 template <class T, T Modulus, class TArg>
 residue<T,Modulus> operator * (const TArg &a, const residue<T,Modulus> &b)
 {
@@ -260,10 +255,11 @@ residue<T,Modulus> operator * (const TArg &a, const residue<T,Modulus> &b)
 #endif
 
 /**
- * Divides two residues. This is equivalent to multiplying the first residue
- * by the modular multiplicative inverse of the second residue. If the second
- * residue is not coprime to the modulus, a division-by-zero exception is
- * thrown.
+ * Residue division.
+ *
+ * This is equivalent to multiplying the first residue by the modular
+ * multiplicative inverse of the second residue. If the second residue is not
+ * coprime to the modulus, a division-by-zero exception is thrown.
  *
  * @param a A residue class modulo @c M.
  *
@@ -279,7 +275,7 @@ residue<T,Modulus> operator * (const TArg &a, const residue<T,Modulus> &b)
  *
  * @spacecomplexity Constant.
  *
- * @ingroup ModularArithmetic
+ * @ingroup residue
  */
 template <typename T, T M>
 residue<T, M> operator / (const residue<T, M> &a, const residue<T, M> &b)
