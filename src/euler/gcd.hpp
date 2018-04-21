@@ -1,12 +1,13 @@
 ﻿/**
  * @defgroup gcd Euclidean Algorithm
+ * Euclidean algorithms and routines related to Bézout identity.
  * @ingroup Library
  */
 
 #ifndef EULER_GCD_H
 #define EULER_GCD_H
 
-#include <cassert>
+#include <stdexcept>
 #include <type_traits>
 
 namespace euler {
@@ -18,6 +19,13 @@ namespace euler {
   do { \
     if (!((n) >= 0)) { \
       throw std::invalid_argument(#n " must be non-negative."); \
+    } \
+  } while (false)
+
+#define EULER_GCD_CHECK_POSITIVE(n) \
+  do { \
+    if (!((n) > 0)) { \
+      throw std::invalid_argument(#n " must be positive."); \
     } \
   } while (false)
 
@@ -43,16 +51,20 @@ T gcd_tr(const T &a, const T &b)
 /**
  * Computes the greatest common divisor of two integers.
  *
+ * The semantics of this function is the same as that of
+ * <a href="http://en.cppreference.com/w/cpp/numeric/gcd">std::gcd()</a>,
+ * setting aside minor differences in argument type and domain.
+ *
  * @tparam T An integral type.
  *
  * @param a A non-negative integer.
  *
  * @param b A non-negative integer.
  *
- * @returns If @c a and @c b are both zero, returns zero. If one of @c a and
- *    @c b is zero and the other is positive, returns the positive value. If
- *    both @c a and @c b are positive, returns the largest (positive) integer
- *    @c d such that @c d divides both @c a and @c b.
+ * @returns If @c a and @c b are both zero, returns zero. Otherwise, returns
+ *    the largest (positive) integer @c d such that <code>a % d == 0</code>
+ *    and <code>b % d == 0</code>. (For the avoidance of doubt, if one of @c
+ *    a and @c b is zero, returns the other argument.)
  *
  * @exception std::invalid_argument if any argument is invalid.
  *
@@ -68,6 +80,8 @@ T gcd_tr(const T &a, const T &b)
  *
  * @spacecomplexity Constant.
  *
+ * @see <code>lcm()</code>.
+ *
  * @ingroup gcd
  */
 template <typename T>
@@ -82,6 +96,10 @@ T gcd(T a, T b)
 /**
  * Computes the least common multiple of two integers.
  *
+ * The semantics of this function is the same as that of
+ * <a href="http://en.cppreference.com/w/cpp/numeric/lcm">std::lcm()</a>,
+ * setting aside minor differences in argument type and domain.
+ *
  * @tparam T An integral type.
  *
  * @param a A non-negative integer.
@@ -89,19 +107,19 @@ T gcd(T a, T b)
  * @param b A non-negative integer.
  *
  * @returns If @c a and/or @c b is zero, returns zero. Otherwise, returns the
- *    smallest positve integer @c m such that @c a divides @c m and @b divides
- *    @c m.
+ *    smallest positve integer @c m such that <code>m % a == 0</code> and
+ *    <code>m % b == 0</code>. If such @c m is not representable in @c T, the
+ *    return value is undefined.
  *
  * @exception std::invalid_argument if any argument is invalid.
  *
- * @remarks If the result would overflow the capacity of @c T, the behavior is
- *    undefined.
- *
- * @algorithm See the algorithm of <code>gcd()</code>.
+ * @algorithm <code>lcm(a, b) = a * (b / gcd(a, b))</code>.
  *
  * @timecomplexity <code>O(log(min(a, b)))</code> divisions.
  *
  * @spacecomplexity Constant.
+ *
+ * @see <code>gcd()</code>.
  *
  * @ingroup gcd
  */
@@ -150,37 +168,34 @@ std::pair<T, std::pair<T, T>> egcd_r(const T &a, const T &b)
 } // namespace details
 
 /**
- * Solves a variant of Bézout's identity
- * <code>a * x - b * y = gcd(a, b)</code>.
+ * Solves an alternative form of Bézout's identity with positive arguments.
  *
  * @tparam T An integral type.
  *
- * @param a A non-negative integer.
+ * @param a A positive integer.
  *
- * @param b A non-negative integer.
+ * @param b A positive integer.
  *
- * @returns If @c a and @c b are both zero, returns <code>(0, (0, 0))</code>.
- *    If <code>a = 0</code> and <code>b ≠ 0</code>, ...
- *    If <code>b = 0</code> and <code>b ≠ 0</code>, ...
- *    If @c a and @c b are both positive, returns <code>(d, (x, y))</code>
- *    where <code>d = gcd(a, b)</code> and <code>(x, y)</code> is the unique
- *    (integer) solution to the modified Bézout's identity
+ * @returns <code>(d, (x, y))</code> where <code>d = gcd(a, b)</code> and
+ *    <code>(x, y)</code> is the unique integer solution to an alternative
+ *    form of Bézout's identity
  *    @f[
  *      ax - by = \textrm{gcd}(a, b) = d
  *    @f]
- *    that (simultaneously) satisfies
+ *    such that
  *    @f[
- *      0 \le x \le \frac{b}{d}, \, 0 \le y \le \frac{a}{d} .
+ *      0 < x \le \frac{b}{d}, \, 0 \le y < \frac{a}{d} .
  *    @f]
- *    For such a solution, one (or more) of the equality bounds is attained if
- *    and only if @f$ \textrm{gcd}(a, b) = \textrm{min}(a, b) @f$.
+ *    The equality bound of @c x is attained iff @f$ \textrm{gcd}(a,b)=b @f$,
+ *    in which case @f$ x = 1 @f$ and @f$ y = a / d - 1 @f$. The equality
+ *    bound of @c y is attained iff @f$ \textrm{gcd}(a, b) = a @f$, in which
+ *    case @f$ x = 1 @f$ and @f$ y = 0 @f$.
  *
  * @exception std::invalid_argument if any argument is invalid.
  *
  * @algorithm <a href="https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm">Extended Euclidean algorithm</a>, as described below.
- *    Consider the case where @f$ a > 0 @f$ and @f$ b > 0 @f$. First note that
- *    from any one solution @f$ (x, y) @f$, the entire family of solutions can
- *    be generated by
+ *    First observe that from any one solution @f$ (x, y) @f$, the entire
+ *    family of solutions can be generated by
  *    @f[
  *      \left( x + k \frac{b}{d}, y + k \frac{a}{d} \right), k \in \mathbb{Z}.
  *    @f]
@@ -193,24 +208,24 @@ std::pair<T, std::pair<T, T>> egcd_r(const T &a, const T &b)
  *    @f[
  *      x = k, \, y = -1 + k \frac{a}{b}, \, k \in \mathbb{Z},
  *    @f]
- *    it can be shown that
+ *    it can be verified that
  *    @f[
  *      x = 1, \, y = \frac{a}{b} - 1
  *    @f]
- *    is the unique solution that (simultaneously) satisfies
+ *    is the unique solution that satisfies
  *    @f[
- *      0 \le x \le \frac{b}{d}, \, 0 \le y \le \frac{a}{d}.
+ *      0 < x \le \frac{b}{d}, \, 0 \le y < \frac{a}{d}.
  *    @f]
- *    Now suppose @f$ r \ne 0 @f$. Noting that any integer that divides both
- *    @c a and @c b also divides @c r, and any integer that divides both @c b
- *    and @c r also divides @c a, therefore @f$ d = \textrm{gcd}(a, b) =
- *    \textrm{gcd}(b, r) @f$. Consider the equation
+ *    Now suppose @f$ r \ne 0 @f$. Note that any integer that divides both
+ *    @c a and @c b also divides @c r, and that any integer that divides both
+ *    @c b and @c r also divides @c a. It follows that @f$ d =
+ *    \textrm{gcd}(a, b) = \textrm{gcd}(b, r) @f$. Consider the equation
  *    @f[
  *      b u - r v = \textrm{gcd}(b, r) = d
  *    @f]
  *    and suppose we have found a (unique) solution @f$ (u, v) @f$ such that
  *    @f[
- *      0 \le u \le \frac{r}{d}, \, 0 \le v \le \frac{b}{d}.
+ *      0 < u \le \frac{r}{d}, \, 0 \le v < \frac{b}{d}.
  *    @f]
  *    Chaining the equations and substituting @f$ a = bq + r @f$ yields
  *    @f[
@@ -220,15 +235,14 @@ std::pair<T, std::pair<T, T>> egcd_r(const T &a, const T &b)
  *    @f[
  *      x = -v+k \frac{b}{d}, \, y = -u-vq+k \frac{a}{d}, \, k \in \mathbb{Z},
  *    @f]
- *    it can be shown that
+ *    it can be verified that
  *    @f[
  *      x = \frac{b}{d} - v, \, y = \frac{a}{d} - u - vq
  *    @f]
- *    is the unique solution that (simultaneously) satisfies
+ *    is the unique solution that satisfies
  *    @f[
- *      0 \le x \le \frac{b}{d}, \, 0 \le y \le \frac{a}{d}.
+ *      0 < x \le \frac{b}{d}, \, 0 \le y < \frac{a}{d}.
  *    @f]
- *
  *
  * @timecomplexity <code>O(log(min(a, b)))</code>.
  *
@@ -240,25 +254,9 @@ template <typename T>
 std::pair<T, std::pair<T, T>> egcd(T a, T b)
 {
   EULER_GCD_CHECK_TYPE(T);
-  EULER_GCD_CHECK_VALUE(a);
-  EULER_GCD_CHECK_VALUE(b);
-
-  if (a == 0 && b == 0)
-  {
-    return std::make_pair(T(0), std::make_pair(T(0), T(0)));
-  }
-  else if (a == 0)
-  {
-    return std::make_pair(b, std::make_pair(T(0), T(1)));
-  }
-  else if (b == 0)
-  {
-    return std::make_pair(a, std::make_pair(T(1), T(0)));
-  }
-  else
-  {
-    return details::egcd_r(a, b);
-  }
+  EULER_GCD_CHECK_POSITIVE(a);
+  EULER_GCD_CHECK_POSITIVE(b);
+  return details::egcd_r(a, b);
 }
 
 /**
