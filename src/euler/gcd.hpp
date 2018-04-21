@@ -1,5 +1,5 @@
 ﻿/**
- * @defgroup CommonDivisor Common Divisor
+ * @defgroup gcd Euclidean Algorithm
  * @ingroup Library
  */
 
@@ -11,132 +11,253 @@
 
 namespace euler {
 
+#define EULER_GCD_CHECK_TYPE(T) \
+  static_assert(std::is_integral<T>::value, #T " must be an integral type.")
+
+#define EULER_GCD_CHECK_VALUE(n) \
+  do { \
+    if (!((n) >= 0)) { \
+      throw std::invalid_argument(#n " must be non-negative."); \
+    } \
+  } while (false)
+
+namespace details {
+
+// Tail-recursive implementation of gcd(a, b) where a, b >= 0.
+// See the documentation of gcd() for details on the algorithm.
+template <typename T>
+T gcd_tr(const T &a, const T &b)
+{
+  if (b == 0)
+  {
+    return a;
+  }
+  else
+  {
+    return gcd_tr(b, a % b);
+  }
+}
+
+} // namespace details
+
 /**
- * Computes the greatest common divisor of two integers using the Euclidean
- * algorithm.
+ * Computes the greatest common divisor of two integers.
+ *
+ * @tparam T An integral type.
  *
  * @param a A non-negative integer.
  *
  * @param b A non-negative integer.
  *
- * @returns If @c a and @c b are both positive, returns <code>gcd(a,b)</code>.
- *    If exactly one of @c a and @c b is zero, returns the other. If @c a and
- *    @c b are both zero, returns @c 0.
+ * @returns If @c a and @c b are both zero, returns zero. If one of @c a and
+ *    @c b is zero and the other is positive, returns the positive value. If
+ *    both @c a and @c b are positive, returns the largest (positive) integer
+ *    @c d such that @c d divides both @c a and @c b.
  *
- * @timecomplexity <code>O(log(min(a,b)))</code> divisions.
+ * @exception std::invalid_argument if any argument is invalid.
+ *
+ * @algorithm A tail-recursive implementation of <a href="https://en.wikipedia.org/wiki/Euclidean_algorithm">Euclidean algorithm</a>, as described below.
+ *    Let <code>a ≧ b ≧ 1</code>. Write <code>a = b * q + r</code>, where
+ *    <code>0 ≤ r < b</code> is the proper remainder. If <code>r = 0</code>,
+ *    then <code>gcd(a, b) = b</code>. Otherwise, denote by
+ *    <code>d = gcd(a, b) ≧ 1</code>. Since @c d divides both @c a and @c b,
+ *    @c d also divides @c r. Conversely, any @c d that divides both @c b and
+ *    @c r also divides @c a. Therefore <code>gcd(a, b) = gcd(b, r)</code>.
+ *
+ * @timecomplexity <code>O(log(min(a, b)))</code> divisions.
  *
  * @spacecomplexity Constant.
  *
- * @ingroup CommonDivisor
+ * @ingroup gcd
  */
 template <typename T>
 T gcd(T a, T b)
 {
-  assert(a >= 0 && b >= 0);
-  if (a == 0)
-  {
-    return b;
-  }
-  if (b == 0)
-  {
-    return a;
-  }
-  while (true)
-  {
-    T rem = a % b;
-    if (rem == 0)
-    {
-      return b;
-    }
-    a = b;
-    b = rem;
-  }
+  EULER_GCD_CHECK_TYPE(T);
+  EULER_GCD_CHECK_VALUE(a);
+  EULER_GCD_CHECK_VALUE(b);
+  return details::gcd_tr(a, b);
 }
 
 /**
- * Computes the least common multiple of two integers using the Euclidean
- * algorithm.
+ * Computes the least common multiple of two integers.
+ *
+ * @tparam T An integral type.
  *
  * @param a A non-negative integer.
  *
  * @param b A non-negative integer.
  *
- * @returns If @c a and @c b are both positive, returns <code>lcm(a,b)</code>.
- *    If at least one of @c and @c b is zero, returns <code>0</code>.
+ * @returns If @c a and/or @c b is zero, returns zero. Otherwise, returns the
+ *    smallest positve integer @c m such that @c a divides @c m and @b divides
+ *    @c m.
  *
- * @timecomplexity <code>O(log(min(a,b)))</code> divisions.
+ * @exception std::invalid_argument if any argument is invalid.
+ *
+ * @remarks If the result would overflow the capacity of @c T, the behavior is
+ *    undefined.
+ *
+ * @algorithm See the algorithm of <code>gcd()</code>.
+ *
+ * @timecomplexity <code>O(log(min(a, b)))</code> divisions.
  *
  * @spacecomplexity Constant.
  *
- * @ingroup CommonDivisor
+ * @ingroup gcd
  */
 template <typename T>
 T lcm(T a, T b)
 {
-  T d = gcd(a, b);
-  return a * (b / d);
-}
+  EULER_GCD_CHECK_TYPE(T);
+  EULER_GCD_CHECK_VALUE(a);
+  EULER_GCD_CHECK_VALUE(b);
 
-/**
- * Solves the Diophantine equation <code>ax + by = gcd(a,b)</code> using
- * the extended Euclidean algorithm.
- *
- * @param a First parameter of the equation.
- * @param b Second parameter of the equation.
- * @param x Outputs the solution of @c x.
- * @param y Outputs the solution of @c y.
- * @returns <code>gcd(a,b)</code>.
- *
- * @timecomplexity <code>O(log(min(a,b)))</code>.
- * @spacecomplexity Constant.
- *
- * @ingroup CommonDivisor
- */
-template <typename T>
-T egcd(T a, T b,
-     typename std::make_signed<T>::type &x,
-     typename std::make_signed<T>::type &y)
-{
-  assert(a >= 0 && b >= 0);
-
-  // Special cases.
-  if (a == 0 && b == 0)
+  if (a == 0 || b == 0)
   {
-    x = y = 0;
     return 0;
   }
-  if (a == 0)
+  else
   {
-    x = 0;
-    y = 1;
-    return b;
+    T d = gcd(a, b);
+    return a * (b / d);
   }
-  if (b == 0)
-  {
-    x = 1;
-    y = 0;
-    return a;
-  }
+}
 
-  // Extended Eucilean algorithm.
-  typedef typename std::make_signed<T>::type TCalc;
-  T r_2 = a, r_1 = b;
-  TCalc x_2 = 1, x_1 = 0;
-  while (true)
+namespace details {
+
+template <typename T>
+std::pair<T, std::pair<T, T>> egcd_r(const T &a, const T &b)
+{
+  T q = a / b;
+  T r = a % b;
+  if (r == 0)
   {
-    T q = r_2 / r_1;
-    T r = r_2 % r_1;
-    if (r == 0)
-    {
-      x = x_1;
-      y = (r_1-a*x_1)/b;
-      return r_1;
-    }
-    TCalc x_0 = x_2 - q*x_1;
-    r_2 = r_1;
-    r_1 = r;
-    x_2 = x_1;
-    x_1 = x_0;
+    T d = b, x = 1, y = q - 1;
+    return std::make_pair(d, std::make_pair(x, y));
+  }
+  else
+  {
+    const std::pair<T, std::pair<T, T>> &s = egcd_r(b, r);
+    T d = s.first;
+    T u = s.second.first;
+    T v = s.second.second;
+    T x = b / d - v;
+    T y = a / d - u - v * q;
+    return std::make_pair(d, std::make_pair(x, y));
+  }
+}
+
+} // namespace details
+
+/**
+ * Solves a variant of Bézout's identity
+ * <code>a * x - b * y = gcd(a, b)</code>.
+ *
+ * @tparam T An integral type.
+ *
+ * @param a A non-negative integer.
+ *
+ * @param b A non-negative integer.
+ *
+ * @returns If @c a and @c b are both zero, returns <code>(0, (0, 0))</code>.
+ *    If <code>a = 0</code> and <code>b ≠ 0</code>, ...
+ *    If <code>b = 0</code> and <code>b ≠ 0</code>, ...
+ *    If @c a and @c b are both positive, returns <code>(d, (x, y))</code>
+ *    where <code>d = gcd(a, b)</code> and <code>(x, y)</code> is the unique
+ *    (integer) solution to the modified Bézout's identity
+ *    @f[
+ *      ax - by = \textrm{gcd}(a, b) = d
+ *    @f]
+ *    that (simultaneously) satisfies
+ *    @f[
+ *      0 \le x \le \frac{b}{d}, \, 0 \le y \le \frac{a}{d} .
+ *    @f]
+ *    For such a solution, one (or more) of the equality bounds is attained if
+ *    and only if @f$ \textrm{gcd}(a, b) = \textrm{min}(a, b) @f$.
+ *
+ * @exception std::invalid_argument if any argument is invalid.
+ *
+ * @algorithm <a href="https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm">Extended Euclidean algorithm</a>, as described below.
+ *    Consider the case where @f$ a > 0 @f$ and @f$ b > 0 @f$. First note that
+ *    from any one solution @f$ (x, y) @f$, the entire family of solutions can
+ *    be generated by
+ *    @f[
+ *      \left( x + k \frac{b}{d}, y + k \frac{a}{d} \right), k \in \mathbb{Z}.
+ *    @f]
+ *    Now write @f$ a = b q + r @f$ where @f$ 0 \le r < b @f$. If @f$ r=0 @f$,
+ *    then @f$ d = \textrm{gcd}(a, b) = b @f$ and the equation reduces to
+ *    @f[
+ *      a x - b y = b .
+ *    @f]
+ *    Among the family of solutions
+ *    @f[
+ *      x = k, \, y = -1 + k \frac{a}{b}, \, k \in \mathbb{Z},
+ *    @f]
+ *    it can be shown that
+ *    @f[
+ *      x = 1, \, y = \frac{a}{b} - 1
+ *    @f]
+ *    is the unique solution that (simultaneously) satisfies
+ *    @f[
+ *      0 \le x \le \frac{b}{d}, \, 0 \le y \le \frac{a}{d}.
+ *    @f]
+ *    Now suppose @f$ r \ne 0 @f$. Noting that any integer that divides both
+ *    @c a and @c b also divides @c r, and any integer that divides both @c b
+ *    and @c r also divides @c a, therefore @f$ d = \textrm{gcd}(a, b) =
+ *    \textrm{gcd}(b, r) @f$. Consider the equation
+ *    @f[
+ *      b u - r v = \textrm{gcd}(b, r) = d
+ *    @f]
+ *    and suppose we have found a (unique) solution @f$ (u, v) @f$ such that
+ *    @f[
+ *      0 \le u \le \frac{r}{d}, \, 0 \le v \le \frac{b}{d}.
+ *    @f]
+ *    Chaining the equations and substituting @f$ a = bq + r @f$ yields
+ *    @f[
+ *      bu - rv = d = ax - by = (bq + r) x - by = b (qx - y) + rx .
+ *    @f]
+ *    Among the family of solutions
+ *    @f[
+ *      x = -v+k \frac{b}{d}, \, y = -u-vq+k \frac{a}{d}, \, k \in \mathbb{Z},
+ *    @f]
+ *    it can be shown that
+ *    @f[
+ *      x = \frac{b}{d} - v, \, y = \frac{a}{d} - u - vq
+ *    @f]
+ *    is the unique solution that (simultaneously) satisfies
+ *    @f[
+ *      0 \le x \le \frac{b}{d}, \, 0 \le y \le \frac{a}{d}.
+ *    @f]
+ *
+ *
+ * @timecomplexity <code>O(log(min(a, b)))</code>.
+ *
+ * @spacecomplexity Constant.
+ *
+ * @ingroup gcd
+ */
+template <typename T>
+std::pair<T, std::pair<T, T>> egcd(T a, T b)
+{
+  EULER_GCD_CHECK_TYPE(T);
+  EULER_GCD_CHECK_VALUE(a);
+  EULER_GCD_CHECK_VALUE(b);
+
+  if (a == 0 && b == 0)
+  {
+    return std::make_pair(T(0), std::make_pair(T(0), T(0)));
+  }
+  else if (a == 0)
+  {
+    return std::make_pair(b, std::make_pair(T(0), T(1)));
+  }
+  else if (b == 0)
+  {
+    return std::make_pair(a, std::make_pair(T(1), T(0)));
+  }
+  else
+  {
+    return details::egcd_r(a, b);
   }
 }
 
@@ -181,7 +302,7 @@ T egcd(T a, T b,
  * @spacecomplexity <code>O(log(N))</code> on the stack, where @c N is the
  *    largest element generated.
  *
- * @ingroup CommonDivisor
+ * @ingroup gcd
  */
 template <class T, class Func>
 size_t generate_bezout_quadruples(T a, T b, T x, T y, Func f)
@@ -199,24 +320,27 @@ size_t generate_bezout_quadruples(T a, T b, T x, T y, Func f)
 }
 
 /**
- * Generates quadruples that satisfy Bézout's identity <code>ax - by = 1</code>.
+ * Generates quadruples that satisfy the special form of Bézout's identity
+ * <code>a * x - b * y = 1</code>.
  *
- * This function generates all quadruples <code>(a, b, x, y)</code> where
- * <code>a, b, x, y ≥ 1</code> that satisfy Bézout's identity
- * <code>ax - by = 1</code>. It also guarantees that <code>|x| ≤ |b|</code>
- * and <code>|y| ≤ |a|</code>, where the equal sign holds only when
- * <code>b = 1</code> or <code>a = 1</code>.
+ * This function generates all integer quadruples <code>(a, b, x, y)</code>
+ * such that <code>a, b, x, y ≥ 1</code> and <code>a * x - b * y = 1</code>.
+ * It additionally guarantees that <code>|x| ≤ |b|</code> and
+ * <code>|y| ≤ |a|</code>, where <code>|x| = |b|</code> iff <code>b = 1</code>
+ * and <code>|y| = |a|</code> iff <code>a = 1</code>.
  *
  * @param f Callback function.
+ *
  * @returns Number of quadruples generated. This is equal to the number
  *      of times <code>f(a, b, x, y)</code> returns <code>true</code>.
  *
  * @timecomplexity <code>O(N*log(N))</code>, where @c N is the largest
  *      element generated.
+ *
  * @spacecomplexity <code>O(log(N))</code> on the stack, where @c N is the
  *      largest element generated.
  *
- * @ingroup CommonDivisor
+ * @ingroup gcd
  */
 template <class T, class Func>
 size_t generate_bezout_quadruples(Func f)
