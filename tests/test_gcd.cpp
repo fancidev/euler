@@ -32,4 +32,19 @@ TEST(gcd, gcd)
   EXPECT_EQ(255, euler::gcd<uint8_t>(0, 255));
 
   // Exception test: negative input
+  EXPECT_THROW(euler::gcd(-1, -5), std::invalid_argument);
+  EXPECT_THROW(euler::gcd(-123, 0), std::invalid_argument);
+  EXPECT_THROW(euler::gcd(0, -456), std::invalid_argument);
+}
+
+TEST(gcd, egcd)
+{
+  // Common usage
+  EXPECT_EQ(std::make_pair(22, std::make_pair(1, 1)), euler::egcd(88, 66));
+  EXPECT_EQ(std::make_pair(22, std::make_pair(3, 2)), euler::egcd(66, 88));
+
+  // Should not overflow
+  EXPECT_EQ(
+      std::make_pair(1, std::make_pair(347879503, 605123096)),
+      euler::egcd(0x7FFFFFFF, 1234567890));
 }
