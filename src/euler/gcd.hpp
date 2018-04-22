@@ -42,7 +42,7 @@ T gcd_tr(const T &a, const T &b)
   }
   else
   {
-    return gcd_tr(b, a % b);
+    return gcd_tr(b, static_cast<T>(a % b));
   }
 }
 
