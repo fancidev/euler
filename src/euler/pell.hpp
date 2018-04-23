@@ -93,29 +93,31 @@ namespace euler {
 template <typename TD, typename T>
 bool solve_pell_equation(TD D, std::pair<T,T> &xy)
 {
-	// Sqrt(D) = [a0; a1, ..., a_r, 2a0, ...]
-	auto it = continued_fraction_sqrt(D);
-	if (it.empty())
-		return false;
+  // Sqrt(D) = [a0; a1, ..., a_r, 2a0, ...]
+  auto it = continued_fraction_sqrt(D);
+  if (it.empty())
+  {
+    return false;
+  }
 
-	TD a0 = it.integer_part();
-	int r = 0; // period length - 1
+  TD a0 = it.integer_part();
+  int r = 0; // period length - 1
 
-	T h_2 = 0, h_1 = 1, h = 0;
-	T k_2 = 1, k_1 = 0, k = 0;
-	for (T a = a0; (a != 2*a0) || (r % 2 == 1); ++it, ++r)
-	{
-		h = a * h_1 + h_2;
-		k = a * k_1 + k_2;
-		h_2 = h_1;
-		h_1 = h;
-		k_2 = k_1;
-		k_1 = k;
-		a = *it;
-	}
+  T h_2 = 0, h_1 = 1, h = 0;
+  T k_2 = 1, k_1 = 0, k = 0;
+  for (T a = a0; (a != 2*a0) || (r % 2 == 1); ++it, ++r)
+  {
+    h = a * h_1 + h_2;
+    k = a * k_1 + k_2;
+    h_2 = h_1;
+    h_1 = h;
+    k_2 = k_1;
+    k_1 = k;
+    a = *it;
+  }
 
-	xy = std::pair<T,T>(h,k);
-	return true;
+  xy = std::pair<T,T>(h,k);
+  return true;
 }
 
 /**
@@ -140,68 +142,68 @@ bool solve_pell_equation(TD D, std::pair<T,T> &xy)
 template <typename T, typename TD>
 class pell_solution_iterator
 {
-	TD _D;
-	std::pair<T,T> _basic;
-	std::pair<T,T> _xy;
+  TD _D;
+  std::pair<T,T> _basic;
+  std::pair<T,T> _xy;
 
 public:
 
-	/// Iterator category.
-	typedef std::forward_iterator_tag iterator_category;
+  /// Iterator category.
+  typedef std::forward_iterator_tag iterator_category;
 
-	/// Value type.
-	typedef std::pair<T,T> value_type;
+  /// Value type.
+  typedef std::pair<T,T> value_type;
 
-	/// Difference type.
-	typedef std::ptrdiff_t difference_type;
+  /// Difference type.
+  typedef std::ptrdiff_t difference_type;
 
-	/// Pointer type.
-	typedef const std::pair<T,T> *pointer;
+  /// Pointer type.
+  typedef const std::pair<T,T> *pointer;
 
-	/// Reference type.
-	typedef const std::pair<T,T> &reference;
+  /// Reference type.
+  typedef const std::pair<T,T> &reference;
 
-	/**
-	 * Constructs a family of solutions from a basic solution and a
-	 * fundamental solution.
-	 * @param D     Determinant of the equation.
-	 * @param basic Basic solution to the standard equation.
-	 * @param xy    Known solution to the generalized equation.
-	 * @complexity Constant.
-	 */
-	pell_solution_iterator(TD D, const std::pair<T,T> &basic, const std::pair<T,T> &xy)
-		: _D(D), _basic(basic), _xy(xy) { }
+  /**
+   * Constructs a family of solutions from a basic solution and a
+   * fundamental solution.
+   * @param D     Determinant of the equation.
+   * @param basic Basic solution to the standard equation.
+   * @param xy    Known solution to the generalized equation.
+   * @complexity Constant.
+   */
+  pell_solution_iterator(TD D, const std::pair<T,T> &basic, const std::pair<T,T> &xy)
+    : _D(D), _basic(basic), _xy(xy) { }
 
-	/**
-	 * Constructs a family of solutions from a basic solution and a
-	 * fundamental solution.
-	 * @param D Determinant of the equation.
-	 * @param x0 Basic solution to the standard equation.
-	 * @param y0 Basic solution to the standard equation.
-	 * @param x1 Known solution to the generalized equation.
-	 * @param y1 Known solution to the generalized equation.
-	 * @complexity Constant.
-	 */
-	pell_solution_iterator(TD D, T x0, T y0, T x1, T y1)
-		: _D(D), _basic(x0,y0), _xy(x1,y1) { }
+  /**
+   * Constructs a family of solutions from a basic solution and a
+   * fundamental solution.
+   * @param D Determinant of the equation.
+   * @param x0 Basic solution to the standard equation.
+   * @param y0 Basic solution to the standard equation.
+   * @param x1 Known solution to the generalized equation.
+   * @param y1 Known solution to the generalized equation.
+   * @complexity Constant.
+   */
+  pell_solution_iterator(TD D, T x0, T y0, T x1, T y1)
+    : _D(D), _basic(x0,y0), _xy(x1,y1) { }
 
-	/// Returns the current solution.
-	/// @complexity Constant.
-	reference operator * () const { return _xy; }
+  /// Returns the current solution.
+  /// @complexity Constant.
+  reference operator * () const { return _xy; }
 
-	/// Returns a pointer to the current solution.
-	/// @complexity Constant.
-	pointer operator -> () const { return &_xy; }
+  /// Returns a pointer to the current solution.
+  /// @complexity Constant.
+  pointer operator -> () const { return &_xy; }
 
-	/// Advances to the next solution.
-	/// @complexity Constant.
-	pell_solution_iterator& operator ++ ()
-	{
-		_xy = std::pair<T,T>(
-			_basic.first*_xy.first + _D*_basic.second*_xy.second,
-			_basic.first*_xy.second + _basic.second*_xy.first);
-		return *this;
-	}
+  /// Advances to the next solution.
+  /// @complexity Constant.
+  pell_solution_iterator& operator ++ ()
+  {
+    _xy = std::pair<T,T>(
+      _basic.first*_xy.first + _D*_basic.second*_xy.second,
+      _basic.first*_xy.second + _basic.second*_xy.first);
+    return *this;
+  }
 };
 
 } // namespace euler
@@ -209,15 +211,15 @@ public:
 #if 0
 static void test_pell()
 {
-	// test pell equation
-	for (int n = 1; n <= 100; n++)
-	{
-		std::pair<int,int> solution;
-		if (euler::solve_pell_equation(n, solution))
-		{
-			std::cout << "Solution for " << n << ": " << solution.first << ", " << solution.second << std::endl;
-		}
-	}
+  // test pell equation
+  for (int n = 1; n <= 100; n++)
+  {
+    std::pair<int,int> solution;
+    if (euler::solve_pell_equation(n, solution))
+    {
+      std::cout << "Solution for " << n << ": " << solution.first << ", " << solution.second << std::endl;
+    }
+  }
 }
 #endif
 
