@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <iostream>
 #include <string>
-#include <strstream>
+#include <sstream>
 #include "euler.h"
 
 BEGIN_PROBLEM(68, solve_problem_68)
@@ -26,15 +26,13 @@ static const int N = 5;
 
 static std::string ring_to_string(int outer[N], int inner[N])
 {
-  std::ostrstream ss;
+  std::stringstream ss;
   int k = static_cast<int>(std::min_element(outer + 0, outer + N) - outer);
   for (int i = k; i < k + N; i++)
   {
-    //if (i > k)
-    //	ss << "; ";
     ss << outer[i % N] << inner[(i + 1) % N] << inner[(i + 2) % N];
   }
-  return std::string(ss.str(), ss.str() + ss.pcount());
+  return ss.str();
 }
 
 static void solve_problem_68()
@@ -59,8 +57,8 @@ static void solve_problem_68()
       //cout << counter << ": outer: " << outer[0] << ' ' << outer[1] << ' ' << outer[2] << "   ";
       //cout << "inner: " << inner[0] << ' ' << inner[1] << ' ' << inner[2] << endl;
       int sum = outer[0] + inner[1] + inner[2];
-      bool good = std::all_of(index + 1, index + N, 
-        [&outer, &inner, sum](int i) -> bool 
+      bool good = std::all_of(index + 1, index + N,
+        [&outer, &inner, sum](int i) -> bool
       {
         return (outer[i] + inner[(i + 1) % N] + inner[(i + 2) % N]) == sum;
       });
@@ -74,7 +72,10 @@ static void solve_problem_68()
         max_string = std::max(this_string, max_string);
       }
       ++counter;
-    } while (std::next_permutation(inner + 0, inner + N));
-  } while (std::next_permutation(outer + 0, outer + N));
+    }
+    while (std::next_permutation(inner + 0, inner + N));
+  }
+  while (std::next_permutation(outer + 0, outer + N));
+
   std::cout << max_string << std::endl;
 }
