@@ -13,6 +13,7 @@ set(SolutionNumbers
    41  42  43  44  45  46  47  48  49  50
    51  52  53  54              58  59  60
    61  62  63  64      66  67  68
+              624
   )
 
 set(SolutionFiles "")
@@ -25,7 +26,7 @@ add_executable(euler src/main.cpp ${SolutionFiles})
 
 set_target_properties(
   euler PROPERTIES
-  CXX_STANDARD 11
+  CXX_STANDARD 14
   CXX_STANDARD_REQUIRED ON
 )
 
