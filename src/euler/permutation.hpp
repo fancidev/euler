@@ -52,35 +52,35 @@ namespace euler {
 template <class IndexIt, class ValueIt>
 class indexed_iterator
 {
-	IndexIt index_it;
-	IndexIt index_end;
-	ValueIt value_it;
+  IndexIt index_it;
+  IndexIt index_end;
+  ValueIt value_it;
 
 public:
 
-	typedef std::forward_iterator_tag iterator_category;
-	typedef typename ValueIt::value_type value_type;
-	typedef typename IndexIt::difference_type difference_type;
-	typedef typename ValueIt::pointer pointer;
-	typedef typename ValueIt::reference reference;
+  typedef std::forward_iterator_tag iterator_category;
+  typedef typename ValueIt::value_type value_type;
+  typedef typename IndexIt::difference_type difference_type;
+  typedef typename ValueIt::pointer pointer;
+  typedef typename ValueIt::reference reference;
 
-	indexed_iterator(IndexIt current, IndexIt end, ValueIt values)
-		: index_it(current), index_end(end), value_it(values) { }
+  indexed_iterator(IndexIt current, IndexIt end, ValueIt values)
+    : index_it(current), index_end(end), value_it(values) { }
 
-	reference operator * ()	{ return value_it[*index_it]; }
+  reference operator * ()  { return value_it[*index_it]; }
 
-	indexed_iterator& operator ++ () { ++index_it; return *this; }
+  indexed_iterator& operator ++ () { ++index_it; return *this; }
 
-	bool operator == (const indexed_iterator &it) const
-	{
-		return index_it == it.index_it && index_end == it.index_end
-			&& value_it == it.value_it;
-	}
+  bool operator == (const indexed_iterator &it) const
+  {
+    return index_it == it.index_it && index_end == it.index_end
+      && value_it == it.value_it;
+  }
 
-	bool operator != (const indexed_iterator &it) const
-	{
-		return !operator == (it);
-	}
+  bool operator != (const indexed_iterator &it) const
+  {
+    return !operator == (it);
+  }
 };
 
 /**
@@ -95,150 +95,157 @@ public:
 template <typename T>
 class permutation
 {
-	// Stores the reordered sequence.
-	std::vector<T> perm;
+  // Stores the reordered sequence.
+  std::vector<T> perm;
 
 public:
 
-	/// Constructs an empty permutation.
-	/// @complexity Constant.
-	permutation() { }
+  /// Constructs an empty permutation.
+  /// @complexity Constant.
+  permutation() { }
 
-	/// Constructs an identity permutation of a given size.
-	/// @param size Number of elements in the permuted sequence.
-	/// @complexity <code>O(size)</code>.
-	permutation(size_t size) : perm(size)
-	{
-		for (size_t i = 0; i < size; i++)
-			perm[i] = (T)i;
-	}
+  /// Constructs an identity permutation of a given size.
+  /// @param size Number of elements in the permuted sequence.
+  /// @complexity <code>O(size)</code>.
+  explicit permutation(size_t size) : perm(size)
+  {
+    for (size_t i = 0; i < size; i++)
+    {
+      perm[i] = (T)i;
+    }
+  }
 
-	/// Copy-constructs a permutation.
-	/// @complexity <code>O(n)</code>.
-	permutation(const permutation &p) : perm(p.perm) { }
+  /// Copy-constructs a permutation.
+  /// @complexity <code>O(n)</code>.
+  permutation(const permutation &p) : perm(p.perm) { }
 
-	/// Move-constructs a permutation.
-	/// @complexity Constant.
-	permutation(permutation &&p) : perm(std::move(p.perm)) { }
+  /// Move-constructs a permutation.
+  /// @complexity Constant.
+  permutation(permutation &&p) : perm(std::move(p.perm)) { }
 
-	/**
-	 * Constructs the composite of two permutations of the same size.
-	 *
-	 * The effect of applying the composite permutation is equivalent to
-	 * applying the first permutation followed by applying the second
-	 * permutation.
-	 *
-	 * @param p1 The first permutation to apply.
-	 * @param p2 The second permutation to apply.
-	 * @complexity <code>O(n)</code>.
-	 */
-	permutation(const permutation &p1, const permutation &p2)
-		: perm(p2.perm.size())
-	{
-		for (size_t i = 0; i < perm.size(); i++)
-		{
-			perm[i] = p1.perm[p2.perm[i]];
-		}
-	}
+  /**
+   * Constructs the composite of two permutations of the same size.
+   *
+   * The effect of applying the composite permutation is equivalent to
+   * applying the first permutation followed by applying the second
+   * permutation.
+   *
+   * @param p1 The first permutation to apply.
+   * @param p2 The second permutation to apply.
+   * @complexity <code>O(n)</code>.
+   */
+  permutation(const permutation &p1, const permutation &p2)
+    : perm(p2.perm.size())
+  {
+    for (size_t i = 0; i < perm.size(); i++)
+    {
+      perm[i] = p1.perm[p2.perm[i]];
+    }
+  }
 
-	/// Returns the size of the permutation.
-	/// @complexity Constant.
-	size_t size() const { return perm.size(); }
+  /// Returns the size of the permutation.
+  /// @complexity Constant.
+  size_t size() const { return perm.size(); }
 
-	/// Tests whether the permutation is empty.
-	/// @complexity Constant.
-	bool empty() const { return perm.empty(); }
+  /// Tests whether the permutation is empty.
+  /// @complexity Constant.
+  bool empty() const { return perm.empty(); }
 
-	/// Returns the element at a given position after permutation.
-	size_t operator [] (size_t pos) const { return (size_t)perm[pos]; }
+  /// Returns the element at a given position after permutation.
+  size_t operator [] (size_t pos) const { return (size_t)perm[pos]; }
 
-	/// Returns the inverse of the permutation.
-	/// @complexity <code>O(size)</code>.
-	permutation<T> inverse() const
-	{
-		permutation<T> p;
-		p.perm.resize(perm.size());
-		for (size_t i = 0; i < perm.size(); i++)
-		{
-			p.perm[perm[i]] = (T)i;
-		}
-		return p;
-	}
+  /// Returns the inverse of the permutation.
+  /// @complexity <code>O(size)</code>.
+  permutation<T> inverse() const
+  {
+    permutation<T> p;
+    p.perm.resize(perm.size());
+    for (size_t i = 0; i < perm.size(); i++)
+    {
+      p.perm[perm[i]] = (T)i;
+    }
+    return p;
+  }
 
 #if 0
-	/// Applies the permutation to a sequence of elements.
-	template <class RanIt>
-	void apply(RanIt first, RanIt last)
-	{
-		assert((size_t)(last - first) >= size());
-	}
+  /// Applies the permutation to a sequence of elements.
+  template <class RanIt>
+  void apply(RanIt first, RanIt last)
+  {
+    assert((size_t)(last - first) >= size());
+  }
 #endif
 
-	typedef typename std::vector<T>::iterator iterator;
-	typedef typename std::vector<T>::const_iterator const_iterator;
+  typedef typename std::vector<T>::iterator iterator;
+  typedef typename std::vector<T>::const_iterator const_iterator;
 
-	iterator begin() { return perm.begin(); }
+  iterator begin() { return perm.begin(); }
 
-	iterator end() { return perm.end(); }
+  iterator end() { return perm.end(); }
 
-	const_iterator begin() const { return perm.begin(); }
+  const_iterator begin() const { return perm.begin(); }
 
-	const_iterator end() const { return perm.end(); }
+  const_iterator end() const { return perm.end(); }
 
-	/// Permutes a given sequence according to this permutation.
-	template <class RanIt>
-	sequence<indexed_iterator<const_iterator,RanIt>>
-	operator() (RanIt value_begin, RanIt /* value_end */) const
-	{
-		return make_sequence(
-			indexed_iterator<const_iterator,RanIt>(begin(), end(), value_begin),
-			indexed_iterator<const_iterator,RanIt>(end(), end(), value_begin));
-	}
+  /// Permutes a given sequence according to this permutation.
+  template <class RanIt>
+  sequence<indexed_iterator<const_iterator,RanIt>>
+  operator() (RanIt value_begin, RanIt /* value_end */) const
+  {
+    return make_sequence(
+      indexed_iterator<const_iterator,RanIt>(begin(), end(), value_begin),
+      indexed_iterator<const_iterator,RanIt>(end(), end(), value_begin));
+  }
 
 public:
 
-	/**
-	 * Computes the permutation that stable-sorts a sequence of elements.
-	 *
-	 * @param first Begin of the sequence.
-	 * @param last End of the sequence.
-	 * @param pred Predicate for comparison.
-	 * @returns Permutation @c P such that applying @c P to the original
-	 *      sequence yields the sorted sequence.
-	 *
-	 * @timecomplexity <code>O(N*log(N))</code>.
-	 * @spacecomplexity <code>O(N)</code>.
-	 */
-	template <class RanIt, class Func>
-	static permutation reorder(RanIt first, RanIt last, Func pred)
-	{
-		permutation<T> p(last - first);
-		std::sort(p.perm.begin(), p.perm.end(), [&](T a, T b) -> bool {
-			if (pred(first[a], first[b]))
-				return true;
-			if (pred(first[b], first[a]))
-				return false;
-			return a < b;
-		});
-		return p;
-	}
+  /**
+   * Computes the permutation that stable-sorts a sequence of elements.
+   *
+   * @param first Begin of the sequence.
+   * @param last End of the sequence.
+   * @param pred Predicate for comparison.
+   * @returns Permutation @c P such that applying @c P to the original
+   *      sequence yields the sorted sequence.
+   *
+   * @timecomplexity <code>O(N*log(N))</code>.
+   * @spacecomplexity <code>O(N)</code>.
+   */
+  template <class RanIt, class Func>
+  static permutation reorder(RanIt first, RanIt last, Func pred)
+  {
+    permutation<T> p(last - first);
+    std::sort(p.perm.begin(), p.perm.end(), [&](T a, T b) -> bool
+    {
+      if (pred(first[a], first[b]))
+      {
+        return true;
+      }
+      if (pred(first[b], first[a]))
+      {
+        return false;
+      }
+      return a < b;
+    });
+    return p;
+  }
 
-	/**
-	 * Computes the permutation that stable-sorts a sequence of elements.
-	 *
-	 * @param first Begin of the sequence.
-	 * @param last End of the sequence.
-	 * @returns Permutation @c P such that applying @c P to the original
-	 *      sequence yields the sorted sequence.
-	 *
-	 * @timecomplexity <code>O(N*log(N))</code>.
-	 * @spacecomplexity <code>O(N)</code>.
-	 */
-	template <class RanIt>
-	static permutation reorder(RanIt first, RanIt last)
-	{
-		return reorder(first, last, std::less<typename RanIt::value_type>());
-	}
+  /**
+   * Computes the permutation that stable-sorts a sequence of elements.
+   *
+   * @param first Begin of the sequence.
+   * @param last End of the sequence.
+   * @returns Permutation @c P such that applying @c P to the original
+   *      sequence yields the sorted sequence.
+   *
+   * @timecomplexity <code>O(N*log(N))</code>.
+   * @spacecomplexity <code>O(N)</code>.
+   */
+  template <class RanIt>
+  static permutation reorder(RanIt first, RanIt last)
+  {
+    return reorder(first, last, std::less<typename RanIt::value_type>());
+  }
 };
 
 /**
@@ -254,7 +261,7 @@ public:
 template <typename T>
 bool operator < (const permutation<T> &a, const permutation<T> &b)
 {
-	return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end());
+  return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end());
 }
 
 /**
@@ -276,14 +283,16 @@ bool operator < (const permutation<T> &a, const permutation<T> &b)
 template <typename T>
 std::ostream& operator << (std::ostream &os, const permutation<T> &p)
 {
-	size_t n = p.size();
-	for (size_t i = 0; i < n; i++)
-	{
-		if (n > 9 && i > 0)
-			os << ',';
-		os << (p[i]+1);
-	}
-	return os;
+  size_t n = p.size();
+  for (size_t i = 0; i < n; i++)
+  {
+    if (n > 9 && i > 0)
+    {
+      os << ',';
+    }
+    os << (p[i]+1);
+  }
+  return os;
 }
 
 /**
@@ -303,17 +312,21 @@ std::ostream& operator << (std::ostream &os, const permutation<T> &p)
 template <class RanItValue, class RanItIndex>
 void reorder(RanItValue &values, const RanItIndex &perm, size_t n)
 {
-	for (size_t i = 0; i < n - 1; ++i) // no need to place the last element
-	{
-		// Find the new index of the desired element.
-		size_t j = perm[i];
-		while (j < i)
-			j = (size_t)perm[j];
+  for (size_t i = 0; i < n - 1; ++i) // no need to place the last element
+  {
+    // Find the new index of the desired element.
+    size_t j = perm[i];
+    while (j < i)
+    {
+      j = (size_t)perm[j];
+    }
 
-		// Swap the element if not in place.
-		if (j > i)
-			std::swap(values[i], values[j]);
-	}
+    // Swap the element if not in place.
+    if (j > i)
+    {
+      std::swap(values[i], values[j]);
+    }
+  }
 }
 
 /**
@@ -333,29 +346,33 @@ void reorder(RanItValue &values, const RanItIndex &perm, size_t n)
 template <class RanItValue, class RanItIndex>
 void reorder(RanItValue first, RanItValue last, RanItIndex perm)
 {
-	size_t n = last - first;
-	for (size_t i = 0; i < n - 1; ++i) // no need to place the last element
-	{
-		// Find the new index of the desired element.
-		size_t j = perm[i];
-		while (j < i)
-			j = (size_t)perm[j];
+  size_t n = last - first;
+  for (size_t i = 0; i < n - 1; ++i) // no need to place the last element
+  {
+    // Find the new index of the desired element.
+    size_t j = perm[i];
+    while (j < i)
+    {
+      j = (size_t)perm[j];
+    }
 
-		// Swap the element if not in place.
-		if (j > i)
-			std::swap(first[i], first[j]);
-	}
+    // Swap the element if not in place.
+    if (j > i)
+    {
+      std::swap(first[i], first[j]);
+    }
+  }
 }
 
 #if 0
 // permutation test
 static void test_permute()
 {
-	char s[] = "abcdefg";
-	int index[7]={ 0, 5, 3, 6, 4, 2, 1 };
-	std::cout << s << std::endl;
-	permute(&s[0], &s[7], index);
-	std::cout << s << std::endl;
+  char s[] = "abcdefg";
+  int index[7]={ 0, 5, 3, 6, 4, 2, 1 };
+  std::cout << s << std::endl;
+  permute(&s[0], &s[7], index);
+  std::cout << s << std::endl;
 }
 #endif
 
