@@ -49,6 +49,13 @@ public:
   explicit residue(T value) : x(mod(value, M)) { }
 
   /**
+   * Constructs the residue class @c 0 modulo <code>M</code>.
+   *
+   * @complexity Constant.
+   */
+  residue() : x(0) { }
+
+  /**
    * Gets the modulus of the residue system.
    *
    * @returns Template parameter @c M.
