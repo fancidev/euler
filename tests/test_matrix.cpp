@@ -43,9 +43,9 @@ TEST(matrix, extent)
 {
   int A[3][2] = { {1, 2}, {3, 4}, {5, 6} };
 
-  EXPECT_EQ(3, euler::extent<0>(A));
-  EXPECT_EQ(2, euler::extent<1>(A));
-  EXPECT_EQ(0, euler::extent<2>(A));
+  EXPECT_EQ(3u, euler::extent<0>(A));
+  EXPECT_EQ(2u, euler::extent<1>(A));
+  EXPECT_EQ(0u, euler::extent<2>(A));
 }
 
 TEST(matrix, common_extent)
@@ -53,14 +53,14 @@ TEST(matrix, common_extent)
   int A[3][2] = { {1, 2}, {3, 4}, {5, 6} };
   int B[3][2] = { {1, 2}, {3, 4}, {5, 6} };
 
-  EXPECT_EQ(3, euler::common_extent<0>(A, B));
-  EXPECT_EQ(2, euler::common_extent<1>(A, B));
-  EXPECT_EQ(0, euler::common_extent<2>(A, B));
+  EXPECT_EQ(3u, euler::common_extent<0>(A, B));
+  EXPECT_EQ(2u, euler::common_extent<1>(A, B));
+  EXPECT_EQ(0u, euler::common_extent<2>(A, B));
 
   const int C[1][2] { };
-  EXPECT_EQ(0, euler::common_extent<0>(A, C));
-  EXPECT_EQ(2, euler::common_extent<1>(B, C));
-  EXPECT_EQ(0, euler::common_extent<2>(A, C));
+  EXPECT_EQ(0u, euler::common_extent<0>(A, C));
+  EXPECT_EQ(2u, euler::common_extent<1>(B, C));
+  EXPECT_EQ(0u, euler::common_extent<2>(A, C));
 }
 
 TEST(matrix, msum)
