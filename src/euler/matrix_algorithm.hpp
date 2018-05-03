@@ -92,23 +92,29 @@ decltype(auto) mat(const T &a, size_t row, size_t column,
   return a[row][column];
 }
 
+template <bool AllowScalar, class T>
+decltype(auto) mat(const T &a, size_t row, size_t column)
+{
+  return mat(a, row, column, is_matrix<T>(),
+      std::conditional_t<AllowScalar, std::true_type, std::false_type>());
+}
+
 } // namespace details
 
 template <bool AllowScalar = false, class T>
 decltype(auto) mat(const T &a, size_t row, size_t column)
 {
-  return details::mat(a, row, column, is_matrix<T>(),
-      std::conditional_t<AllowScalar, std::true_type, std::false_type>());
+  return details::mat<AllowScalar>(a, row, column);
 }
 
+namespace details {
+
 /**
- * Matrix accessor whose elements are computed on-demand upon access by
- * evaluating a binary function of matrix arguments.
- *
- * @ingroup matrix_algorithm
+ * Encapsulates the functor and arguments of a binary function call where at
+ * least one of the arguments is a matrix.
  */
 template <class Func, class T1, class T2>
-class result_matrix_accessor
+struct result_matrix_info
 {
   static_assert(
       is_matrix_v<T1> || is_matrix_v<T2>,
@@ -120,49 +126,70 @@ class result_matrix_accessor
   const T1 &a;
   const T2 &b;
 
+  result_matrix_info(size_t m, size_t n, const Func &f, const T1 &a,
+      const T2 &b) : m(m), n(n), f(f), a(a), b(b) { }
+};
+
+/**
+ * Represents a row of @c result_matrix_accessor.
+ */
+template <class Func, class T1, class T2>
+class result_row_accessor
+{
+  const result_matrix_info<Func, T1, T2> &matrix;
+  const size_t row;
+
 public:
 
-  class row_accessor
+  result_row_accessor(const result_matrix_info<Func, T1, T2> &matrix,
+      size_t row) : matrix(matrix), row(row) { }
+
+  decltype(auto) operator[](size_t column) const
   {
-    const result_matrix_accessor &matrix;
-    const size_t row;
+    assert(column >= 0 && column < matrix.n);
+    return matrix.f(mat<true>(matrix.a, row, column),
+                    mat<true>(matrix.b, row, column));
+  }
+};
 
-  public:
+/**
+ * Matrix accessor whose elements are computed on-demand upon access by
+ * evaluating a binary function of matrix arguments.
+ *
+ * @ingroup matrix_algorithm
+ */
+template <class Func, class T1, class T2>
+class result_matrix_accessor
+{
+  const result_matrix_info<Func, T1, T2> op;
 
-    row_accessor(const result_matrix_accessor &matrix, size_t row) :
-      matrix(matrix), row(row) { }
-
-    decltype(auto) operator[](size_t column) const
-    {
-      assert(column >= 0 && column < matrix.n);
-      return matrix.f(mat<true>(matrix.a, row, column),
-                      mat<true>(matrix.b, row, column));
-    }
-  };
+public:
 
   //using matrix_type = result_matrix;
-  //using vector_type = row_vector;
+  using vector_type = result_row_accessor<Func, T1, T2>;
   using scalar_type = std::result_of_t<
-    decltype(&row_accessor::operator[])(row_accessor, size_t)>;
+    decltype(&vector_type::operator[])(vector_type, size_t)>;
 
   using value_type = scalar_type;
   using matrix_storage_layout = no_major_storage_tag;
 
   result_matrix_accessor(size_t m, size_t n, const Func &f, const T1 &a,
-      const T2 &b) : m(m), n(n), f(f), a(a), b(b) { }
+      const T2 &b) : op(m, n, f, a, b) { }
 
-  const row_accessor operator[](size_t row) const
+  const vector_type operator[](size_t row) const
   {
-    assert(row >= 0 && row < m);
-    return row_accessor(*this, row);
+    assert(row >= 0 && row < op.m);
+    return vector_type(op, row);
   }
 
   template <size_t Dim>
   size_t extent() const
   {
-    return (Dim == 0)? m : (Dim == 1)? n : 0;
+    return (Dim == 0)? op.m : (Dim == 1)? op.n : 0;
   }
 };
+
+} // namespace details
 
 #if 0
 template <size_t Dim, class Func, class T1, class T2>
@@ -173,7 +200,7 @@ size_t extent(const result_matrix_accessor<Func, T1, T2> &a)
 #endif
 
 template <class Func, class T1, class T2>
-result_matrix_accessor<Func, T1, T2>
+details::result_matrix_accessor<Func, T1, T2>
 mapply(const Func &f, const T1 &a, const T2 &b)
 {
   const size_t m = common_extent<0>(a, b);
@@ -186,7 +213,7 @@ mapply(const Func &f, const T1 &a, const T2 &b)
         << " and " << extent<0>(b) << "-by-" << extent<1>(b);
     throw std::invalid_argument(ss.str());
   }
-  return result_matrix_accessor<Func, T1, T2>(m, n, f, a, b);
+  return details::result_matrix_accessor<Func, T1, T2>(m, n, f, a, b);
 }
 
 template <class T1, class T2>
