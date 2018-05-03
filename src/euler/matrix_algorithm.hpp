@@ -28,7 +28,6 @@
 #include <sstream>
 #include "permutation.hpp"
 #include "matrix_traits.hpp"
-#include "matrix_adaptor.hpp"
 
 namespace euler {
 
