@@ -1,5 +1,22 @@
 language: cpp
-compiler:
-  - clang
-  - gcc
-script: mkdir build && cd build && cmake .. && make VERBOSE=1 && make test
+matrix:
+  include:
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-5
+      env:
+        - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+      before_install:
+        - eval "${MATRIX_EVAL}"
+    - os: osx
+      compiler: clang
+script: 
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make VERBOSE=1
+  - make test
