@@ -7,11 +7,11 @@ enable_testing()
 
 add_subdirectory(googletest EXCLUDE_FROM_ALL)
 
-add_executable(tests tests.cpp test_digits.cpp test_gcd.cpp)
+add_executable(tests tests.cpp test_digits.cpp test_gcd.cpp test_matrix.cpp)
 
 set_target_properties(
   tests PROPERTIES
-  CXX_STANDARD 11
+  CXX_STANDARD 14
   CXX_STANDARD_REQUIRED ON
 )
 

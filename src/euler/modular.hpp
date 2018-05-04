@@ -8,10 +8,28 @@
 
 #include <cassert>
 #include <type_traits>
+#include "gcd.hpp"
 #include "imath.hpp"
 #include "int_traits.hpp"
 
 namespace euler {
+
+#define EULER_MODULAR_CHECK_TYPE(T) \
+  static_assert(std::is_integral<T>::value, #T " must be an integral type")
+
+#define EULER_MODULAR_CHECK_MODULUS(m) \
+  do { \
+    if (!((m) > 0)) { \
+      throw std::invalid_argument("Modulus " #m " must be positive"); \
+    } \
+  } while (false)
+
+#define EULER_MODULAR_CHECK_RESIDUE(a, m) \
+  do { \
+    if (!((a) >= 0 && (a) < (m))) { \
+      throw std::invalid_argument("Residue " #a " must be between [0, M)"); \
+    } \
+  } while (false)
 
   /*
 void normalize(std::true_type)
@@ -50,19 +68,67 @@ T mod(TVal n, T m)
   return r;
 }
 
+/**
+ * Proper modular addition.
+ *
+ * @tparam T An integral type.
+ *
+ * @param a An integer within <code>[0, m)</code>.
+ *
+ * @param b An integer within <code>[0, m)</code>.
+ *
+ * @param m Modulus; must be a positive integer.
+ *
+ * @returns The unique integer @c c within <code>[0, m)</code> such that
+ *    <code>a + b ≡ c (mod m)</code>.
+ *
+ * @exception std::invalid_argument if any argument is invalid.
+ *
+ * @remarks This function is guaranteed not to incur integer overflow.
+ *
+ * @complexity Constant.
+ *
+ * @ingroup ModularArithmetic
+ */
 template <typename T>
 T modadd(T a, T b, T m)
 {
-  assert(a >= 0 && a < m);
-  assert(b >= 0 && b < m);
+  EULER_MODULAR_CHECK_TYPE(T);
+  EULER_MODULAR_CHECK_MODULUS(m);
+  EULER_MODULAR_CHECK_RESIDUE(a, m);
+  EULER_MODULAR_CHECK_RESIDUE(b, m);
   return (a >= m - b)? a - (m - b) : a + b;
 }
 
+/**
+ * Proper modular subtraction.
+ *
+ * @tparam T An integral type.
+ *
+ * @param a An integer within <code>[0, m)</code>.
+ *
+ * @param b An integer within <code>[0, m)</code>.
+ *
+ * @param m Modulus; must be a positive integer.
+ *
+ * @returns The unique integer @c c within <code>[0, m)</code> such that
+ *    <code>a - b ≡ c (mod m)</code>.
+ *
+ * @exception std::invalid_argument if any argument is invalid.
+ *
+ * @remarks This function is guaranteed not to incur integer overflow.
+ *
+ * @complexity Constant.
+ *
+ * @ingroup ModularArithmetic
+ */
 template <typename T>
 T modsub(T a, T b, T m)
 {
-  assert(a >= 0 && a < m);
-  assert(b >= 0 && b < m);
+  EULER_MODULAR_CHECK_TYPE(T);
+  EULER_MODULAR_CHECK_MODULUS(m);
+  EULER_MODULAR_CHECK_RESIDUE(a, m);
+  EULER_MODULAR_CHECK_RESIDUE(b, m);
   return (a >= b)? a - b : a + (m - b);
 }
 
@@ -85,52 +151,97 @@ T modmul(T a, T b, T m, std::true_type /* unused */)
 }
 
 /**
- * Modular multiplication with another residue class of the same modulus.
+ * Proper modular multiplication.
  *
- * Special care is taken to avoid integer overflow in the multiplication.
- * If an integral type of twice the bits in the modulus is available,
- * a simple multiplication followed by division is performed. Otherwise,
- * the following procedure is performed.
+ * @tparam T An integral type.
  *
- * Let @c a be the larger operand to multiply and @c b be the smaller
- * operand. Write @c b in binary expansion
- * \f[ b = b_0 + b_1 \times 2 + \cdots + b_{n-1} \times 2^{n-1} \f]
- * where <code>b<sub>i</sub></code> is either @c 0 or @c 1.
- * Next, expand the modular multiplication as
- * \f[ a \times b \equiv a \times b_0 + (a \times 2) \times b_1  + \cdots
- *     + (a \times 2^{n-1}) \times b_{n-1} .  \f]
- * Following this equation, we can double @c a in each iteration, and
- * add to the result if the corresponding bit in @c b is @c 1. In this
- * process, only modular addition is used, therefore integer overflow is
- * avoided.
+ * @param a An integer within <code>[0, m)</code>.
  *
- * @timecomplexity
- *     - In the simple case, one integer multiplication and one integer
- *       division.
- *     - In the complex case, no more than <code>2*log<sub>2</sub>b</code>
- *       modular additions where @c b is the smaller operand.
+ * @param b An integer within <code>[0, m)</code>.
  *
- * @spacecomplexity Constant.
- */
-template <typename T>
-T modmul(T a, T b, T m)
-{
-  return modmul(a, b, m, 
-    typename std::is_void<typename euler::make_wide<T>::type>());
-}
-
-/**
- * Computes the modular multiplicative inverse of \c a modulo \c m.
+ * @param m Modulus; must be a positive integer.
  *
- * @param a The number whose modular multiplicative inverse is computed.
- * @param m The modulus.
- * @returns \c x such that <code>ax ≡ 1 (mod m)</code>.
+ * @returns The unique integer @c c within <code>[0, m)</code> such that
+ *    <code>a * b ≡ c (mod m)</code>.
  *
- * @timecomplexity <code>O(log m)</code>.
+ * @exception std::invalid_argument if any argument is invalid.
+ *
+ * @remarks This function is guaranteed not to incur integer overflow.
+ *
+ * @algorithm If an integral type with twice the number of bits of @c T is
+ *    available, a simple multiplication is performed and the result taken
+ *    modulus of. Otherwise, the following procedure is performed to avoid
+ *    potential integer overflow. Assume without loss of generality that
+ *    <code>a ≥ b</code>. Write the binary expansion of @c b as
+ *    @f[
+ *      b = b_0 + b_1 \times 2 + \cdots + b_{n-1} \times 2^{n-1}
+ *    @f]
+ *    where <code>b<sub>i</sub> ∈ { 0, 1 }</code>. With this expansion, write
+ *    the modular multiplication as
+ *    @f[
+ *      a \times b \equiv a \times b_0 + (a \times 2) \times b_1  + \cdots
+ *                        + (a \times 2^{n-1}) \times b_{n-1} .
+ *    @f]
+ *    Evaluate the right-hand side of the equation by doubling @c a after each
+ *    iteration and adding it to the result if the corresponding bit in @c b
+ *    is @c 1.
+ *
+ * @timecomplexity If an integral type with twice the number of bits of @c T
+ *    is available, constant. Otherwise, no more than
+ *    <code>2*log<sub>2</sub>b</code> modular additions where @c b is the
+ *    smaller operand.
+ *
  * @spacecomplexity Constant.
  *
  * @ingroup ModularArithmetic
  */
+template <typename T>
+T modmul(T a, T b, T m)
+{
+  EULER_MODULAR_CHECK_TYPE(T);
+  EULER_MODULAR_CHECK_MODULUS(m);
+  EULER_MODULAR_CHECK_RESIDUE(a, m);
+  EULER_MODULAR_CHECK_RESIDUE(b, m);
+  return modmul(a, b, m,
+    typename std::is_void<typename euler::make_wide<T>::type>());
+}
+
+/**
+ * Modular multiplicative inverse.
+ *
+ * @tparam T An integral type.
+ *
+ * @param a An integer within <code>[1, m)</code> that is coprime to @c m.
+ *
+ * @param m Modulus; must be an integer that is greater than or equal to @c 2.
+ *
+ * @returns The unique integer @c x within <code>[1, m)</code> such that
+ *   <code>a * x ≡ 1 (mod m)</code>.
+ *
+ * @exception std::invalid_argument if any argument is invalid.
+ *
+ * @remarks The requirement that @c a and @c m are coprime ensures that the
+ *   modular multiplicative inverse @c x exists and is unique.
+ *
+ * @algorithm <a href="https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm">Extended Euclidean algorithm</a>.
+ *
+ * @timecomplexity <code>O(log m)</code>.
+ *
+ * @spacecomplexity Constant.
+ *
+ * @ingroup ModularArithmetic
+ */
+template <typename T>
+T modinv(T a, T m)
+{
+  const auto &s = egcd(a, m);
+  if (s.first != 1)
+  {
+    throw std::invalid_argument("Not coprime.");
+  }
+  return s.second.first;
+}
+#if 0
 template <typename T>
 T modinv(T a, T m)
 {
@@ -156,13 +267,55 @@ T modinv(T a, T m)
   }
   return 1;
 }
+#endif
 
+/**
+ * Solves linear congruence equation.
+ *
+ * @tparam T An integral type.
+ *
+ * @param a An integer within <code>[0, m)</code> that is coprime to @c m.
+ *
+ * @param b An integer within <code>[0, m)</code>.
+ *
+ * @param m Modulus; must be a positive integer.
+ *
+ * @returns An integer @c x within <code>[0, m)</code> such that
+ *   <code>a * x ≡ b (mod m)</code>.
+ *
+ * @exception std::invalid_argument if any argument is invalid.
+ *
+ * @remarks The requirement that @c a and @c m are coprime ensures that there
+ *   exists a unique solution to the linear congruence equation. Two integers
+ *   are coprime if @c 1 is the largest integer that divides both of them. In
+ *   particular, if <code>m ≥ 2</code>, then @c a must be positive (to start
+ *   with). If <code>m = 1</code>, then @c a and @c b must both be zero, in
+ *   which case the (unique) solution is zero.
+ *
+ * @algorithm Multiply @c b by the multiplicative inverse of @c a.
+ *
+ * @timecomplexity <code>O(log m)</code>.
+ *
+ * @spacecomplexity Constant.
+ *
+ * @ingroup ModularArithmetic
+ */
 template <typename T>
-T moddiv(T a, T b, T m)
+T modsolve(T a, T b, T m)
 {
-  return modmul(a, modinv(b, m), m);
+  EULER_MODULAR_CHECK_TYPE(T);
+  EULER_MODULAR_CHECK_MODULUS(m);
+  EULER_MODULAR_CHECK_RESIDUE(a, m);
+  EULER_MODULAR_CHECK_RESIDUE(b, m);
+  if (m == 1)
+  {
+    return 0;
+  }
+  else
+  {
+    return modmul(b, modinv(a, m), m);
+  }
 }
-
 
 /**
  * Returns the residue of <code>base<sup>exponent</sup></code> mod @c modulus.

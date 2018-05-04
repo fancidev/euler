@@ -1,5 +1,22 @@
-language: cpp
-compiler:
-  - clang
-  - gcc
-script: mkdir build && cd build && cmake .. && make && make test
+matrix:
+  include:
+    - os: linux
+      language: generic
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-5
+      before_install:
+        - export CC=gcc-5
+        - export CXX=g++-5
+    - os: osx
+      language: cpp
+      compiler: clang
+script:
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make VERBOSE=1
+  - make test
