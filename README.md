@@ -1,11 +1,22 @@
+# Project Euler Code Library
+
 [![Linux Build Status](https://travis-ci.org/fancidev/euler.svg?branch=master)](https://travis-ci.org/fancidev/euler)
 [![Window Build Status](https://ci.appveyor.com/api/projects/status/q88yfg3w89bmxk54/branch/master?svg=true)](https://ci.appveyor.com/project/fancidev/euler/branch/master)
 
-[Project Euler](https://projecteuler.net/) is a website that provides programming challenges to solve math problems. The majority of problems are related to number theory, but they also cover topics in geometry, combinatorics, game theory and even physics.
+[Project Euler](https://projecteuler.net/) is a website that hosts programming challenges to solve math problems related to number theory, combinatorics, geometry, game theory, and more.
 
-This repository contains (1) code solutions to Project Euler problems, (2) well-documented C++ library of common routines used by the solutions, and (3) detailed analysis of selected problems. 
+This repository provides a header-only C++ library with math routines useful in solving these problems. The following topics are covered:
 
-This repository is licenced under the [MIT License](LICENSE).
+* Number theory
+  * Bezout identity
+  * Greatest common divisor and least common multiple
+  * Prime factorization
+  * Prime testing
+  * Prime enumeration
+  * (to be completed)
+* (to be completed)
+
+The repository also provides notes and solutions to Project Euler problems, utilizing the code library. This repository is licenced under the [MIT License](LICENSE).
 
 ## What's Inside
 
