@@ -106,6 +106,102 @@ decltype(auto) mat(const T &a, size_t row, size_t column)
   return details::mat<AllowScalar>(a, row, column);
 }
 
+/**
+ * Represents a vector whose elements are computed on-the-fly when accessed.
+ *
+ * @tparam Func Callable type that takes a single argument of type @c size_t.
+ *
+ * @remarks Any cv-qualifier of the vector object, if present, is guaranteed
+ *    not to propagate to the functor. If @c Func is a class type, its
+ *    <code>operator()&</code> is called.
+ */
+template <class Func>
+class lazy_vector_accessor
+{
+  const size_t n;
+  Func g;
+
+public:
+
+  using value_type = std::result_of_t<
+      std::add_lvalue_reference_t<Func>(size_t)>;
+
+  lazy_vector_accessor(size_t n, Func &&g) :
+      n(n), g(std::forward<Func>(g)) { }
+
+  value_type operator[](size_t column) const
+  {
+    assert(column >= 0 && column < n);
+    return const_cast<Func&>(g)(column);
+  }
+
+  value_type operator[](size_t column) const volatile
+  {
+    assert(column >= 0 && column < n);
+    return const_cast<Func&>(g)(column);
+  }
+};
+
+template <class Func>
+lazy_vector_accessor<Func> make_lazy_vector(size_t n, Func &&g)
+{
+  return { n, std::forward<Func>(g) };
+}
+
+/**
+ * Represents a matrix whose elements are computed on-the-fly when accessed.
+ *
+ * @tparam Func Callable type that takes two arguments of type @c size_t.
+ *
+ * @remarks Any cv-qualifier of the matrix object, if present, is guaranteed
+ *    not to propagate to the functor. If @c Func is a class type, its
+ *    <code>operator()&</code> is called.
+ */
+template <class Func>
+class lazy_matrix_accessor
+{
+  const size_t m;
+  const size_t n;
+  Func g;
+
+public:
+
+  using matrix_storage_layout = no_major_storage_tag;
+
+  using value_type = std::result_of_t<
+      std::add_lvalue_reference_t<Func>(size_t, size_t)>;
+
+  lazy_matrix_accessor(size_t m, size_t n, Func &&g) :
+      m(m), n(n), g(std::forward<Func>(g)) { }
+
+  decltype(auto) operator[](size_t row) const
+  {
+    assert(row >= 0 && row < m);
+    Func &g = const_cast<Func&>(this->g);
+#if 0
+    // BUG: deducted return type discards reference
+    return make_lazy_vector(n, [&g, row](size_t column)
+    {
+      return g(row, column);
+    });
+#else
+    return make_lazy_vector(n, std::bind(g, row, std::placeholders::_1));
+#endif
+  }
+
+  template <size_t Dim>
+  size_t extent() const
+  {
+    return (Dim == 0)? m : (Dim == 1)? n : 0;
+  }
+};
+
+template <class Func>
+lazy_matrix_accessor<Func> make_lazy_matrix(size_t m, size_t n, Func &&g)
+{
+  return lazy_matrix_accessor<Func>(m, n, std::forward<Func>(g));
+}
+
 namespace details {
 
 /**
@@ -198,6 +294,14 @@ size_t extent(const result_matrix_accessor<Func, T1, T2> &a)
 }
 #endif
 
+/**
+ * Applies a binary function element-wise to matrix arguments.
+ *
+ * @returns An object that implements the matrix accessor requirements. The
+ *    dimension of the result matrix is equal to the dimension of the input
+ *    arguments. The elements of the result matrix are computed on-the-fly
+ *    when accessed.
+ */
 template <class Func, class T1, class T2>
 details::result_matrix_accessor<Func, T1, T2>
 mapply(const Func &f, const T1 &a, const T2 &b)
@@ -215,6 +319,12 @@ mapply(const Func &f, const T1 &a, const T2 &b)
   return details::result_matrix_accessor<Func, T1, T2>(m, n, f, a, b);
 }
 
+/**
+ * Element-wise equality test.
+ *
+ * @returns A boolean matrix accessor @c r where
+ *    <code>r[i][j] == (a[i][j] == b[i][j])</code>.
+ */
 template <class T1, class T2>
 decltype(auto) meq(const T1 &a, const T2 &b)
 {
