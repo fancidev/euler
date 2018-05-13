@@ -192,14 +192,16 @@ public: // static methods
     return A;
   }
 
-  /**
-   * Creates an identity matrix.
-   *
-   * @returns Matrix @c A such that <code>A(i, i) == T(1)</code> and
-   * <code>A(i, j) == T(0)</code> for <code>i != j</code>.
-   *
-   * @remarks This function is only defined for square matrix.
-   */
+  /// <summary>
+  /// Creates an identity matrix.
+  /// </summary>
+  /// <returns>
+  /// Matrix @c A such that <code>A(i, i) == T(1)</code> and
+  /// <code>A(i, j) == T(0)</code> for <code>i != j</code>.
+  /// </returns>
+  /// <remarks>
+  /// This function is only suppported for square matrix.
+  /// </remarks>
   static matrix identity()
   {
     static_assert(M == N, "Square matrix required.");
