@@ -3,24 +3,98 @@
  *
  * Defines type traits and functions for matrix-like objects.
  *
- * A <i>matrix-like object</i>, or <i>matrix accessor</i> hereafter, is an
- * object that provides access to a 2D grid of elements using syntax identical
- * to that of accessing a 2D C array.
+ * A <i>matrix-like object</i> is a container object that provides access to a
+ * 2D grid of elements through row and column indices. It is modelled after 2D
+ * C array (if statically-sized) and vector of vectors (if dynamically-sized).
  *
- * Specifically, let @c a be a matrix accessor and @c i @c j be integers, then
- * <code>a[i][j]</code> refers to the element in row @c i and column @c j of
- * @c a. The subscripts are zero-based.
+ * Formally, an object @c a of type @c M is a matrix-like object if @c M
+ * satisfies the @c Matrix concept. A @c Matrix is either a @c StaticMatrix,
+ * whose dimensions are known at compile-time, or a @c DynamicMatrix, whose
+ * dimensions are known at run-time. Both @c StaticMatrix and @c DynamicMatrix
+ * derive from @c BasicMatrix, which provides access to its elements.
  *
- * A matrix accessor must contain at least one row and at least one column.
+ * The following diagram illustrates the relationship between the concepts and
+ * summarizes their requirements. Details on the members are documented later.
  *
- * By designing algorithms based on matrix accessors, one decouples code that
- * processes elements from code that handles the storage of elements. This is
- * similar to how standard iterators decouple 1D algorithms from 1D containers.
+ *   +-----------------------------------------------------+
+ *   | BasicMatrix                                         |
+ *   +-----------------------------------------------------+
+ *   | constant: size_t rank                               |
+ *   | typedef:  value_type, reference, const_reference    |
+ *   | function: at([const] M&, size_t, size_t)            |
+ *   +-----------------------------------------------------+
+ *            *                             *
+ *   +------------------+     +----------------------------+
+ *   | StaticExtent     |     | DynamicExtent              |
+ *   +------------------+     +----------------------------+
+ *   | constant:        |     | function:                  |
+ *   | size_t extent<0> |     | size_t extent<0>(const M&) |
+ *   | size_t extent<1> |     | size_t extent<1>(const M&) |
+ *   +------------------+     +----------------------------+
+ *            |                             |
+ *            v                             v
+ *   +------------------+     +----------------------------+
+ *   | StaticMatrix     |  +  | DynamicMatrix              |
+ *   +------------------+  |  +----------------------------+
+ *                         |
+ *                         v
+ *   +-----------------------------------------------------+
+ *   | Matrix                                              |
+ *   +-----------------------------------------------------+
  *
- * This module defines the @c matrix_traits class to provide compile-time type
- * information about a matrix accessor. The module also defines several helper
- * functions to query information about a matrix accessor at runtime. A stock
- * implementation is provided for 2D C arrays.
+ * For both @c StaticMatrix and @c DynamicMatrix,
+ * <code>struct matrix_traits<M></code> must be specialized and provide
+ *
+ * (a) all of the following members:
+ *
+ *   size_t rank
+ *       Must be 2.
+ *
+ *   value_type
+ *       Type of elements stored in the matrix.
+ *
+ *   reference
+ *       Type of reference to the elements. Must be the return type of member
+ *       function <code>at(M&, size_t, size_t)</code>.
+ *
+ *   const_reference
+ *       Type of const reference to the elements. Must be the return type of
+ *       member function <code>at(const M&, size_t, size_t)</code>.
+ *
+ * and (b) at least one of the following members:
+ *
+ *   reference at(M &a, size_t i, size_t j)
+ *       Returns the element at row @c i and column @c j of @c a. Subscripts
+ *       @c i and @c j are zero-based. If any subscript is out of range, the
+ *       behavior is undefined.
+ *
+ *   const_reference at(const M &a, size_t i, size_t j)
+ *       Same as the above but for const object.
+ *
+ * A @c StaticMatrix must additionally provide the following members:
+ *
+ *   size_t extent<0>
+ *       Equal to the number of rows in matrices of type @c M; may be 0.
+ *
+ *   size_t extent<1>
+ *       Equal to the number of columns in matrices of type @c M; may be 0.
+ *
+ * A @c DynamicMatrix must additionally provide the following members:
+ *
+ *   size_t extent<0>(const M &a)
+ *       Returns the number of rows in @c a; may be 0.
+ *
+ *   size_t extent<1>(const M &a)
+ *       Returns the number of columns in @c a; may be 0.
+ *
+ * By designing algorithms based on generic Matrix types, one decouples code
+ * that processes elements from code that handles the storage of elements.
+ * This separation of responsibility is similar to the way iterators decouple
+ * 1D algorithms from 1D containers.
+ *
+ * The @c matrix_traits.hpp header defines the @c matrix_traits class which
+ * matrix storage implementations can specialize to expose their elements.
+ * A stock implementation is provided for 2D C arrays to demonstrate the API.
  *
  * @ingroup Library
  */
@@ -28,143 +102,111 @@
 #ifndef EULER_MATRIX_TRAITS_HPP
 #define EULER_MATRIX_TRAITS_HPP
 
+#include <array>
 #include <cstddef>
 #include <type_traits>
+#include <vector>
 
 namespace euler {
-
-/**
- * Indicates that elements in the same row are stored consecutively in a
- * matrix.
- *
- * This tag is used by @c matrix_traits to specify the underlying storage
- * layout of elements in a matrix. A matrix accessor marked with this tag
- * indicates to an algorithm implementation that traversing by row is more
- * efficient than traversing by column.
- *
- * Arrays in C are stored in row-major order.
- *
- * @ingroup matrix_traits
- */
-struct row_major_storage_tag { };
-
-/**
- * Indicates that elements in the same column are stored consecutively in a
- * matrix.
- *
- * This tag is used by @c matrix_traits to specify the underlying storage
- * layout of elements in a matrix. A matrix accessor marked with this tag
- * indicates to an algorithm implementation that traversing by column is
- * more efficient than traversing by row.
- *
- * Arrays in Fortran and Matlab are stored in column-major order.
- *
- * @ingroup matrix_traits
- */
-struct column_major_storage_tag { };
-
-/**
- * Indicates that elements in the matrix are stored in no particular order.
- *
- * This tag is used by @c matrix_traits to specify the underlying storage
- * layout of elements in a matrix. A matrix accessor marked with this tag
- * indicates to an algorithm implementation that there is no performance
- * difference between traversing the matrix by row or by column.
- *
- * For example, this storage tag is suitable for a matrix accessor which
- * computes elements on-demand upon access by a function that takes matrix
- * arguments of mixed storage layouts.
- *
- * @ingroup matrix_traits
- */
-struct no_major_storage_tag { };
 
 namespace details {
 
 template <typename...>
 using void_t = void;
 
-} // namespace details
+}
+
+/**
+ * Defines type traits for a matrix-like object.
+ *
+ * @ingroup matrix_traits
+ */
+template <class M>
+struct matrix_traits;
+
+// static extent: define size_t value
+// dynamic extent: define size_t value(const M&)
+template <class M, size_t Dim>
+struct matrix_extent;
 
 namespace details {
 
-//template <class M, typename = void>
-//struct matrix_traits_helper : std::false_type { };
-template <class M, typename = void>
-struct matrix_traits { };
+template <class T, class = void>
+struct is_basic_matrix : public std::false_type { };
 
-template <class M>
-struct matrix_traits<M, void_t<
-  typename M::value_type, typename M::matrix_storage_layout>>
-{
-  /**
-   * Underlying storage layout of elements exposed by the matrix accessor.
-   *
-   * This <code>typedef</code> must be one of @c row_major_storage_tag, @c
-   * column_major_storage_tag, or @c no_major_storage_tag. A matrix algorithm
-   * implementation may consult this tag to determine the most efficient way
-   * to traverse elements in the matrix.
-   */
-  using matrix_storage_layout = typename M::matrix_storage_layout;
+// TODO: check member function at()
+template <class T>
+struct is_basic_matrix<T,
+  void_t<std::enable_if_t<matrix_traits<T>::rank == 2>,
+         typename matrix_traits<T>::value_type,
+         typename matrix_traits<T>::reference,
+         typename matrix_traits<T>::const_reference>>
+  : public std::true_type { };
 
-  /**
-   * Type of elements exposed by the matrix accessor.
-   */
-  using value_type = typename M::value_type;
+template <class T, size_t Dim, class = void>
+struct has_static_extent : public std::false_type { };
 
-  // ???
-  // Type of the row (if the matrix is stored in row-major) or
-  // column (if the matrix is stored in column major).
-  // typedef void vector_type;
+template <class T, size_t Dim>
+struct has_static_extent<T, Dim, void_t<
+    std::integral_constant<size_t, matrix_extent<T, Dim>::value>>>
+  : public std::true_type { };
 
-  /**
-   * Gets the number of rows or columns in a matrix.
-   *
-   * @tparam Dim Dimension along which to retrieve the extent: @c 0 indicates
-   *    number of rows and @c 1 indicates number of columns.
-   *
-   * @param a Matrix accessor which these traits prescribe.
-   *
-   * @returns <code>a.template extent<Dim>()</code>, which must be defined
-   *    and must return the number of rows in @c a for <code>Dim == 0</code>,
-   *    the number of columns in @c a for <code>Dim == 1</code>, or @c 0 for
-   *    any other value of @c Dim.
-   */
-  template <size_t Dim>
-  static auto extent(const M &a) -> decltype(a.template extent<Dim>())
-  {
-    return a.template extent<Dim>();
-  }
-};
+template <class T, size_t Dim, class = void>
+struct has_dynamic_extent : public std::false_type { };
+
+template <class T, size_t Dim>
+struct has_dynamic_extent<T, Dim, void_t<
+    std::result_of_t<decltype(&matrix_extent<T, Dim>::value)(const T&)>>>
+  : public std::true_type { };
+
+#if 0
+template <class T>
+using is_static_matrix = std::conditional_t<
+    is_basic_matrix<T>::value && has_static_extent<T>::value,
+    std::true_type, std::false_type>;
+
+template <class T>
+using is_dynamic_matrix = std::conditional_t<
+    is_basic_matrix<T>::value && has_dynamic_extent<T>::value,
+    std::true_type, std::false_type>;
+#endif
 
 } // namespace details
 
 /**
- * Defines type traits for a matrix accessor.
- *
- * The default implementation retrieves traits from the type's member
- * <code>typedef</code>s. The trait object is defined only if all the required
- * type definitions are present.
+ * Checks whether the extent of type @c T along dimension @c Dim is known at
+ * compile-time.
  *
  * @ingroup matrix_traits
  */
-template <class M>
-struct matrix_traits : public details::matrix_traits<M> { };
+template <class T, size_t Dim>
+using has_static_extent = details::has_static_extent<T, Dim>;
+
+template <class T, size_t Dim>
+constexpr bool has_static_extent_v = has_static_extent<T, Dim>::value;
 
 /**
- * Checks whether a type satisfies matrix accessor requirements.
- *
- * The default implementation checks whether
- * <code>matrix_traits<T>::value_type</code> is defined.
+ * Checks whether the extent of type @c T along dimension @c Dim is not known
+ * until run-time.
  *
  * @ingroup matrix_traits
  */
-template <class T, class = void>
-struct is_matrix : public std::false_type { };
+template <class T, size_t Dim>
+using has_dynamic_extent = details::has_dynamic_extent<T, Dim>;
 
+template <class T, size_t Dim>
+constexpr bool has_dynamic_extent_v = has_dynamic_extent<T, Dim>::value;
+
+/**
+ * Checks whether a type satisfies the @c Matrix concept.
+ * @ingroup matrix_traits
+ */
 template <class T>
-struct is_matrix<T, details::void_t<typename matrix_traits<T>::value_type>>
-  : public std::true_type { };
+using is_matrix = std::conditional_t<
+    details::is_basic_matrix<T>::value &&
+    (has_static_extent_v<T, 0> || has_dynamic_extent_v<T, 0>) &&
+    (has_static_extent_v<T, 1> || has_dynamic_extent_v<T, 1>),
+    std::true_type, std::false_type>;
 
 template <class T>
 constexpr bool is_matrix_v = is_matrix<T>::value;
@@ -175,25 +217,81 @@ constexpr bool is_matrix_v = is_matrix<T>::value;
  * @tparam Dim Dimension along which to retrieve the extent: @c 0 indicates
  *    number of rows and @c 1 indicates number of columns.
  *
- * @tparam T Matrix accessor type for which <code>matrix_traits<T></code> is
- *    suitably defined.
+ * @tparam T Type that satisfies the @c Matrix concept.
  *
- * @param a Matrix accessor object.
+ * @param a Matrix object.
  *
- * @returns <code>matrix_traits<T>::template extent<Dim>(a)</code>, which
- *    returns the number of rows in @c a for <code>Dim == 0</code>, the number
- *    of columns in @c a for <code>Dim == 1</code>, or @c 0 for any other value
- *    of @c Dim.
+ * @returns <code>matrix_traits<T>::template extent<Dim>(a)</code> for dynamic
+ *    matrix; <code>matrix_traits<T>::template extent<Dim></code> for static
+ *    matrix.
  *
  * @ingroup matrix_traits
  */
-template <size_t Dim, class T>
-size_t extent(const T &a)
+template <size_t Dim, class M>
+std::enable_if_t<has_static_extent_v<M, Dim>, size_t>
+extent(const M & /* unused */)
 {
-  return matrix_traits<T>::template extent<Dim>(a);
+  return matrix_extent<M, Dim>::value;
 }
 
+template <size_t Dim, class M>
+std::enable_if_t<has_dynamic_extent_v<M, Dim>, size_t>
+extent(const M &a)
+{
+  return matrix_extent<M, Dim>::value(a);
+}
+
+#if 0
+template <bool IgnoreScalar, size_t Dim, class T, class... Ts>
+struct is_equal_extent_possible;
+
+template <bool IgnoreScalar, size_t Dim>
+struct is_equal_extent_possible<IgnoreScalar>
+{
+  static_assert(Dim < 0, "At least one type argument must be supplied");
+}
+
+//template <size_t Dim, class T>
+//struct is_equal_extent_possible<false, Dim, T>
+//  : public std::enable_if_t<is_matrix_v<T>, std::true_type> { };
+
+// If only one type is supplied, it must be matrix or otherwise the expression
+// is ill-formed.
+template <bool IgnoreScalar, size_t Dim, class T>
+struct is_equal_extent_possible<IgnoreScalar, Dim, T>
+  : public std::enable_if_t<is_matrix_v<T>, std::true_type> { };
+
+template <size_t Dim, class T1, class T2>
+struct is_equal_extent_possible<false, T1, T2> : public
+  std::conditional_t<
+    is_static_matrix_v<T1>,
+    std::conditional_t<
+      is_static_matrix_v<T2>,
+      std::conditional_t<
+        (matrix_traits<T1>::template extent<Dim>) ==
+        (matrix_traits<T2>::template extent<Dim>),
+        std::true_type,
+        std::false_type>,
+      ;
+
+template <size_t Dim, class T1, class T2>
+struct static_common_extent<T1, T2> : public
+
+template <size_t Dim, class T1, class T2>
+struct is_equal_extent_possible<true, T1, T2> : public
+
+template <size_t Dim, class T, class T2>
+struct static_common_extent_ignore_scalar<T1, T2> : public
+
+//template <class T1, class T2>
+//struct has_compatible_extent<false, T1, T2> : public is_matrix<T> { };
+#endif
+
+#if 0
 namespace details {
+
+
+
 
 template <size_t Dim>
 size_t common_extent_tr(size_t m)
@@ -216,7 +314,9 @@ size_t common_extent_tr(size_t m, const T &first, const Ts&... rest)
 }
 
 } // namespace details
+#endif
 
+#if 0
 /**
  * Gets the common extent of a list of matrices along a given dimension.
  *
@@ -240,24 +340,85 @@ size_t common_extent(const Ts&... ms)
 {
   return details::common_extent_tr<Dim>(0, ms...);
 }
+#endif
 
 /**
- * Defines matrix traits for 2D C arrays.
+ * Defines matrix traits for 2D C arrays. This demonstrates a static matrix.
  *
  * @ingroup matrix_traits
  */
 template <class T, size_t M, size_t N>
 struct matrix_traits<T[M][N]>
 {
-  using matrix_storage_layout = row_major_storage_tag;
+  static const size_t rank = 2;
 
   using value_type = T;
+  using reference = T&;
+  using const_reference = const T&;
 
-  template <size_t Dim>
-  static size_t extent(const T (&/*unused*/)[M][N])
+  static reference at(T (&a)[M][N], size_t i, size_t j)
   {
-    return (Dim == 0)? M : (Dim == 1)? N : 0;
+    return a[i][j];
   }
+
+  static const_reference at(const T (&a)[M][N], size_t i, size_t j)
+  {
+    return a[i][j];
+  }
+};
+
+template <class T, size_t M, size_t N>
+struct matrix_extent<T[M][N], 0>
+{
+  static const size_t value = M;
+};
+
+template <class T, size_t M, size_t N>
+struct matrix_extent<T[M][N], 1>
+{
+  static const size_t value = N;
+};
+
+/**
+ * Defines matrix traits for a vector of arrays. This demonstrates a dynamic
+ * matrix.
+ *
+ * @ingroup matrix_traits
+ */
+template <class T, size_t N>
+struct matrix_traits<std::vector<std::array<T, N>>>
+{
+  static const size_t rank = 2;
+
+  using value_type = T;
+  using reference = T&;
+  using const_reference = const T&;
+
+  static reference at(std::vector<std::array<T, N>> &a, size_t i, size_t j)
+  {
+    return a[i][j];
+  }
+
+  static const_reference at(
+      const std::vector<std::array<T, N>> &a, size_t i, size_t j)
+  {
+    return a[i][j];
+  }
+};
+
+template <class T, size_t N>
+struct matrix_extent<std::vector<std::array<T, N>>, 0>
+{
+  static size_t value(const std::vector<std::array<T, N>> &a)
+  {
+    return a.size();
+  }
+};
+
+template <class T, size_t N>
+struct matrix_extent<std::vector<std::array<T, N>>, 1>
+{
+  static const size_t value = N;
 };
 
 } // namespace euler

@@ -1,5 +1,7 @@
+#include <array>
 #include <cstdint>
 #include <type_traits>
+#include <vector>
 //#include "euler/matrix.hpp"
 #include "euler/matrix_traits.hpp"
 //#include "euler/matrix_adaptor.hpp"
@@ -9,48 +11,146 @@
 #define MYTEST(functionName, testAspect) \
   TEST(matrix ## __ ## functionName, testAspect)
 
-TEST(matrix, matrix_traits)
+MYTEST(matrix_traits, non_matrix)
 {
-  static_assert(std::is_same<
-      typename euler::matrix_traits<int[3][5]>::value_type, int>::value,
-      "matrix_traits failed");
-
-  int A[3][2] = { {1, 2}, {3, 4}, {5, 6} };
-
-  static_assert(std::is_same<
-      typename euler::matrix_traits<decltype(A)>::value_type, int>::value,
-      "matrix_traits fails");
+  static_assert(!euler::is_matrix_v<int>, "is_matrix_v fails");
+  static_assert(!euler::is_matrix_v<int[2]>, "is_matrix_v fails");
+  static_assert(!euler::is_matrix_v<int&>, "is_matrix_v fails");
+  static_assert(!euler::is_matrix_v<int&&>, "is_matrix_v fails");
+  static_assert(!euler::is_matrix_v<int*>, "is_matrix_v fails");
+  static_assert(!euler::is_matrix_v<int**>, "is_matrix_v fails");
 }
 
-TEST(matrix, is_matrix)
+MYTEST(matrix_traits, static)
 {
+  // Test matrix traits with static c array
+
+  using type = int[3][5];
+  using traits = euler::matrix_traits<type>;
+
   static_assert(
-      std::is_base_of<std::true_type, euler::is_matrix<int[3][3]>>::value,
-      "is_matrix fails");
+      traits::rank == 2,
+      "matrix_traits::rank failed");
+
   static_assert(
-      std::is_base_of<std::false_type, euler::is_matrix<int>>::value,
-      "is_matrix fails");
+      std::is_same<typename traits::value_type, int>::value,
+      "matrix_traits::value_type failed");
 
-  static_assert(!euler::is_matrix<int>::value, "is_matrix fails");
-  static_assert(!euler::is_matrix<int[2]>::value, "is_matrix fails");
+  static_assert(
+      std::is_same<typename traits::reference, int&>::value,
+      "matrix_traits::reference failed");
 
-  static_assert(euler::is_matrix<int[1][2]>::value, "is_matrix fails");
-  static_assert(euler::is_matrix_v<int[1][2]>, "is_matrix_v fails");
+  static_assert(
+      std::is_same<typename traits::const_reference, const int&>::value,
+      "matrix_traits::const_reference failed");
 
-  int A[3][2] = { {1, 2}, {3, 4}, {5, 6} };
+  static_assert(euler::has_static_extent<type, 0>::value,
+      "has_static_extent<0>::value fails");
+  static_assert(euler::has_static_extent<type, 1>::value,
+      "has_static_extent<1>::value fails");
 
-  static_assert(euler::is_matrix_v<decltype(A)>, "is_matrix_v fails");
+  static_assert(euler::has_static_extent_v<type, 0>,
+      "has_static_extent_v<0> fails");
+  static_assert(euler::has_static_extent_v<type, 1>,
+      "has_static_extent_v<1> fails");
+
+  static_assert(!euler::has_dynamic_extent<type, 0>::value,
+      "has_dynamic_extent<0>::value fails");
+  static_assert(!euler::has_dynamic_extent<type, 1>::value,
+      "has_dynamic_extent<1>::value fails");
+
+  static_assert(!euler::has_dynamic_extent_v<type, 0>,
+      "has_dynamic_extent_v<0> fails");
+  static_assert(!euler::has_dynamic_extent_v<type, 1>,
+      "has_dynamic_extent_v<1> fails");
+
+  static_assert(euler::is_matrix<type>::value,
+      "is_matrix::value fails");
+
+  static_assert(euler::is_matrix_v<type>,
+      "is_matrix_v fails");
+
+  int a[3][2] = { {1, 2}, {3, 4}, {5, 6} };
+
+  EXPECT_EQ(3, euler::matrix_traits<decltype(a)>::at(a, 1, 0));
 }
 
-TEST(matrix, extent)
+MYTEST(matrix_traits, mixed)
 {
-  int A[3][2] = { {1, 2}, {3, 4}, {5, 6} };
+  // Test matrix traits for matrix with fixed number of columns but variable
+  // number of rows.
 
-  EXPECT_EQ(3u, euler::extent<0>(A));
-  EXPECT_EQ(2u, euler::extent<1>(A));
-  EXPECT_EQ(0u, euler::extent<2>(A));
+  using type = std::vector<std::array<int, 2>>;
+  using traits = euler::matrix_traits<type>;
+
+  static_assert(
+      traits::rank == 2,
+      "matrix_traits::rank failed");
+
+  static_assert(
+      std::is_same<typename traits::value_type, int>::value,
+      "matrix_traits::value_type failed");
+
+  static_assert(
+      std::is_same<typename traits::reference, int&>::value,
+      "matrix_traits::reference failed");
+
+  static_assert(
+      std::is_same<typename traits::const_reference, const int&>::value,
+      "matrix_traits::const_reference failed");
+
+  static_assert(!euler::has_static_extent<type, 0>::value,
+      "has_static_extent<0>::value fails");
+  static_assert(euler::has_static_extent<type, 1>::value,
+      "has_static_extent<1>::value fails");
+
+  static_assert(!euler::has_static_extent_v<type, 0>,
+      "has_static_extent_v<0> fails");
+  static_assert(euler::has_static_extent_v<type, 1>,
+      "has_static_extent_v<1> fails");
+
+  static_assert(euler::has_dynamic_extent<type, 0>::value,
+      "has_dynamic_extent<0>::value fails");
+  static_assert(!euler::has_dynamic_extent<type, 1>::value,
+      "has_dynamic_extent<1>::value fails");
+
+  static_assert(euler::has_dynamic_extent_v<type, 0>,
+      "has_dynamic_extent_v<0> fails");
+  static_assert(!euler::has_dynamic_extent_v<type, 1>,
+      "has_dynamic_extent_v<1> fails");
+
+  static_assert(euler::is_matrix<type>::value,
+      "is_matrix::value fails");
+
+  static_assert(euler::is_matrix_v<type>,
+      "is_matrix_v fails");
+
+  type a{ {1, 2}, {3, 4}, {5, 6} };
+
+  EXPECT_EQ(3, euler::matrix_traits<decltype(a)>::at(a, 1, 0));
 }
 
+MYTEST(extent, static)
+{
+  // Static matrix
+  int a[3][2] = { {1, 2}, {3, 4}, {5, 6} };
+  EXPECT_EQ(3, euler::extent<0>(a));
+  EXPECT_EQ(2, euler::extent<1>(a));
+}
+
+MYTEST(extent, mixed)
+{
+  // Matrix with fixed number of columns but variable number of rows.
+  std::vector<std::array<int, 2>> a;
+  EXPECT_EQ(0, euler::extent<0>(a));
+  EXPECT_EQ(2, euler::extent<1>(a));
+
+  a.push_back(std::array<int, 2>{1, 2});
+  EXPECT_EQ(1, euler::extent<0>(a));
+  EXPECT_EQ(2, euler::extent<1>(a));
+}
+
+#if 0
 TEST(matrix, common_extent)
 {
   int A[3][2] = { {1, 2}, {3, 4}, {5, 6} };
@@ -65,13 +165,36 @@ TEST(matrix, common_extent)
   EXPECT_EQ(2u, euler::common_extent<1>(B, C));
   EXPECT_EQ(0u, euler::common_extent<2>(A, C));
 }
+#endif
 
-TEST(matrix, msum)
+MYTEST(diagonal_matrix, static)
 {
-  int A[3][2] = { {1, 2}, {3, 4}, {5, 6} };
+  auto a = euler::diagonal_matrix(2, 5);
 
-  EXPECT_EQ(21, euler::msum(A));
+  static_assert(euler::is_matrix_v<decltype(a)>, "type mismatch");
+  EXPECT_EQ(2, euler::extent<0>(a));
+  EXPECT_EQ(2, euler::extent<1>(a));
+
+  EXPECT_EQ(5, euler::mat(a, 0, 0));
+  EXPECT_EQ(0, euler::mat(a, 0, 1));
+  EXPECT_EQ(0, euler::mat(a, 1, 0));
+  EXPECT_EQ(5, euler::mat(a, 1, 1));
 }
+
+MYTEST(msum, nonempty)
+{
+  int a[3][2] = { {1, 2}, {3, 4}, {5, 6} };
+  EXPECT_EQ(21, euler::msum(a));
+}
+
+MYTEST(msum, empty)
+{
+  std::vector<std::array<int, 5>> a;
+  EXPECT_EQ(0, euler::msum(a));
+  EXPECT_EQ(5, euler::msum(5, a));
+}
+
+#if 0
 
 TEST(matrix, meq)
 {
@@ -305,3 +428,4 @@ MYTEST(make_lazy_matrix, reference)
   auto v = euler::make_lazy_vector(100, c);
   EXPECT_EQ(15, v[5]);
 }
+#endif
