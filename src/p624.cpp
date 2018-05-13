@@ -1,4 +1,4 @@
-/**
+﻿/**
  * An unbiased coin is tossed repeatedly until two consecutive heads are
  * obtained. Suppose these occur on the (M−1)th and Mth toss. Let P(n) be the
  * probability that M is divisible by n. For example, the outcomes HH, HTHH,
