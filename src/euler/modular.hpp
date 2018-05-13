@@ -132,8 +132,10 @@ T modsub(T a, T b, T m)
   return (a >= b)? a - b : a + (m - b);
 }
 
+namespace details {
+
 template <typename T>
-T modmul(T a, T b, T m, std::false_type /* unused */)
+T modmul(T a, T b, T m, std::false_type /* no_wide_type */)
 {
   typedef typename euler::make_wide<T>::type calc_type;
   return (static_cast<calc_type>(a) * static_cast<calc_type>(b)) % m;
@@ -141,14 +143,16 @@ T modmul(T a, T b, T m, std::false_type /* unused */)
 
 /// @todo Add optimization if the product of ab will not overflow.
 template <typename T>
-T modmul(T a, T b, T m, std::true_type /* unused */)
+T modmul(T a, T b, T m, std::true_type /* no_wide_type */)
 {
   if (a < b)
   {
     std::swap(a, b);
   }
-  return binexp(a, b, T(0), [m](T x, T y) -> T { return modadd(x, y, m); });
+  return ipow(a, b, [m](T x, T y) -> T { return modadd(x, y, m); }, T(0));
 }
+
+} // namespace details
 
 /**
  * Proper modular multiplication.
@@ -202,8 +206,10 @@ T modmul(T a, T b, T m)
   EULER_MODULAR_CHECK_MODULUS(m);
   EULER_MODULAR_CHECK_RESIDUE(a, m);
   EULER_MODULAR_CHECK_RESIDUE(b, m);
-  return modmul(a, b, m,
-    typename std::is_void<typename euler::make_wide<T>::type>());
+  using tag = std::conditional_t<
+      std::is_void<typename euler::make_wide<T>::type>::value,
+      std::true_type, std::false_type>;
+  return details::modmul(a, b, m, tag());
 }
 
 /**
@@ -342,8 +348,10 @@ T modsolve(T a, T b, T m)
 template <class T, class TExponent>
 T modpow(T base, TExponent exponent, T modulus)
 {
-  return binexp(base, exponent, T(1), 
-    [modulus](T x, T y) -> T { return modmul(x, y, modulus); });
+  return ipow(base, exponent, [modulus](T x, T y) -> T
+  {
+    return modmul(x, y, modulus);
+  }, T(1));
 }
 
 } // namespace euler

@@ -46,7 +46,7 @@ public:
    *
    * @complexity Constant.
    */
-  explicit residue(T value) : x(mod(value, M)) { }
+  residue(T value) : x(mod(value, M)) { }
 
   /**
    * Constructs the residue class @c 0 modulo <code>M</code>.
@@ -224,6 +224,24 @@ residue<T, M> operator - (const residue<T, M> &a, const residue<T, M> &b)
 }
 
 /**
+ * Residue negation.
+ *
+ * @param a A residue class modulo @c M.
+ *
+ * @returns Residue class @c b modulo @c M such that for any @c x in @c a and
+ *    @c y in @c b, <code>x + y == 0 (mod M)</code>.
+ *
+ * @complexity Constant.
+ *
+ * @ingroup residue
+ */
+template <class T, T M>
+residue<T, M> operator-(const residue<T, M> &a)
+{
+  return residue<T, M>(modsub(T(0), a.value(), M));
+}
+
+/**
  * Residue multiplication.
  *
  * @param a A residue class modulo @c M.
@@ -287,7 +305,7 @@ residue<T,Modulus> operator * (const TArg &a, const residue<T,Modulus> &b)
 template <typename T, T M>
 residue<T, M> operator / (const residue<T, M> &a, const residue<T, M> &b)
 {
-  return modmul(a, modinv(b.value(), M), M);
+  return modmul(a.value(), modinv(b.value(), M), M);
 }
 
 /**
@@ -295,15 +313,15 @@ residue<T, M> operator / (const residue<T, M> &a, const residue<T, M> &b)
  *
  * @param a A residue class to raise.
  *
- * @param b An integer exponent.
+ * @param k Exponent.
  *
  * @returns Residue class @c c modulo @c M such that for any @c x in @c a and
  *    @c z in @c c, <code>a ** b == c (mod M)</code>.
  */
-template <typename T, T M, typename TArg>
-residue<T, M> operator ^ (const residue<T, M> &a, const TArg &b)
+template <typename T, T M, typename TExponent>
+residue<T, M> operator^(const residue<T, M> &a, TExponent k)
 {
-  return residue<T, M>(modpow(a.value(), b, M));
+  return residue<T, M>(modpow(a.value(), k, M));
 }
 
 } // namespace euler

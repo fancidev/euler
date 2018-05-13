@@ -1,3 +1,4 @@
+#if 0
 /**
  * @defgroup matrix_algorithm Matrix Algorithms
  *
@@ -26,8 +27,8 @@
 #include <functional>
 #include <stdexcept>
 #include <sstream>
-#include "permutation.hpp"
 #include "matrix_traits.hpp"
+#include "permutation.hpp"
 
 namespace euler {
 
@@ -37,23 +38,23 @@ namespace euler {
  * The columns are separated by a space.
  * @ingroup matrix_algorithm
  */
-template <class T>
-std::enable_if_t<is_matrix_v<T>, std::ostream&>
-operator << (std::ostream &os, const T &x)
+template <class M>
+std::enable_if_t<is_matrix_v<M>, std::ostream&>
+operator << (std::ostream &os, const M &a)
 {
-  const size_t M = euler::extent<0>(x);
-  const size_t N = euler::extent<1>(x);
+  const size_t m = euler::extent<0>(a);
+  const size_t n = euler::extent<1>(a);
   const std::streamsize w = os.width();
-  for (size_t i = 0; i < M; i++)
+  for (size_t i = 0; i < m; i++)
   {
-    for (size_t j = 0; j < N; j++)
+    for (size_t j = 0; j < n; j++)
     {
       if (j > 0)
       {
         os << ' ';
       }
       os.width(w);
-      os << x[i][j];
+      os << matrix_traits<M>::at(a, i, j);
     }
     os << std::endl;
   }
@@ -81,14 +82,14 @@ template <class T>
 decltype(auto) mat(const T &a, size_t row, size_t column,
     std::true_type /* is_matrix */, std::false_type /* allow_scalar */)
 {
-  return a[row][column];
+  return matrix_traits<T>::at(a, row, column);
 }
 
 template <class T>
 decltype(auto) mat(const T &a, size_t row, size_t column,
     std::true_type /* is_matrix */, std::true_type /* allow_scalar */)
 {
-  return a[row][column];
+  return matrix_traits<T>::at(a, row, column);
 }
 
 template <bool AllowScalar, class T>
@@ -106,6 +107,233 @@ decltype(auto) mat(const T &a, size_t row, size_t column)
   return details::mat<AllowScalar>(a, row, column);
 }
 
+#if 0
+/**
+ * Represents a vector whose elements are computed on-the-fly when accessed.
+ *
+ * @tparam Func Callable type that takes a single argument of type @c size_t.
+ *
+ * @remarks Any cv-qualifier of the vector object, if present, is guaranteed
+ *    not to propagate to the functor. If @c Func is a class type, its
+ *    <code>operator()&</code> is called.
+ */
+template <class Func>
+class lazy_vector_accessor
+{
+  const size_t n;
+  Func g;
+
+public:
+
+  using value_type = std::result_of_t<
+      std::add_lvalue_reference_t<Func>(size_t)>;
+
+  lazy_vector_accessor(size_t n, Func &&g) :
+      n(n), g(std::forward<Func>(g)) { }
+
+  value_type operator[](size_t column) const
+  {
+    assert(column >= 0 && column < n);
+    return const_cast<Func&>(g)(column);
+  }
+
+  value_type operator[](size_t column) const volatile
+  {
+    assert(column >= 0 && column < n);
+    return const_cast<Func&>(g)(column);
+  }
+};
+
+template <class Func>
+lazy_vector_accessor<Func> make_lazy_vector(size_t n, Func &&g)
+{
+  return { n, std::forward<Func>(g) };
+}
+
+/**
+ * Represents a matrix whose elements are computed on-the-fly when accessed.
+ *
+ * @tparam Func Callable type that takes two arguments of type @c size_t.
+ *
+ * @remarks Any cv-qualifier of the matrix object, if present, is guaranteed
+ *    not to propagate to the functor. If @c Func is a class type, its
+ *    <code>operator()&</code> is called.
+ */
+template <class Func>
+class lazy_matrix_accessor
+{
+  const size_t m;
+  const size_t n;
+  Func g;
+
+public:
+
+  using matrix_storage_layout = no_major_storage_tag;
+
+  using value_type = std::result_of_t<
+      std::add_lvalue_reference_t<Func>(size_t, size_t)>;
+
+  lazy_matrix_accessor(size_t m, size_t n, Func &&g) :
+      m(m), n(n), g(std::forward<Func>(g)) { }
+
+  decltype(auto) operator[](size_t row) const
+  {
+    assert(row >= 0 && row < m);
+    Func &g = const_cast<Func&>(this->g);
+#if 0
+    // BUG: deducted return type discards reference
+    return make_lazy_vector(n, [&g, row](size_t column)
+    {
+      return g(row, column);
+    });
+#else
+    return make_lazy_vector(n, std::bind(g, row, std::placeholders::_1));
+#endif
+  }
+
+  template <size_t Dim>
+  size_t extent() const
+  {
+    return (Dim == 0)? m : (Dim == 1)? n : 0;
+  }
+};
+
+template <class Func>
+lazy_matrix_accessor<Func> make_lazy_matrix(size_t m, size_t n, Func &&g)
+{
+  return lazy_matrix_accessor<Func>(m, n, std::forward<Func>(g));
+}
+#endif
+
+/**
+ * Represents a matrix whose elements are computed on-the-fly when accessed.
+ *
+ * @tparam Func Callable type that takes two arguments of type @c size_t.
+ *
+ * @remarks Any cv-qualifier of the matrix object, if present, is guaranteed
+ *    not to propagate to the functor. If @c Func is a class type, its
+ *    <code>operator()&</code> is called.
+ */
+template <class Func>
+class lazy_matrix
+{
+public:
+  const size_t m;
+  const size_t n;
+
+private:
+  Func g;
+
+  friend struct matrix_traits<lazy_matrix<Func>>;
+
+public:
+
+  lazy_matrix(size_t m, size_t n, Func &&g) :
+      m(m), n(n), g(std::forward<Func>(g)) { }
+};
+
+template <class Func>
+struct matrix_traits<lazy_matrix<Func>>
+{
+  static const size_t rank = 2;
+
+  using value_type = std::result_of_t<
+      std::add_lvalue_reference_t<Func>(size_t, size_t)>;
+  using reference = value_type;
+  using const_reference = value_type;
+
+  static value_type at(const lazy_matrix<Func> &a, size_t i, size_t j)
+  {
+    return const_cast<Func&>(a.g)(i, j);
+  }
+};
+
+template <class Func>
+struct matrix_extent<lazy_matrix<Func>, 0>
+{
+  static size_t value(const lazy_matrix<Func> &a) { return a.m; }
+};
+
+template <class Func>
+struct matrix_extent<lazy_matrix<Func>, 1>
+{
+  static size_t value(const lazy_matrix<Func> &a) { return a.n; }
+};
+
+template <class Func>
+lazy_matrix<Func> make_lazy_matrix(size_t m, size_t n, Func &&g)
+{
+  return lazy_matrix<Func>(m, n, std::forward<Func>(g));
+}
+
+template <class T>
+decltype(auto) diagonal_matrix(size_t n, T v)
+{
+  return make_lazy_matrix(n, n, [v](size_t i, size_t j) -> T
+  {
+    return (i == j)? v : T{};
+  });
+}
+
+/**
+ * Applies a binary function to each element of a matrix (in row-major order)
+ * and folds the result.
+ * calls accumulator = f(accumulator, x) for each x in matrix
+ */
+template <class Func, class T, class M>
+T mreduce(T accumulator, Func f, const M &matrix)
+{
+  static_assert(is_matrix_v<M>, "Expects matrix argument.");
+
+  const size_t m = extent<0>(matrix);
+  const size_t n = extent<1>(matrix);
+  for (size_t i = 0; i < m; i++)
+  {
+    for (size_t j = 0; j < n; j++)
+    {
+      accumulator = f(accumulator, mat(matrix, i, j));
+    }
+  }
+  return accumulator;
+}
+
+/**
+ * Returns @c true if all elements in a matrix evaluate to true.
+ * NO SHORT CIRCUIT.
+ * Returns true if the matrix is empty.
+ *
+ * @timecomplexity <code>O(M*N)</code>.
+ *
+ * @spacecomplexity Constant.
+ *
+ * @ingroup matrix_algorithm
+ */
+template <class M>
+bool mall(const M &matrix)
+{
+  return mreduce(true, std::logical_and<void>(), matrix);
+}
+
+/**
+ * Returns the sum of elements in a matrix.
+ * @timecomplexity <code>O(MN)</code>.
+ * @spacecomplexity Constant.
+ * @ingroup matrix_algorithm
+ */
+template <class T, class M>
+T msum(T init, const M &matrix)
+{
+  return mreduce(init, std::plus<void>(), matrix);
+}
+
+template <class M>
+typename matrix_traits<M>::value_type msum(const M &matrix)
+{
+  typename matrix_traits<M>::value_type accum{};
+  return mreduce(accum, std::plus<void>(), matrix);
+}
+
+#if 0
 namespace details {
 
 /**
@@ -189,60 +417,54 @@ public:
 };
 
 } // namespace details
-
-#if 0
-template <size_t Dim, class Func, class T1, class T2>
-size_t extent(const result_matrix_accessor<Func, T1, T2> &a)
-{
-  return a.template extent<Dim>();
-}
 #endif
 
+/**
+ * Applies a binary function element-wise to matrix arguments.
+ *
+ * @returns An object that implements the matrix accessor requirements. The
+ *    dimension of the result matrix is equal to the dimension of the input
+ *    arguments. The elements of the result matrix are computed on-the-fly
+ *    when accessed.
+ */
 template <class Func, class T1, class T2>
-details::result_matrix_accessor<Func, T1, T2>
-mapply(const Func &f, const T1 &a, const T2 &b)
+decltype(auto) //details::result_matrix<Func, T1, T2>
+mapply(Func f, const T1 &a, const T2 &b)
 {
-  const size_t m = common_extent<0>(a, b);
-  const size_t n = common_extent<1>(a, b);
-  if (m == 0 || n == 0)
+  const size_t m = extent<0>(a), n = extent<1>(a);
+  if (m != extent<0>(b) || n != extent<1>(b))
   {
-    std::ostringstream ss;
-    ss << "mapply: expect scalar or matrix arguments of the same size, but "
-        << "got arguments of size " << extent<0>(a) << "-by-" << extent<1>(a)
-        << " and " << extent<0>(b) << "-by-" << extent<1>(b);
-    throw std::invalid_argument(ss.str());
+    throw std::invalid_argument("Matrix size mismatch");
   }
-  return details::result_matrix_accessor<Func, T1, T2>(m, n, f, a, b);
+#if 0
+  using value_type = std::result_of_t<
+      std::add_lvalue_reference_t<Func>(
+          std::condition
+          matrix_trait
+          size_t, size_t)>;
+#endif
+  return make_lazy_matrix(m, n,
+      [&f, &a, &b](size_t i, size_t j) -> decltype(auto)
+      {
+        return f(mat<true>(a, i, j), mat<true>(b, i, j));
+      });
 }
 
+#if 0
+/**
+ * Element-wise equality test.
+ *
+ * @returns A boolean matrix accessor @c r where
+ *    <code>r[i][j] == (a[i][j] == b[i][j])</code>.
+ */
 template <class T1, class T2>
 decltype(auto) meq(const T1 &a, const T2 &b)
 {
   return mapply(std::equal_to<void>(), a, b);
 }
+#endif
 
-/**
- * Applies a binary function to each element of a matrix and folds the result.
- * (In row-major order)
- * calls accumulator = f(accumulator, x) for each x in matrix
- */
-template <class Func, class T, class M>
-T mreduce(T accumulator, Func f, const M &matrix)
-{
-  static_assert(is_matrix_v<M>, "Expects matrix argument.");
-
-  const size_t m = extent<0>(matrix);
-  const size_t n = extent<1>(matrix);
-  for (size_t i = 0; i < m; i++)
-  {
-    for (size_t j = 0; j < n; j++)
-    {
-      accumulator = f(accumulator, matrix[i][j]);
-    }
-  }
-  return accumulator;
-}
-
+#if 0
 /**
  * Applies a function to each element of a matrix and folds the result.
  * (In row-major order)
@@ -274,33 +496,7 @@ decltype(auto) mreduce(Func f, const M &matrix)
   }
   return result;
 }
-
-/**
- * Returns @c true if all elements in a matrix evaluate to true.
- *
- * @timecomplexity <code>O(M*N)</code>.
- *
- * @spacecomplexity Constant.
- *
- * @ingroup matrix_algorithm
- */
-template <class M>
-decltype(auto) mall(const M &matrix)
-{
-  return mreduce(true, std::logical_and<void>(), matrix);
-}
-
-/**
- * Returns the sum of elements in a matrix.
- * @timecomplexity <code>O(MN)</code>.
- * @spacecomplexity Constant.
- * @ingroup Linear
- */
-template <class M>
-decltype(auto) msum(const M &matrix)
-{
-  return mreduce(std::plus<void>(), matrix);
-}
+#endif
 
 /**
  * Returns the inner product of two matrices of the same size.
@@ -329,6 +525,7 @@ inner_product(const M1 &A, const M2 &B, T y = 0)
 }
 #endif
 
+#if 0
 /**
  * Matrix-matrix, matrix-scalar, and scalar-matrix addition.
  *
@@ -562,7 +759,9 @@ MB& lup_solve(const MLU &LU, const TPerm perm[], MB &B)
   }
   return B;
 }
+#endif
 
 } // namespace euler
 
 #endif // EULER_MATRIX_ALGORITHM_HPP
+#endif

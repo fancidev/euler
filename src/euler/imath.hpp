@@ -1,5 +1,8 @@
 ﻿/**
- * @defgroup IMath Integer Math Functions
+ * @defgroup imath Integer Math Functions
+ *
+ * Integer arithmetic functions.
+ *
  * @ingroup Library
  */
 
@@ -7,78 +10,66 @@
 #define EULER_IMATH_H
 
 #include <cmath>
+#include <stdexcept>
 #include <type_traits>
 #include <functional>
 
 namespace euler {
 
 /**
- * Computes the multiplicative power of an element by binary exponentation.
+ * Raises an element to an integral power.
  *
- * This function uses the <i>binary exponentiation</i> algorithm to apply
- * a given operator (multiplication) for a given number of times (exponent).
- * The algorithm squares @c base in each iteration and multiplies it to the
- * result if the corresponding bit in the exponent is set. 
+ * @param a Base.
  *
- * The multiplication operation must be defined for the element and it 
- * must obey the commutative law.
+ * @param k Exponent.
  *
- * A detailed explanation of the binary exponentiation algorithm can be 
- * found at 
- *   - http://en.wikipedia.org/wiki/Exponentiation_by_squaring
+ * @param op An associative binary operator mapping <code>(T, T) -> T</code>.
+ *    Associativity means <code>(a op b) op c == a op (b op c)</code> for all
+ *    @c a, @c b and @c c of type @c T.
  *
- * @param base The base.
- * @param exponent The exponent. Must be greater than or equal to zero.
- * @param identity The identity element.
- * @param multiplies The multiplication operator.
- * @returns @c base multiplied @c exponent times.
+ * @param e Identity element for operator @c op, i.e. the element such that
+ *    <code>(e op a) == (a op e) == a</code> for all @c a of type @c T.
  *
- * @timecomplexity No more than <code>2*log<sub>2</sub>E</code> 
- *      multiplications, where @c E is the exponent.
+ * @returns The result of <code>e op a op a ...</code> where @c op is applied
+ *    @c k times.
+ *
+ * @exception std::domain_error if <code>k < 0</code>.
+ *
+ * @remarks If arithmetic overflow occurs during the calculation, the result
+ *    is undefined.
+ *
+ * @algorithm The <i>binary exponentiation</i> algorithm, which is explained
+ *    at http://en.wikipedia.org/wiki/Exponentiation_by_squaring.
+ *
+ * @timecomplexity No more than <code>2*log<sub>2</sub>k</code> applications
+ *    of @c op.
+ *
  * @spacecomplexity Constant.
- * @ingroup IMath
+ *
+ * @ingroup imath
  */
-template <typename T, typename TExponent, typename Func>
-T binexp(T base, TExponent exponent, const T &identity, Func multiplies)
+template <typename T, typename TExponent, typename Op = std::multiplies<T>>
+T ipow(T a, TExponent k, Op op = Op(), const T &e = T(1))
 {
-  T result = identity;
-  for (; exponent > 0; exponent >>= 1)
+  static_assert(
+      std::is_integral<TExponent>::value,
+      "Exponent must be of integral type.");
+
+  if (k < TExponent(0))
   {
-    if (exponent & 1)
+    throw std::domain_error("Exponent must be nonnegative.");
+  }
+
+  T result = e;
+  for (; k > 0; k >>= 1)
+  {
+    if ((k & 1) != 0)
     {
-      result = multiplies(result, base);
+      result = op(result, a);
     }
-    base = multiplies(base, base);
+    a = op(a, a);
   }
   return result;
-}
-
-/**
- * Computes the integral power of an element by binary exponentation.
- *
- * This function uses the <i>binary exponentiation</i> algorithm which 
- * squares @c base in each iteration and multiplies it to the result if
- * the corresponding bit in the exponent is set. The multiplication 
- * operation must be defined for the element and it must obey the 
- * commutative law.
- *
- * A detailed explanation of the binary exponentiation algorithm can be 
- * found at 
- *   - http://en.wikipedia.org/wiki/Exponentiation_by_squaring
- *
- * @param base The base.
- * @param exponent The exponent. Must be greater than or equal to zero.
- * @returns One multiplied by @c base for @c exponent times.
- *
- * @timecomplexity No more than <code>2*log<sub>2</sub>E</code> 
- *      multiplications, where @c E is the exponent.
- * @spacecomplexity Constant.
- * @ingroup IMath
- */
-template <typename T, typename TExponent>
-T ipow(const T &base, TExponent exponent)
-{
-  return binexp(base, exponent, T(1), std::multiplies<T>());
 }
 
 /**
@@ -94,7 +85,7 @@ T ipow(const T &base, TExponent exponent)
  *
  * @complexity Constant.
  *
- * @ingroup IMath
+ * @ingroup imath
  */
 template <typename T>
 T isqrt(T n)
@@ -121,7 +112,7 @@ T isqrt(T n)
  *
  * @spacecomplexity Constant.
  *
- * @ingroup IMath
+ * @ingroup imath
  */
 template <typename T>
 T ilog(T n, T base)

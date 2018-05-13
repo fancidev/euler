@@ -1,6 +1,7 @@
+#if 0
 /**
  * @defgroup MatrixAdaptor Matrix Adaptors
- * 
+ *
  * Implements the matrix accessor interface for common storage types.
  *
  * A <i>matrix adaptor</i> is a set of type traits and free functions
@@ -10,7 +11,7 @@
  *   - static array
  *   - dynamic array (with continuous storage)
  *   - zagged array
- * 
+ *
  * @ingroup LinearAlgebra
  */
 
@@ -19,7 +20,7 @@
 
 #include "matrix_traits.hpp"
 
-namespace euler { 
+namespace euler {
 
 /// Matrix traits for a static 2-D array.
 template <class T, size_t M, size_t N>
@@ -39,3 +40,4 @@ size_t size(const T (&A)[M][N])
 } // namespace euler
 
 #endif // EULER_MATRIX_ADAPTOR_HPP
+#endif
