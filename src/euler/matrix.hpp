@@ -1,9 +1,7 @@
 /**
- * @defgroup Matrix Fixed-Size Matrices
+ * @defgroup Matrix Matrix Operations
  *
  * Fixed-size matrices and related operations.
- *
- * @ingroup Library
  */
 
 #ifndef EULER_MATRIX_HPP
@@ -171,15 +169,35 @@ public: // assignment
 
 public: // static methods
 
+#if 0
+  /// <summary>
+  ///   Creates a diagonal matrix.
+  /// </summary>
+  /// <param name="value">
+  ///   Value on the diagonal.
+  /// </param>
+  /// <returns>
+  ///   Matrix <c>A</c> such that <c>A(i, j) == value</c> for <c>i == j</c>
+  ///   and <c>A(i, j) == T(0)</c> for <c>i != j</c>.
+  /// </returns>
+  /// <timecomplexity>
+  ///   <c>O(N^2)</c>.
+  /// </timecomplexity>
+  /// <remarks>
+  ///   This function is only supported for square matrix.
+  /// </remarks>
+#endif
   /**
    * Creates a diagonal matrix.
    *
-   * @param value The value on the diagonal.
+   * @param value Value on the diagonal.
    *
-   * @returns Matrix @c A such that <code>A(i, i) == value</code> and
-   * <code>A(i, j) == T(0)</code> for <code>i != j</code>.
+   * @returns Matrix <c>A</c> such that <c>A(i, j) == value</c> for
+   *    <c>i == j</c> and <c>A(i, j) == T(0)</c> for <c>i != j</c>.
    *
-   * @remarks This function is only defined for square matrix.
+   * @complexity <c>O(N<sup>2</sup>)</c>.
+   *
+   * @remarks This function is only supported for square matrix.
    */
   static matrix diagonal(const T &value)
   {
@@ -192,16 +210,14 @@ public: // static methods
     return A;
   }
 
-  /// <summary>
-  /// Creates an identity matrix.
-  /// </summary>
-  /// <returns>
-  /// Matrix @c A such that <code>A(i, i) == T(1)</code> and
-  /// <code>A(i, j) == T(0)</code> for <code>i != j</code>.
-  /// </returns>
-  /// <remarks>
-  /// This function is only suppported for square matrix.
-  /// </remarks>
+  /**
+   * Creates an identity matrix.
+   *
+   * @returns Matrix <c>A</c> such that <c>A(i, j) == T(1)</c> for
+   *    <c>i == j</c> and <c>A(i, j) == T(0)</c> for <c>i != j</c>.
+   *
+   * @remarks This function is only supported for square matrix.
+   */
   static matrix identity()
   {
     static_assert(M == N, "Square matrix required.");
@@ -209,10 +225,14 @@ public: // static methods
   }
 };
 
-// Matrix operations.
+/**
+ * @addtogroup Matrix
+ * @{
+ */
 
-// Logical reduce operations.
-
+/**
+ * Returns <c>true</c> if all elements in the matrix are <c>true</c>.
+ */
 template <size_t M, size_t N>
 bool all_of(const matrix<bool,M,N> &a)
 {
@@ -281,12 +301,26 @@ apply(Op f, const T &a, const matrix<T,M,N> &b)
 
 } // namespace details
 
-/// Matrix-matrix comparison.
+/**
+ * @name Comparison Operators
+ * @{
+ */
+
+/**
+ * Matrix-matrix element-wise equality comparison.
+ */
 template <class T, size_t M, size_t N>
 matrix<bool,M,N> operator==(const matrix<T,M,N> &a, const matrix<T,M,N> &b)
 {
   return details::apply(std::equal_to<T>(), a, b);
 }
+
+/** @} */
+
+/**
+ * @name Arithmetic Operators
+ * @{
+ */
 
 /**
  * Matrix-matrix addition.
@@ -432,6 +466,28 @@ matrix<T,M,N>& operator/=(matrix<T,M,N> &a, const T &b)
   return a;
 }
 
+/**
+ * Matrix exponentiation.
+ *
+ * @param a Square matrix.
+ *
+ * @param k Exponent.
+ *
+ * @returns The N-by-N identity matrix multiplied by @c a for @c k times.
+ *
+ * @timecomplexity <code>O(N^3*log(k))</code>.
+ *
+ * @spacecomplexity <code>O(N^2)</code>.
+ */
+template <class T, size_t N, typename TExponent>
+matrix<T,N,N> operator^(const matrix<T,N,N> &a, TExponent k)
+{
+  return ipow(a, k, std::multiplies<matrix<T,N,N>>(),
+      matrix<T,N,N>::identity());
+}
+
+/** @} */
+
 #if 0
 /**
  * LUP decomposition.
@@ -458,7 +514,6 @@ matrix<T,M,N>& operator/=(matrix<T,M,N> &a, const T &b)
  *
  * @spacecomplexity Constant.
  *
- * @ingroup Linear
  */
 template <class T, size_t N>
 int lup_decompose(matrix<T,N,N> &A, size_t perm[N])
@@ -533,7 +588,6 @@ int lup_decompose(matrix<T,N,N> &A, size_t perm[N])
  * @timecomplexity <code>O(KN^2)</code>, where @c K is the number of
  *      columns in <code>B</code>.
  * @spacecomplexity Constant.
- * @ingroup Linear
  */
 template <class MLU, class TPerm, class MB>
 MB& lup_solve(const MLU &LU, const TPerm perm[], MB &B)
@@ -629,27 +683,7 @@ matrix<T,2,2> inv(const matrix<T,2,2> &a)
   return b;
 }
 
-/**
- * Matrix exponentiation.
- *
- * @param a Square matrix.
- *
- * @param k Exponent.
- *
- * @returns The N-by-N identity matrix multiplied by @c a for @c k times.
- *
- * @timecomplexity <code>O(N^3*log(k))</code>.
- *
- * @spacecomplexity <code>O(N^2)</code>.
- *
- * @ingroup Matrix
- */
-template <class T, size_t N, typename TExponent>
-matrix<T,N,N> operator^(const matrix<T,N,N> &a, TExponent k)
-{
-  return ipow(a, k, std::multiplies<matrix<T,N,N>>(),
-      matrix<T,N,N>::identity());
-}
+/** @} */
 
 } // namespace euler
 

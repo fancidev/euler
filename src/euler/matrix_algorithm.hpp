@@ -1,3 +1,4 @@
+#if 0
 /**
  * @defgroup matrix_algorithm Matrix Algorithms
  *
@@ -763,3 +764,4 @@ MB& lup_solve(const MLU &LU, const TPerm perm[], MB &B)
 } // namespace euler
 
 #endif // EULER_MATRIX_ALGORITHM_HPP
+#endif

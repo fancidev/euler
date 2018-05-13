@@ -1,3 +1,4 @@
+#if 0
 /**
  * @defgroup matrix_traits Matrix Traits
  *
@@ -424,3 +425,4 @@ struct matrix_extent<std::vector<std::array<T, N>>, 1>
 } // namespace euler
 
 #endif // EULER_MATRIX_TRAITS_HPP
+#endif
