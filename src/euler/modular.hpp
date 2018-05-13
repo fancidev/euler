@@ -345,8 +345,8 @@ T modsolve(T a, T b, T m)
  * @ingroup ModularArithmetic
  * @todo Consider using Montgomery reduction to improve performance.
  */
-template <class T>
-T modpow(T base, size_t exponent, T modulus)
+template <class T, class TExponent>
+T modpow(T base, TExponent exponent, T modulus)
 {
   return ipow(base, exponent, [modulus](T x, T y) -> T
   {
