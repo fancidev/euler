@@ -1,0 +1,46 @@
+\input{euler.tex}
+
+\begin{document}
+
+\problem[69]{Find the Value of $n \le 10^6$ that Maximizes $n/\varphi(n)$}
+
+Euler's Totient function, $\varphi(n)$, is used to determine the number of numbers less than $n$ which are relatively prime to $n$. For example, as 1, 2, 4, 5, 7, and 8, are all less than nine and relatively prime to nine, $\varphi(9)=6$.
+
+It can be seen that $n=6$ produces a maximum $n/\varphi(n)$ for $n \le 10$.
+
+Find the value of $n \le 10^6$ for which $n/\varphi(n)$ is a maximum.
+
+\solution
+
+It is known that
+\[
+\varphi(n) = n \left(1-\frac{1}{p_1} \right) \cdots \left(1-\frac{1}{p_r}\right)
+\]
+where $p_1, \ldots, p_r$ are distinct prime factors of $n$. It follows that
+\[
+\frac{n}{\varphi(n)} = \left(\frac{p_1}{p_1-1}\right) \cdots \left(\frac{p_r}{p_r-1}\right)
+\]
+
+We note that this ratio has nothing to do with the power of each prime factor. Therefore, to maximize the ratio for $n \le N$, all the prime factors of $n$ should have power 1.
+
+It is also obvious that a smaller $p$ gives a larger value of $p/(p-1)$. So the solution is a product of the first primes ($2, 3, 5, \ldots$) such that the product is less than or equal to $N$. It turns out that for $N = 10^6$, the primes used are 2, 3, 5, 7, 11, 13, 17.
+
+\complexity
+
+The product of all primes below $n$ is defined as the \emph{primorial} of $n$, denoted as $n \#$. Since $n \# \le N$ and $\ln (n \#) \sim n$, the largest prime in the product is roughly $\ln N$. Primality testing for each number $n$ takes $\BigO(\ln n)$ time.
+
+Time complexity: $\BigO(\ln N \ln \ln N)$.
+
+Space complexity: $\BigO(1)$.
+
+\answer
+
+510510
+
+\reference
+
+http://en.wikipedia.org/wiki/Euler's\_totient\_function
+
+http://en.wikipedia.org/wiki/Primorial
+
+\end{document} 
