@@ -111,6 +111,15 @@ public:
     return x;
   }
 
+  /**
+   * Returns the number of digits in the integer, excluding leading zeros; in
+   * particular, if the integer is equal to zero, returns 0.
+   */
+  size_t size() const
+  {
+    return _digits.size();
+  }
+
 #if 0
   /**
    * Right-shifts the digits of the integer in-place.
