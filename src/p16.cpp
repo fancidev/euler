@@ -15,8 +15,7 @@ END_PROBLEM()
 static void solve_problem_16()
 {
   const int N = 1000;
-  const int D = static_cast<int>(N*0.301029995663981) + 1;
-  euler::decimal<D> x(2);
+  euler::decimal x = 2;
   for (int i = 1; i < N; i++)
   {
     x += x;

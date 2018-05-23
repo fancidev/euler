@@ -1,306 +1,266 @@
 /**
- * @defgroup Decimal Decimal Arithmetic
+ * @defgroup Decimal Decimal Arithmetics
+ *
  * @ingroup Library
  *
- * This module provides support for fixed-precision decimal arithmetic, 
- * such as addition, subtraction, and multiplication. In the current 
- * release, only integers are supported. In some future release, floating 
- * point arithmetic may be supported.
- *
- * This module aims to demonstrate how decimal arithmetic could be 
- * implemented. It is not supposed to be a high performance big integer
- * library and should not be used for that purpose.
- *
- * There are three main reasons why decimal (instead of binary) arithmetic
- * is implemented. First, implementing the arithmetic in decimal (or other
- * bases other than binary) demonstrates the algorithm in general, without
- * relying on specific simplifications coming from a binary representation.
- * Second, most problems in Project Euler where a big integer is actually 
- * needed to compute the result requires to access the decimal digit of 
- * the result, which makes a direct decimal implementation natural. Third,
- * by implementing interval arithmetics on top of suitably rounded floating
- * point decimals, this could be used to illustrate the basics in error 
- * analysis which are typically carried out in decimal for visual simplicity.
+ * This module implements unsigned big integer arithmetics with digits stored
+ * in user-specified radix. The module illustrates the basic algorithms for
+ * software arithmetics; it is not intended to be a high-performance library.
  */
 
 #ifndef EULER_DECIMAL_H
 #define EULER_DECIMAL_H
 
-#include <iostream>
 #include <array>
+#include <cstdint>
+#include <iostream>
+#include <vector>
+#include "imath.hpp"
 #include "sequence.hpp"
 
 namespace euler {
 
 /**
- * Represents a fixed-precision decimal number.
+ * Represents an unsigned integer with digits represented in a given radix.
+ *
+ * @tparam Base Base of digit representation; must be between 2 and 16
+ *    (inclusive). Digit expansion and digit shift operations are performed in
+ *    this base.
+ *
+ * @see <i>The Art of Computer Programming</i> for more information on
+ *    implementing software arithmetic.
  *
  * @ingroup Decimal
- * @todo We could implement also a binary fixed-width big integer class 
- *      which could then be used in say VC++ AMP (which only supports up
- *      to 32 bits).
- * @todo We could generalize the base and data type a little bit to easily
- *      support say base 256 or 2^32, so that efficient binary arithmetic
- *      could be done.
- * @todo Consult <i>The Art of Computer Programming</i> to find out the
- *      proper way to implement software arithmetic.
  */
-template <int NDigit, int NExponent = 0, unsigned char base = 10>
-class decimal
+template <size_t Base>
+class integer
 {
-  typedef unsigned char TDigit;
-  typedef int TCalc;
+  static_assert(Base >= 2 && Base <= 16, "Base must be between 2 and 16.");
 
-  bool of;  // overflow flag
-  bool neg; // true if negative
-  int nd;   // number of significant digits
-  std::array<TDigit,NDigit> d; // digits, least significant bit first
+  using digit_t = uint8_t;
+  using store_t = std::vector<digit_t>;
+
+  store_t _digits; // least significant digit first; empty if 0
+
+  static const store_t& _zero_digits()
+  {
+    static const store_t zero(1);
+    return zero;
+  }
 
 public:
 
-  /// Constructs a decimal of value zero.
-  /// @timecomplexity <code>O(D)</code>.
-  /// @spacecomplexity <code>O(D)</code>.
-  decimal() : of(false), neg(false), nd(0), d() { }
+  /**
+   * Creates an integer of value zero.
+   */
+  integer() : _digits() { }
 
-  /// Constructs a decimal of a given integral value.
-  /// @timecomplexity <code>O(D)</code>.
-  /// @spacecomplexity <code>O(D)</code>.
-  explicit decimal(unsigned int n) : of(false), neg(false), nd(0)
+  /**
+   * Creates an integer of the given value.
+   */
+  integer(uint64_t n) : _digits()
   {
-    for (int i = 0; i < NDigit; i++)
+    while (n > 0)
     {
-      if ((d[i] = n % base) != 0)
-      {
-        nd = i + 1;
-      }
-      n /= base;
+      _digits.push_back(static_cast<digit_t>(n % Base));
+      n /= Base;
     }
-    of = (n > 0);
   }
 
   /**
-   * Constructs a decimal from a string.
+   * Parses an integer from a string.
    *
-   * Supported characters in the string are <code>0-9</code>, which represents
-   * the digits as is, and <code>A-Z</code> or <code>a-z</code>, which
-   * represent digits greater than 9. Hence, the largest base supported by
-   * this function is 36.
+   * Supported characters in the string are <c>0-9</c>, which represent the
+   * respective digit as is, and <c>A-Z</c> or <c>a-z</c>, which represent
+   * digits from 10 to 15.
    *
-   * If there are more digits in the input than <code>NDigit</code>, the
-   * <code>overflow()</code> flag is set and the lowest @c NDigit digits are
-   * kept.
+   * Parsing stops at the first character that is not a digit character. If
+   * the input string does not contain any digit character, the returned value
+   * is zero.
    *
-   * If the input string is empty, the number is treated as zero. If there are
-   * invalid digits in the input string, it is treated as end-of-string.
-   *
-   * @param s A string containing the digit expansion of a number in base
-   *    <code>base</code>.
-   *
-   * @timecomplexity <code>O(max(D,L))</code>, where @c L is the length of the
-   *   input string.
-   *
-   * @spacecomplexity <code>O(D)</code>.
+   * @param s String containing the digit expansion of an integer in base
+   *    <c>Base</c>.
    */
-  explicit decimal(const char *s) : of(false), neg(false), nd(0), d()
+  static integer parse(const char *s)
   {
-    // Ignore leading zeros.
+    // Default value is 0
+    integer x;
+
+    // Skip leading zeros.
     while (*s == '0')
     {
       s++;
     }
 
     // Input the digits.
-    for (; *s != '\0'; s++, nd++)
+    for (; *s != '\0'; s++)
     {
       char c = *s;
-      int x = (c >= '0' && c <= '9')? c - '0' :
+      int d = (c >= '0' && c <= '9')? c - '0' :
         (c >= 'A' && c <= 'Z')? c - 'A' + 10 :
         (c >= 'a' && c <= 'z')? c - 'a' + 10 : -1;
-      if (x < 0 || x >= base)
+      if (d < 0 || d >= static_cast<int>(Base))
       {
         break;
       }
-      d[nd % NDigit] = static_cast<TDigit>(x);
-    }
-
-    // If the input is too long, truncate it and set the overflow flag.
-    if (nd > NDigit)
-    {
-      std::array<TDigit,NDigit> tmp(d);
-      for (int i = 0; i < NDigit; i++)
-      {
-        d[i] = tmp[(nd+i)%NDigit];
-      }
-      nd = NDigit;
-      of = true;
+      x._digits.push_back(d);
     }
 
     // Reverse the digits into proper order.
-    std::reverse(d.begin(), d.begin() + nd);
+    std::reverse(x._digits.begin(), x._digits.end());
+    return x;
   }
 
-  /// Tests if the decimal is overflowed.
-  /// @returns @c true if the number if overflowed, @c false otherwise.
-  /// @complexity Constant.
-  bool overflow() const { return of; }
-
-  /// Tests if the decimal is negative.
-  /// @returns @c true if the number is negative, @c false if the number is
-  ///      zero or positive.
-  /// @complexity Constant.
-  bool negative() const { return neg; }
-
+#if 0
   /**
-   * Logical right shifts the number.
-   * @param shift The number of digits to shift.
-   * @returns The number after the shift.
-   * @timecomplexity <code>O(D)</code>.
-   * @spacecomplexity Constant.
+   * Right-shifts the digits of the integer in-place.
+   *
+   * @param shift Number of digits to shift to the right.
+   *
+   * @returns The integer after digit shift.
    */
-  decimal& operator >>= (int shift)
+  integer& operator>>=(size_t shift)
   {
-    if (shift >= nd) // zero
+    if (shift >= _digits.size()) // zero
     {
-      std::fill(d.begin(), d.begin() + nd, TDigit(0));
-      nd = 0;
+      _digits.erase(_digits.begin(), _digits.end());
     }
     else
     {
-      std::copy(d.begin() + shift, d.begin() + nd, d.begin());
-      std::fill(d.begin() + nd - shift, d.begin() + nd, TDigit(0));
-      nd -= shift;
+      _digits.erase(_digits.begin(), _digits.begin() + shift);
     }
+    return *this;
+  }
+#endif
+
+  /**
+   * Integer addition and assignment.
+   *
+   * @param other Operand.
+   */
+  integer& operator+=(const integer &other)
+  {
+    *this = *this + other;
     return *this;
   }
 
   /**
-   * Adds another number to this number.
-   * @param x The number to add to this number.
-   * @returns The number after addition. If the result is too big to be
-   *      represented with @c D digits, the <code>overflow()</code> flag
-   *      is set.
-   * @timecomplexity <code>O(D)</code>.
-   * @spacecomplexity Constant.
+   * Integer addition.
    */
-  decimal& operator += (const decimal &x)
+  friend integer operator+(const integer &a, const integer &b)
   {
-    // Be careful if &x == this.
-    TDigit carry = 0;
-    nd = std::max(nd, x.nd);
-    for (int i = 0; i < nd; i++)
+    const size_t n1 = a._digits.size();
+    const size_t n2 = b._digits.size();
+    const size_t n = std::max(n1, n2);
+
+    integer c;
+    digit_t carry = 0;
+    for (size_t i = 0; i < n; i++)
     {
-      TCalc t = static_cast<TCalc>(d[i]) + static_cast<TCalc>(x.d[i]) +
-                static_cast<TCalc>(carry);
-      if (t >= base)
+      int t = (i < n1 ? a._digits[i] : 0) +
+              (i < n2 ? b._digits[i] : 0) +
+              carry;
+      if (t >= static_cast<int>(Base))
       {
         carry = 1;
-        t -= base;
+        t -= Base;
       }
       else
       {
         carry = 0;
       }
-      d[i] = static_cast<TDigit>(t);
+      c._digits.push_back(static_cast<digit_t>(t));
     }
     if (carry != 0)
     {
-      if (nd >= NDigit)
-      {
-        of = true;
-      }
-      else
-      {
-        d[nd++] = 1;
-      }
+      c._digits.push_back(1);
     }
-    return *this;
+    return c;
   }
 
-
-#if 0
-  // Multiplication
-  // Can we use rvalue reference to improve performance of Multiplication
-  // of two decimals?
-  decimal& operator *= (const decimal &x)
+  /**
+   * Integer multiplication.
+   */
+  friend integer operator*(const integer &a, uint64_t b)
   {
-    return *this;
+    return ipow(a, b, std::plus<integer>(), integer());
   }
-#endif
 
-#if 0
-  /// Returns the <code>k</code>th digit in the number.
-  int digit(int k) const { return d[k]; }
-#endif
+  /**
+   * Iterator that enumerates digits from right (least significant) to left
+   * (most significant).
+   */
+  using const_iterator = typename store_t::const_reverse_iterator;
 
-  /// Iterator that enumerates the digits from right (least significant)
-  /// to left (most significant).
-  typedef typename std::array<TDigit,NDigit>::const_iterator const_reverse_iterator;
+  /**
+   * Iterator that enumerates digits from right (least significant) to left
+   * (most significant).
+   */
+  using const_reverse_iterator = typename store_t::const_iterator;
 
-  /// Returns an iterator that initially points to the least significant
-  /// digit, and moves to more significant digits when advanced.
-  /// @complexity Constant.
-  const_reverse_iterator digit_rbegin() const   { return d.begin(); }
+  sequence<const_iterator> digits() const
+  {
+    if (_digits.empty())
+    {
+      return make_sequence(_zero_digits().rbegin(), _zero_digits().rend());
+    }
+    else
+    {
+      return make_sequence(_digits.rbegin(), _digits.rend());
+    }
+  }
 
-  /// Returns an iterator that points past the most significant digit.
-  /// @complexity Constant.
-  const_reverse_iterator digit_rend() const { return d.begin() + std::max(1,nd); }
-
-  /// Iterator that enumerates the digits from right (least significant)
-  /// to left (most significant).
-  typedef typename std::array<TDigit,NDigit>::const_reverse_iterator const_iterator;
-
-  /// Returns an iterator that initially points to the most significant
-  /// digit, and moves to less significant digits when advanced.
-  /// @complexity Constant.
-  const_iterator digit_begin() const   { return d.rbegin() + (NDigit - std::max(1,nd)); }
-
-  /// Returns an iterator that points past the least significant digit.
-  /// @complexity Constant.
-  const_iterator digit_end() const { return d.rend(); }
-
+  sequence<const_reverse_iterator> rdigits() const
+  {
+    if (_digits.empty())
+    {
+      return make_sequence(_zero_digits().begin(), _zero_digits().end());
+    }
+    else
+    {
+      return make_sequence(_digits.begin(), _digits.end());
+    }
+  }
 };
 
-/**
- * Returns the sequence of digits of a decimal number, read forwards.
- * @complexity Constant.
- */
-template <int NDigit, int NExponent, unsigned char Base>
-sequence<typename decimal<NDigit,NExponent,Base>::const_iterator> 
-digits(const decimal<NDigit,NExponent,Base> &x)
+template <size_t Base>
+sequence<typename integer<Base>::const_iterator>
+digits(const integer<Base> &x)
 {
-  return make_sequence(x.digit_begin(), x.digit_end());
+  return x.digits();
+}
+
+template <size_t Base>
+sequence<typename integer<Base>::const_reverse_iterator>
+rdigits(const integer<Base> &x)
+{
+  return x.rdigits();
 }
 
 /**
- * Returns the sequence of digits of a decimal number, read backwards.
- * @complexity Constant.
- */
-template <int NDigit, int NExponent, unsigned char Base>
-sequence<typename decimal<NDigit,NExponent,Base>::const_reverse_iterator> 
-rdigits(const decimal<NDigit,NExponent,Base> &x)
-{
-  return make_sequence(x.digit_rbegin(), x.digit_rend());
-}
-
-/**
- * Writes a decimal number to an output stream.
- * @param os The output stream.
- * @param x The decimal number to output.
- * @returns The output stream.
- * @complexity <code>O(d)</code> where @c d is the number of digits in @c x.
+ * Outputs an integer to a stream.
+ *
+ * @param os Output stream.
+ *
+ * @param x Integer to output.
+ *
+ * @returns <c>os</c>.
+ *
+ * @complexity <code>O(L)</code> where @c L is the number of digits in @c x.
+ *
  * @ingroup Decimal
  */
-template <int NDigit, int NExponent, unsigned char base>
-std::ostream& operator << (std::ostream &os, const decimal<NDigit,NExponent,base> &x)
+template <size_t Base>
+std::ostream& operator<<(std::ostream &os, const integer<Base> &x)
 {
-  for (auto it = x.digit_begin(); it != x.digit_end(); ++it)
+  for (int c: digits(x))
   {
-    int c = *it;
-    os << static_cast<char>(c <= 9? '0' + c : c <= 35? c - 10 + 'a' : '_');
+    os << static_cast<char>(c <= 9? '0' + c : c - 10 + 'a');
   }
   return os;
 }
+
+using decimal = integer<10>;
 
 } // namespace euler
 

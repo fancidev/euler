@@ -4,6 +4,7 @@
  */
 
 #include <iostream>
+#include <sstream>
 #include "euler/decimal.hpp"
 #include "euler.h"
 
@@ -121,12 +122,13 @@ static const char * numbers[100] = {
 
 static void solve_problem_13()
 {
-  euler::decimal<52> sum;
+  euler::decimal sum;
   for (const char *number: numbers)
   {
-    euler::decimal<52> x(number);
+    euler::decimal x = euler::decimal::parse(number);
     sum += x;
   }
-  sum >>= 42;
-  std::cout << sum << std::endl;
+  std::stringstream ss;
+  ss << sum;
+  std::cout << ss.str().substr(0, 10) << std::endl;
 }
