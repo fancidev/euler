@@ -10,7 +10,7 @@ template <typename T>
 T totient(T n)
 {
   T ret = n;
-  prime_factorize_distinct(n, [&ret](T p, int k) {
+  prime_factorize_distinct(n, [&ret](T p, int /* unused */) {
     ret = ret / p * (p - 1);
   });
   return ret;

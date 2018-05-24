@@ -103,7 +103,7 @@ public:
       {
         break;
       }
-      x._digits.push_back(d);
+      x._digits.push_back(static_cast<digit_t>(d));
     }
 
     // Reverse the digits into proper order.
