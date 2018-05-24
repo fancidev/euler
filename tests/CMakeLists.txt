@@ -7,7 +7,8 @@ enable_testing()
 
 add_subdirectory(googletest EXCLUDE_FROM_ALL)
 
-add_executable(tests tests.cpp test_digits.cpp test_gcd.cpp test_matrix.cpp)
+add_executable(tests tests.cpp test_digits.cpp test_gcd.cpp test_matrix.cpp
+               test_datetime.cpp)
 
 set_target_properties(
   tests PROPERTIES
