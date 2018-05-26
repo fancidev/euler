@@ -19,7 +19,6 @@
 
 #include <iostream>
 #include <algorithm>
-#include <vector>
 #include "euler/prime_factor.hpp"
 #include "euler.h"
 
@@ -37,36 +36,20 @@ static void solve_problem_47()
   const int find_consecutive = 4;
 
   int n = 3;
-  std::vector<std::pair<int, int>> primes;
-  for (int consecutive = 0; consecutive < find_consecutive; ++n)
+  int num_consecutive = 0;
+  for (; num_consecutive < find_consecutive; ++n)
   {
-    // prime-factorize the number N.
-    bool distinct = true;
-    int count = 0;
-    euler::prime_factorize_distinct(n,
-        [&primes, &distinct, &count](int p, int k)
+    auto distinct_factors = euler::distinct(euler::factorize(n));
+    auto num_distinct_factors = std::distance(
+        distinct_factors.begin(), distinct_factors.end());
+    if (num_distinct_factors == find_consecutive)
     {
-      ++count;
-      std::pair<int,int> pp(p, k);
-      if (std::find(primes.cbegin(), primes.cend(), pp) != primes.cend())
-      {
-        distinct = false;
-      }
-      else
-      {
-        primes.push_back(pp);
-      }
-    });
-    if (distinct && (count == find_consecutive))
-    {
-      consecutive++;
+      ++num_consecutive;
     }
     else
     {
-      consecutive = 0;
-      primes.resize(0);
+      num_consecutive = 0;
     }
   }
-
   std::cout << (n - find_consecutive) << std::endl;
 }

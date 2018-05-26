@@ -34,65 +34,6 @@
 namespace euler {
 
 /**
- * Finds the prime factors of an integer.
- *
- * Given an integer @c n to factorize, this function trial-divides @c n with
- * every integer @c p starting from @c 2 until <code>√n</code>. If @c p divides
- * @c n, then @c p is a prime factor of @c n and it calls <code>f(p)</code>
- * and removes @c p once from @c n.
- *
- * In particular, if @c n is prime, then only <code>f(n)</code> is called.
- *
- * Note that @c 1 is <i>not</i> considered prime. If <code>n = 1</code>, @c f
- * is never called.
- *
- * @param n The integer to factorize. Must be positive.
- * @param f The callback function of signature <code>void f(T)</code>.
- *      Its return value, if any, is ignored.
- * @timecomplexity No more than <code>√n</code> trial divisions.
- * @spacecomplexity Constant.
- * @remarks The factors are guaranteed to be returned from smallest to largest.
- *
- * @ingroup PrimeFactor
- */
-template <class T, class Func>
-void prime_factorize(T n, Func f)
-{
-  if (n <= 1)
-  {
-    return;
-  }
-
-  // divide by 2
-  while (n % 2 == 0)
-  {
-    n >>= 1;
-    f(2);
-  }
-
-  // divide by odd number until sqrt(n)
-  T p = 3;
-  while (n > 1)
-  {
-    T q = n / p;
-    if (n % p == 0)
-    {
-      n = q;
-      f(p);
-    }
-    else
-    {
-      if (q < p)
-      {
-        f(n);
-        break;
-      }
-      p += 2;
-    }
-  }
-}
-
-/**
  * Factorizes an integer on a given sequence of factors.
  *
  * This function factorizes an integer, @c n, on a given sequence of potential
@@ -113,7 +54,7 @@ void prime_factorize(T n, Func f)
  * @param primes_begin The begin iterator of the factor sequence.
  * @param primes_end The end iterator of the factor sequence.
  *
- * @ingroup PrimeFactor
+ * @ingroup prime_factor
  */
 template <class T, class Func, class FwdIt>
 void prime_factorize(T n, Func f, FwdIt primes_begin, FwdIt primes_end)
@@ -142,51 +83,6 @@ void prime_factorize(T n, Func f, FwdIt primes_begin, FwdIt primes_end)
   if (n > 1)
   {
     f(n);
-  }
-}
-
-/**
- * Finds the distinct prime factors of an integer.
- *
- * This function uses <code>prime_factorize(n,∙)</code> to factorize an
- * integer @c n. For each distinct prime factor <code>p<sup>k</sup></code>,
- * it calls <code>f(p, k)</code>.
- *
- * If <code>n ≤ 1</code>, no factorization will be performed and @c f is never
- * called.
- *
- * @param n The integer to factorize. Must be positive.
- * @param f The callback function of signature <code>void f(T, int)</code>.
- *     Its return value, if any, is ignored.
- * @timecomplexity No more than <code>√n</code> trial divisions.
- * @spacecomplexity Constant.
- * @remarks The factors are guaranteed to be returned from smallest to largest.
- *
- * @ingroup PrimeFactor
- */
-template <class T, class Func>
-void prime_factorize_distinct(T n, Func f)
-{
-  T last_p = 0;
-  int last_k = 0;
-  prime_factorize(n, [&](T p) {
-    if (p != last_p)
-    {
-      if (last_p > 0)
-      {
-        f(last_p, last_k);
-      }
-      last_p = p;
-      last_k = 1;
-    }
-    else
-    {
-      ++last_k;
-    }
-  });
-  if (last_p > 0)
-  {
-    f(last_p, last_k);
   }
 }
 

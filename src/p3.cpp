@@ -15,9 +15,10 @@ END_PROBLEM()
 static int64_t get_largest_prime_factor(int64_t n)
 {
   int64_t ret = 1;
-  euler::prime_factorize(n, [&ret](int64_t p) {
+  for (int64_t p: euler::factorize(n))
+  {
     ret = p;
-  });
+  }
   return ret;
 }
 

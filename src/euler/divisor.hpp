@@ -60,9 +60,10 @@ template <class T>
 T count_divisors(T n)
 {
   T count = 1;
-  prime_factorize_distinct(n, [&count](T /* p */, int k) {
-    count *= (k + 1);
-  });
+  for (std::pair<T, size_t> pk: distinct(factorize(n)))
+  {
+    count *= (pk.second + 1);
+  }
   return count;
 }
 
@@ -90,15 +91,18 @@ template <class T>
 T sum_divisors(T n)
 {
   T sum = 1;
-  prime_factorize_distinct(n, [&sum](T p, int k) {
+  for (std::pair<T, size_t> pk: distinct(factorize(n)))
+  {
+    const T p = pk.first;
+    const size_t k = pk.second;
     T pp = p, term = 1 + p;
-    for (int i = 1; i < k; i++)
+    for (size_t i = 1; i < k; i++)
     {
       pp *= p;
       term += pp;
     }
     sum *= term;
-  });
+  }
   return sum;
 }
 
