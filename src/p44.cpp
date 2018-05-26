@@ -62,7 +62,8 @@ static int64_t find_min_diff(int r)
     calc_t D = static_cast<calc_t>(i) * static_cast<calc_t>((r-2)*i-(r-4));
 
     // Enumerate the divisors of D.
-    auto f = euler::merge(euler::factors(i), euler::factors((r-2)*i-(r-4)));
+    auto f = euler::merge(
+        euler::factorize(i), euler::factorize((r-2)*i-(r-4)));
     for (calc_t a: euler::divisors<calc_t>(f))
     {
       ++count1;

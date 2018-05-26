@@ -1,23 +1,33 @@
 ﻿/**
- * @defgroup PrimeFactor Prime Factorization
- * Routines to find the prime factors of an integer.
+ * @defgroup prime_factor Integer Factorization
+ *
+ * Routines to factorize an integer into product of prime factors.
+ *
+ * Given a positive integer @c n, prime factorization writes @n as the unique
+ * product of prime powers. That is,
+ * @f[
+ *   n = p_1^{k_1} \cdots p_m^{k_m}
+ * @f]
+ * where @f$ p_i @f$ are primes and @f$ k_i \ge 1 @f$. The existence and
+ * uniqueness of such factorization is guaranteed by the fundamental theorem
+ * of arithmetic.
+ *
+ * This module provides functions to factorize an integer through trial
+ * division. Additional routines are provided to handle special cases.
+ *
+ * @see https://en.wikipedia.org/wiki/Fundamental_theorem_of_arithmetic
+ * @see https://en.wikipedia.org/wiki/Integer_factorization
  *
  * @ingroup Library
- *
- * Prime factorization is the process of writing a positive integer, @c n
- * as the unique product of a set of primes, i.e.
- * @f[ n = p_1^{k_1} \cdots p_m^{k_m} . @f]
- *
- * This module contains routines to find this factorization through trial
- * division. It also provides several useful routines to handle specific
- * scenarios.
  */
 
 #ifndef EULER_PRIME_FACTOR_HPP
 #define EULER_PRIME_FACTOR_HPP
 
-#include <iterator>
 #include <algorithm>
+#include <cassert>
+#include <iterator>
+#include <type_traits>
 #include "int_traits.hpp"
 #include "sequence.hpp"
 
@@ -181,28 +191,36 @@ void prime_factorize_distinct(T n, Func f)
 }
 
 /**
- * Forward iterator that enumerates the prime factors of an integer in order.
+ * Iterator that enumerates the prime factors of a positive integer in order.
  *
- * This iterator enumerates the prime factors of an integer through trial
- * division. The prime factors returned are guaranteed to be in increasing
- * order. If a prime factor occurs multiple times in the number, the factor
- * is iterated that many times.
+ * @tparam T Type of integer to factorize; must be integral.
  *
- * The time complexity of enumerating all the factors is <code>O(√n)</code>.
- * The space complexity is constant.
+ * @remarks Prime factors of the given integer are guaranteed to be returned
+ *    in non-decreasing order. A prime factor of power @c k is returned @c k
+ *    times. The integer one (1) has no prime factor.
  *
- * @ingroup PrimeFactor
+ * @algorithm Trial division.
+ *
+ * @timecomplexity <code>O(√n)</code> for enumerating all factors.
+ *
+ * @spacecomplexity Constant.
+ *
+ * @ingroup prime_factor
  */
-template <typename T>
-class factor_iterator
-  : public std::iterator<std::forward_iterator_tag, T, std::ptrdiff_t, const T*, const T&>
+template <class T>
+class factor_iterator : public std::iterator<
+    std::input_iterator_tag, T, std::ptrdiff_t, const T*, const T&>
 {
-  T n;
-  T p;
+  static_assert(std::is_integral<T>::value, "T must be integral");
+
+  T n; // remaining number to factorize; always >= 1
+  T p; // current prime factor; 0 if finished
 
   void move_to_next_factor()
   {
-    if (n <= 1)
+    assert(n > 0);
+    assert(p > 0);
+    if (n == 1)
     {
       p = 0;
       n = 1;
@@ -240,67 +258,99 @@ public:
 
   /**
    * Constructs an iterator to enumerate the prime factors of an integer.
-   * @param number An integer whose prime factors are to be iterated.
-   *      Must be positive.
-   * @timecomplexity <code>O(p)</code> where @c p if the smallest prime
-   *      factor of @c n if @c is composite; <code>O(√n)</code> if @c n
-   *      is prime.
+   *
+   * @param n Positive integer to factorize.
+   *
+   * @timecomplexity <code>O(p)</code> where @c p is the smallest prime factor
+   *    of @c n.
+   *
    * @spacecomplexity Constant.
    */
-  explicit factor_iterator(T number) : n(number), p(2)
+  explicit factor_iterator(T n) : n(n), p(2)
   {
+    assert(n > 0);
     move_to_next_factor();
   }
 
-  /// Constructs an empty factor iterator that points <i>past-the-end</i>.
-  /// @complexity Constant.
+  /**
+   * Constructs a sentinel iterator that indicates factor exhaustion.
+   *
+   * @complexity Constant.
+   */
   factor_iterator() : n(1), p(0) { }
 
-  /// Returns the current prime factor.
-  /// @complexity Constant.
-  const T& operator * () const { return p; }
+  /**
+   * Returns the current factor.
+   *
+   * @complexity Constant.
+   */
+  const T& operator*() const
+  {
+    assert(p != 0);
+    return p;
+  }
 
   /**
-   * Advances the iterator to point to the next prime factor of the number.
+   * Advances the iterator to the next prime factor of the integer.
+   *
    * @returns The advanced iterator.
+   *
    * @timecomplexity <code>O(√n)</code> for the entire iteration.
+   *
    * @spacecomplexity Constant.
    */
-  factor_iterator& operator ++ ()
+  factor_iterator& operator++()
   {
     move_to_next_factor();
     return *this;
   }
 
-  /// Tests whether this iterator is equal to another iterator.
-  /// @complexity Constant.
-  bool operator == (const factor_iterator &it) const
+  /**
+   * Equality testing.
+   *
+   * @complexity Constant.
+   */
+  friend bool operator==(const factor_iterator &a, const factor_iterator &b)
   {
-    return n == it.n && p == it.p;
+    return (a.n == b.n) && (a.p == b.p);
   }
 
-  /// Tests whether this iterator is not equal to another iterator.
-  /// @complexity Constant.
-  bool operator != (const factor_iterator &it) const
+  /**
+   * Inequality testing.
+   *
+   * @complexity Constant.
+   */
+  friend bool operator!=(const factor_iterator &a, const factor_iterator &b)
   {
-    return ! operator == (it);
+    return !(a == b);
   }
 };
 
 /**
- * Returns a sequence of the prime factors of an integer.
- * @param n The number to factorize.
- * @complexity See <code>factor_iterator<T>(n)</code>.
- @ @ingroup PrimeFactor
+ * Factorizes a positive integer.
+ *
+ * @tparam T Integral type.
+ *
+ * @param n Positive integer to factorize.
+ *
+ * @returns A sequence which, when iterated, returns the prime factors of @c n
+ *    in non-decreasing order, possibly with repetition.
+ *
+ * @timecomplexity <code>O(p)</code> where @c p is the smallest prime factor
+ *    of @c n.
+ *
+ * @spacecomplexity Constant.
+ *
+ * @ingroup prime_factor
  */
-template <typename T>
-sequence<factor_iterator<T>> factors(T n)
+template <class T>
+sequence<factor_iterator<T>> factorize(T n)
 {
   return make_sequence(factor_iterator<T>(n), factor_iterator<T>());
 }
 
 #if 0
-// Prime factor sieve. 
+// Prime factor sieve.
 // Store the smallest prime factor of all numbers below N.
 template <typename T>
 class factor_table
@@ -357,43 +407,5 @@ public:
 #endif
 
 } // namespace euler
-
-#if 0
-static void test()
-{
-  int a = 12345678, b = 87654321;
-  namespace p = euler::prime;
-
-  std::cout << a << " =";
-  for (auto it = p::factors(a).begin(); it != p::factors(a).end(); ++it)
-  {
-    std::cout << ' ' << *it;
-  }
-  std::cout << std::endl;
-
-  std::cout << b << " =";
-  for (auto it = p::factors(b).begin(); it != p::factors(b).end(); ++it)
-  {
-    std::cout << ' ' << *it;
-  }
-  std::cout << std::endl;
-
-  std::cout << a << " * " << b << " =";
-  for (auto it = p::factors(p::product(a, b)).begin();
-    it != p::factors(p::product(a, b)).end(); ++it)
-  {
-    std::cout << ' ' << *it;
-  }
-  std::cout << std::endl;
-
-  std::cout << a << " * " << b << " =";
-  for (auto it = p::distinct_factors(p::product(a, b)).begin();
-    it != p::distinct_factors(p::product(a, b)).end(); ++it)
-  {
-    std::cout << ' ' << it->first << "^" << it->second;
-  }
-  std::cout << std::endl;
-}
-#endif
 
 #endif // EULER_PRIME_FACTOR_HPP
