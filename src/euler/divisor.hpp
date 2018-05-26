@@ -207,14 +207,14 @@ public:
         break;
       }
 
-      _elems[_nf].p = *it;
-      _elems[_nf].max = static_cast<TExponent>(it.frequency());
+      _elems[_nf].p = it->first;
+      _elems[_nf].max = static_cast<TExponent>(it->second);
       _elems[_nf].exp = 0;
 #if EULER_LOOPLESS_DIVISOR_GENERATION
       _elems[_nf].dec = false;
       _flags[_nf] = _nf;
 #else
-      _elems[_nf].p_k = ipow(static_cast<TDivisor>(*it), it.frequency());
+      _elems[_nf].p_k = ipow(static_cast<TDivisor>(it->first), it->second);
 #endif
     }
 #if EULER_LOOPLESS_DIVISOR_GENERATION
