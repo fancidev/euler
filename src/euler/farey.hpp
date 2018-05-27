@@ -20,7 +20,7 @@
 //#include "fraction.hpp"
 #include "gcd.hpp"
 #include "modular.hpp"
-//#include "totient.h"
+#include "totient.hpp"
 
 namespace euler {
 
@@ -176,6 +176,33 @@ std::pair<T,T> farey_next(T n, T a, T b, T c, T d)
     T x = k*c-a;
     return std::pair<T,T>(x, y);
   }
+}
+
+/**
+ * Gets the number of terms in the farey sequence of order @c n.
+ *
+ * @tparam TRet Return type; must be integral.
+ * @tparam T Denominator type; must be integral.
+ *
+ * @param n Order of sequence; must be positive.
+ *
+ * @returns Number of terms in the farey sequence of order @c n, including
+ *    the first term (<c>0/1</c>) and the last term (<c>1/1</c>). This is
+ *    equal to the number of coprime integers @c p, @c q such that
+ *    <c>p < q <= n</c> plus two.
+ *
+ * @remarks The return value is on the order of <c>n^2</c>. Therefore the
+ *    return type should be large enough to avoid overflow.
+ *
+ * @ingroup farey
+ */
+template <class TRet, class T>
+TRet farey_size(T n)
+{
+  assert(n >= 1);
+  std::vector<T> phi(n + 1);
+  euler::totient_table(phi);
+  return std::accumulate(phi.begin(), phi.end(), TRet(1));
 }
 
 #if 0
