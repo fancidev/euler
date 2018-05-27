@@ -14,10 +14,9 @@
 #define EULER_FAREY_HPP
 
 #include <cassert>
-//#include <iterator>
+#include <iterator>
 #include <numeric>
 #include <utility>
-//#include "fraction.hpp"
 #include "gcd.hpp"
 #include "modular.hpp"
 #include "totient.hpp"
@@ -205,118 +204,118 @@ TRet farey_size(T n)
   return std::accumulate(phi.begin(), phi.end(), TRet(1));
 }
 
-#if 0
-template <class T> class farey_sequence;
-
+/**
+ * Iterator that enumerates the terms of a farey sequence.
+ *
+ * @ingroup farey
+ */
 template <class T>
-class farey_sequence_iterator :
-  public std::iterator<
-    std::bidirectional_iterator_tag,
-    fraction<T>,
-    ptrdiff_t,
-    const fraction<T> *,
-    const fraction<T> &>
+class farey_iterator
 {
+public:
+
+  using iterator_category = std::bidirectional_iterator_tag;
+  using value_type = std::pair<T,T>;
+  using difference_type = std::ptrdiff_t;
+  using pointer = const value_type *;
+  using reference = const value_type &;
+
 private:
-  fraction<T> _frac, _prev, _next;
+
   T _order;
+  value_type _frac, _prev, _next;
 
-  static fraction<T> get_prev_term(T order, const fraction<T> &f)
+  bool _is_dereferenceable() const { return _order != 0; }
+
+public:
+
+  /**
+   * Creates a sentinel iterator that points past-the-end.
+   */
+  farey_iterator() : _order(0), _frac(), _prev(), _next() { }
+
+  /**
+   * Creates an iterator that points to the term <c>p/q</c> of the farey
+   * sequence of order <c>n</c>.
+   *
+   * @param n Order of the farey sequence; must be positive.
+   * @param p Numerator; must be within <c>[0, q]</c> and coprime to @c q.
+   * @param q Denominator; must be within <c>[1, n]</c>.
+   */
+  farey_iterator(T n, T p, T q) :
+      _order(n), _frac(p, q),
+      _prev(farey_prev(n, p, q)),
+      _next(farey_next(n, p, q))
   {
-    return get_prev_term(order, f.p, f.q);
   }
 
-  static fraction<T> get_next_term(T order, const fraction<T> &f)
+  farey_iterator& operator++()
   {
-    return get_next_term(order, f.p, f.q);
-  }
-
-  static fraction<T> get_prev_term(T order, const fraction<T> &f1, const fraction<T> &f2)
-  {
-    return get_prev_term(order, f1.p, f1.q, f2.p, f2.q);
-  }
-
-  static fraction<T> get_next_term(T order, const fraction<T> &f1, const fraction<T> &f2)
-  {
-    return get_next_term(order, f1.p, f1.q, f2.p, f2.q);
-  }
-
-  static const fraction<T> first;
-  static const fraction<T> last;
-  static const fraction<T> null;
-
-  farey_sequence_iterator(T n, T p, T q) : _order(n), _frac(p, q)
-  {
-    if (_frac == null)
+    assert(_is_dereferenceable());
+    _prev = _frac;
+    _frac = _next;
+    if (_frac == value_type())
     {
-      _prev = null;
-      _next = null;
-    }
-    else if (_frac == first)
-    {
-      _prev = null;
-      _next = get_next_term(n, _frac);
-    }
-    else if (_frac == last)
-    {
-      _prev = get_prev_term(n, _frac);
-      _next = null;
+      _next = value_type();
+      _order = 0;
     }
     else
     {
-      _prev = get_prev_term(n, _frac);
-      _next = get_next_term(n, _prev, _frac);
+      _next = farey_next(
+          _order, _prev.first, _prev.second, _frac.first, _frac.second);
     }
-  }
-
-  friend class farey_sequence<T>;
-
-public:
-  farey_sequence_iterator(const farey_sequence_iterator &it)
-    : _order(it._order), _frac(it._frac), _prev(it._prev), _next(it._next)
-  {
-  }
-
-  farey_sequence_iterator& operator ++ ()
-  {
-    assert(_frac != null);
-    _prev = _frac;
-    _frac = _next;
-    _next = (_frac == null)? null : get_next_term(_order, _prev, _frac);
     return *this;
   }
 
-  farey_sequence_iterator& operator -- ()
+  farey_iterator& operator--()
   {
-    assert(_frac != null);
+    assert(_is_dereferenceable());
     _next = _frac;
     _frac = _prev;
-    _prev = (_frac == null)? null : get_prev_term(_order, _frac, _next);
+    if (_frac == value_type())
+    {
+      _prev = value_type();
+      _order = 0;
+    }
+    else
+    {
+      _prev = farey_prev(
+          _order, _frac.first, _frac.second, _next.first, _next.second);
+    }
     return *this;
   }
 
-  fraction<T> operator * () const
+  /**
+   * Gets the current term of the sequence.
+   *
+   * @returns Const reference to the current term. The reference is valid as
+   *    long as the iterator stays in-scope and is not altered (incremented,
+   *    decremented or assigned).
+   */
+  reference operator*() const
   {
-    assert(_frac != null);
+    assert(_is_dereferenceable());
     return _frac;
   }
 
-  const fraction<T>* operator -> () const
+  pointer operator->() const
   {
-    assert(_frac != null);
+    assert(_is_dereferenceable());
     return &_frac;
   }
 
-  bool operator == (const farey_sequence_iterator &i) const
+  friend bool operator==(const farey_iterator &a, const farey_iterator &b)
   {
-    return (_order == i._order && _frac == i._frac);
+    return (a._order == b._order) && (a._frac == b._frac);
   }
 
-  bool operator != (const farey_sequence_iterator &i) const
+  friend bool operator!=(const farey_iterator &a, const farey_iterator &b)
   {
-    return !operator == (i);
+    return !(a == b);
   }
 };
+
+#if 0
 
 template <typename T> const fraction<T> farey_sequence_iterator<T>::first = fraction<T>(0, 1);
 template <typename T> const fraction<T> farey_sequence_iterator<T>::last = fraction<T>(1, 1);
