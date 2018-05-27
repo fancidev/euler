@@ -1,0 +1,50 @@
+\input{euler.tex}
+
+\begin{document}
+
+\problem[74]{Factorial Chains With Sixty Non-Repeating Terms}
+
+The number 145 is well known for the property that the sum of the factorial of its digits is equal to 145:
+\[
+1! + 4! + 5! = 1 + 24 + 120 = 145 .
+\]
+
+Perhaps less well known is 169, in that it produces the longest chain of numbers that link back to 169; it turns out that there are only three such loops that exist:
+\begin{align}
+  &169 \rightarrow 363601 \rightarrow 1454 \rightarrow 169 \notag \\
+  &871 \rightarrow 45361 \rightarrow 871 \notag \\
+  &872 \rightarrow 45362 \rightarrow 872 \notag 
+\end{align}
+
+It is not difficult to prove that \emph{every} starting number will eventually get stuck in a loop. For example,
+\begin{align}
+&69 \rightarrow 363600 \rightarrow 1454 \rightarrow 169 \rightarrow 363601 (\rightarrow 1454) \notag \\
+&78 \rightarrow 45360 \rightarrow 871 \rightarrow 45361 (\rightarrow 871)\notag \\
+&540 \rightarrow 145 (\rightarrow 145)\notag
+\end{align}
+
+Starting with 69 produces a chain of five non-repeating terms, but the longest non-repeating chain with a starting number below $10^6$ contains 60 terms.
+
+How many chains, with a starting number below $10^6$, contain exactly 60 non-repeating terms?
+ 
+\solution
+
+Let $f(n)$ be the sum of factorial of the digits in $n$. If $n$ contains $d$ digits, then the maximum value of $f(n)$ is $9! \times d = 362880 \times d$, and this maximum is achieved when $n = 10^d - 1$.
+
+Hence it is clear that $f(n) \le 362880 \times \lceil \log_{10} n \rceil $. The right-hand side is less than $n$ when $n > 7 \times 9! = 2540160$. Therefore, if we repeatedly apply $f(n)$ to form a chain, the terms will eventually become less than or equal to $7 \times 9!$, and the terms that follow will never go above it. Since there are finite number of integers below $7 \times 9!$, the chain will eventually loop.
+
+For this problem, since we need to compute the length of factorial chain for all starting numbers below $10^6$, we maintain a cache of the chain length of known starting numbers. Since the intermediate terms may go above $10^6$, we allocate the cache to hold $7 \times 9!$ elements. After an unknown starting number has been computed for its factorial chain, the cache for all terms in this chain is updated. A separate list is used to store the chain being computed. 
+
+After we compute all starting numbers below $10^6$, we count the number of chains of length 60 and print the result.
+
+\complexity
+
+Time complexity: $\BigO(N)$.
+
+Space complexity: $\BigO(N)$.
+
+\answer
+
+402
+
+\end{document} 
