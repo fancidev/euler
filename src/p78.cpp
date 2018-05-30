@@ -18,7 +18,7 @@
 #include <cassert>
 #include <cstdint>
 #include <iostream>
-#include <vector>
+#include "euler/partition.hpp"
 #include "euler/residue.hpp"
 #include "euler.h"
 
@@ -32,84 +32,12 @@ BEGIN_PROBLEM(78, solve_problem_78)
   PROBLEM_KEYWORDS("combinatorics,partition")
 END_PROBLEM()
 
-/**
- * Computes the number of ways of writing the integer n as a sum of positive
- * integers, ignoring order.
- *
- * @see http://mathworld.wolfram.com/PartitionFunctionP.html
- */
-template <class T>
-class partition_function
-{
-  std::vector<T> _cache;
-
-  T _compute(size_t n)
-  {
-    assert(n == _cache.size());
-    T p = 0, s = 1;
-    for (size_t k = 1; k <= n; k++)
-    {
-      size_t n1 = k*(3*k-1)/2;
-      size_t n2 = k*(3*k+1)/2;
-      if (n1 <= n)
-      {
-        p += s * _cache[n - n1];
-      }
-      if (n2 <= n)
-      {
-        p += s * _cache[n - n2];
-      }
-      if (n1 > n /* && n2 > n */)
-      {
-        break;
-      }
-      s *= -1;
-    }
-    return p;
-  }
-
-public:
-
-  partition_function() : _cache(2)
-  {
-    _cache[0] = 1;
-    _cache[1] = 1;
-  }
-
-  /**
-   * Computes the partition function for argument @c n.
-   *
-   * @param n Nonnegative integer.
-   *
-   * @returns If <c>n > 0</c>, the number of ways of writing @c n as a sum of
-   *    positive integers, ignoring order. If <c>n == 0</c>, returns @c 1.
-   */
-  T operator()(size_t n)
-  {
-    if (n >= _cache.size())
-    {
-      for (size_t m = _cache.size(); m <= n; m++)
-      {
-        _cache.push_back(_compute(m));
-      }
-    }
-    return _cache[n];
-  }
-};
-
 #if 1
 static void solve_problem_78()
 {
-#if 0
-  partition_function<int64_t> p;
-  for (size_t n = 0; n <= 100; n++)
-  {
-    std::cout << "p(" << n << ") = " << p(n) << std::endl;
-  }
-#endif
   using R = euler::residue<int, 1000000>;
-  partition_function<R> p;
-  for (size_t n = 0; n <= 100000; n++)
+  euler::partition_function<R> p;
+  for (size_t n = 0; n <= 100000 /* arbitrary bound */; n++)
   {
     if (p(n) == 0)
     {

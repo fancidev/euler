@@ -24,7 +24,7 @@ BEGIN_PROBLEM(77, solve_problem_77)
   PROBLEM_FUN_LEVEL(1)
   PROBLEM_TIME_COMPLEXITY("")
   PROBLEM_SPACE_COMPLEXITY("")
-  PROBLEM_KEYWORDS("dynamic programming")
+  PROBLEM_KEYWORDS("combinatorics,partition")
 END_PROBLEM()
 
 // f(n, k) = number of ways to write n as sum of primes at or after the k-th

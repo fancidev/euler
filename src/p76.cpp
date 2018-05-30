@@ -13,6 +13,7 @@
  */
 
 #include <iostream>
+#include "euler/partition.hpp"
 #include "euler.h"
 
 BEGIN_PROBLEM(76, solve_problem_76)
@@ -22,8 +23,18 @@ BEGIN_PROBLEM(76, solve_problem_76)
   PROBLEM_FUN_LEVEL(1)
   PROBLEM_TIME_COMPLEXITY("N^2")
   PROBLEM_SPACE_COMPLEXITY("N")
-  PROBLEM_KEYWORDS("dynamic programming")
+  PROBLEM_KEYWORDS("combinatorics,partition")
 END_PROBLEM()
+
+#if 1
+static void solve_problem_76()
+{
+  euler::partition_function<int> p;
+  std::cout << p(100) - 1 << std::endl;
+}
+#else
+// Below is an implementation based on dynamic programming. It has higher
+// complexity than the proper solution, and is not suitable for large n.
 
 // f(n, m) = number of ways to decompose n using integers no larger than m
 static int f(int n, int m)
@@ -45,3 +56,4 @@ static void solve_problem_76()
 {
   std::cout << f(100, 99) << std::endl;
 }
+#endif
