@@ -140,16 +140,18 @@ bool operator == (const residue<T, M> &a, const residue<T, M> &b)
   return (a.value() == b.value());
 }
 
-#if 0
-/// Tests whether an integer belongs to a residue class.
-/// @complexity Constant.
-/// @ingroup residue
-template <typename T, T Modulus>
-bool operator == (const residue<T,Modulus> &a, const T &b)
+/**
+ * Tests whether an integer belongs to a residue class.
+ *
+ * @complexity Constant.
+ *
+ * @ingroup residue
+ */
+template <class T, T M>
+bool operator==(const residue<T, M> &a, const T &b)
 {
-  return (a.value() == b) || (a.value() == mod(b, Modulus));
+  return a.value() == mod(b, M);
 }
-#endif
 
 #if 0
 /// Tests whether an integer belongs to a residue class.
