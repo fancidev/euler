@@ -1,4 +1,4 @@
-/**
+﻿/**
  * k defects are randomly distributed amongst n integrated-circuit chips
  * produced by a factory (any number of defects may be found on a chip and
  * each defect is independent of the other defects).
