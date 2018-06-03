@@ -740,13 +740,28 @@ matrix<T,2,2> inv(const matrix<T,2,2> &a)
 /** @} */
 
 template <class T, size_t M, size_t N>
-std::ostream& operator<<(std::ostream &os, const matrix<T,M,N> &a)
+matrix<T,N,M> transpose(const matrix<T,M,N> &a)
 {
+  matrix<T,N,M> b;
   for (size_t i = 0; i < M; i++)
   {
     for (size_t j = 0; j < N; j++)
     {
-      os << a(i, j) << " ";
+      b[j][i] = a[i][j];
+    }
+  }
+  return b;
+}
+
+template <class T, size_t M, size_t N>
+std::ostream& operator<<(std::ostream &os, const matrix<T,M,N> &a)
+{
+  os << "[";
+  for (size_t i = 0; i < M; i++)
+  {
+    for (size_t j = 0; j < N; j++)
+    {
+      os << a[i][j] << ((j + 1 < N)? "," : (i + 1 < M)? ";" : "]");
     }
     os << std::endl;
   }
