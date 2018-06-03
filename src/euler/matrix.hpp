@@ -12,9 +12,11 @@
 #include <cassert>
 #include <functional>
 #include <initializer_list>
+#include <iostream>
 #include <stdexcept>
 #include <type_traits>
 #include "imath.hpp"
+#include "permutation.hpp"
 
 namespace euler {
 
@@ -54,6 +56,20 @@ public:
    */
   matrix() : x()
   {
+  }
+
+  /**
+   * Constructs a matrix initialized with a copy of the provided 2D array.
+   */
+  explicit matrix(const T (&a)[M][N]) : x()
+  {
+    for (size_t i = 0; i < M; i++)
+    {
+      for (size_t j = 0; j < N; j++)
+      {
+        x[i][j] = a[i][j];
+      }
+    }
   }
 
   /**
@@ -148,6 +164,22 @@ public:
     assert(i >= 0 && i < M);
     assert(j >= 0 && j < N);
     return x[i][j];
+  }
+
+  /**
+   * Gets a reference to the given row.
+   */
+  std::array<T, N> & operator[](size_t i)
+  {
+    return x[i];
+  }
+
+  /**
+   * Gets a reference to the given row.
+   */
+  const std::array<T, N> & operator[](size_t i) const
+  {
+    return x[i];
   }
 
 public: // assignment
@@ -488,35 +520,35 @@ matrix<T,N,N> operator^(const matrix<T,N,N> &a, TExponent k)
 
 /** @} */
 
-#if 0
+namespace details {
+
 /**
  * LUP decomposition.
  *
- * Given a square, non-singular matrix <code>A</code>, this procedure finds
- * a unit lower triangular matrix <code>L</code>, an upper triangular matrix
- * <code>U</code>, and a permutation matrix <code>P</code>, such that
- * <code>L*U = P*A</code>.
+ * Given a square, non-singular matrix <c>A</c>, this procedure finds a unit
+ * lower triangular matrix <c>L</c>, an upper triangular matrix <c>U</c>, and
+ * a permutation matrix <c>P</c>, such that <code>L*U = P*A</code>.
  *
- * @param A On input, contains a non-singular matrix to be decomposed.
- *      On return, if <code>A</code> is not singular, the elements
- *      below the diagonal store the unit lower triangular matrix
- *      <code>L</code>; the elements on and above the diagonal store
- *      the upper triangular matrix <code>U</code>. If @c A is singular,
- *      the value is undefined.
+ * @param A On input, contains a non-singular matrix to be decomposed. On
+ *    return, the elements below the diagonal store the unit lower triangular
+ *    matrix <c>L</c> and the elements on and above the diagonal store the
+ *    upper triangular matrix <c>U</c>. If @c A is singular, the behavior is
+ *    undefined.
  *
- * @param perm If @c A is not singular, stores the permutation on return.
- *      If @c A is singular, the result is undefined.
+ * @param perm If @c A is not singular, stores the permutation on return. If
+ *    @c A is singular, the behavior is undefined.
  *
- * @returns The determinant of the permutation matrix (which is either
- *      <code>1</code> or <code>-1</code>) if successful; otherwise zero.
+ * @returns The determinant of the permutation matrix (which is either @c 1 or
+ *    @c -1 if successful; otherwise zero.
  *
  * @timecomplexity <code>O(N^3)</code>.
  *
  * @spacecomplexity Constant.
  *
+ * @ingroup Matrix
  */
 template <class T, size_t N>
-int lup_decompose(matrix<T,N,N> &A, size_t perm[N])
+int lup_decompose(matrix<T,N,N> &A, size_t (&perm)[N])
 {
   using value_type = T;
 
@@ -578,26 +610,28 @@ int lup_decompose(matrix<T,N,N> &A, size_t perm[N])
  * Solves a linear system given the LUP decomposition of the coefficient
  * matrix.
  *
- * @param LU The elements below the diagonal store the unit lower
- *      triangular matrix <code>L</code>; the elements on and above
- *      the diagonal store the upper triangular matrix <code>U</code>.
- * @param perm The row permutation.
- * @param B On input, stores the coefficients to solve. On output, stores
- *      the solved variables.
+ * @param LU Square matrix where elements below the diagonal represent a unit
+ *    lower triangular matrix <c>L</c> and elements on and above the diagonal
+ *    represent an upper triangular matrix <code>U</code>.
  *
- * @timecomplexity <code>O(KN^2)</code>, where @c K is the number of
- *      columns in <code>B</code>.
+ * @param perm Row permutation.
+ *
+ * @param B On input, stores the right-hand side coefficients. On output,
+ *    contains the solutions.
+ *
+ * @returns @c B.
+ *
+ * @timecomplexity <c>O(KN^2)</c> where @c K is the number of columns in @c B.
+ *
  * @spacecomplexity Constant.
+ *
+ * @ingroup Matrix
  */
-template <class MLU, class TPerm, class MB>
-MB& lup_solve(const MLU &LU, const TPerm perm[], MB &B)
+template <class T, size_t N, size_t K>
+matrix<T,N,K>& lup_solve(
+    const matrix<T,N,N> &LU, const size_t (&perm)[N], matrix<T,N,K> &B)
 {
-  const size_t M = extent<0>(LU), N = extent<1>(LU), K = extent<1>(B);
-  assert(M == N);
-  assert(extent<0>(B) == N);
-
   // Reorder the rows in B according to the permutation matrix.
-  //euler::reorder(matrix_row_iterator<MB>(B,0), matrix_row_iterator<MB>(B,N), perm);
   reorder(B, perm, N);
 
   // Solve each column in B in turn.
@@ -614,7 +648,7 @@ MB& lup_solve(const MLU &LU, const TPerm perm[], MB &B)
     {
       for (size_t j = i0; j < i; ++j)
       {
-        B[i][k] -= LU[i][j]*B[j][k];
+        B[i][k] -= LU[i][j] * B[j][k];
       }
     }
 
@@ -624,14 +658,34 @@ MB& lup_solve(const MLU &LU, const TPerm perm[], MB &B)
       --i;
       for (size_t j = i + 1; j < N; ++j)
       {
-        B[i][k] -= LU[i][j]*B[j][k];
+        B[i][k] -= LU[i][j] * B[j][k];
       }
       B[i][k] /= LU[i][i];
     }
   }
   return B;
 }
-#endif
+
+} // namespace details
+
+/**
+ * Solves the linear system <code>a * x = b</code>.
+ *
+ * @ingroup Matrix
+ */
+template <class T, size_t N, size_t K>
+matrix<T,N,K> solve(const matrix<T,N,N> &a, const matrix<T,N,K> &b)
+{
+  size_t perm[N];
+  matrix<T,N,N> LU(a);
+  int d = details::lup_decompose(LU, perm);
+  if (d == 0)
+  {
+    throw std::invalid_argument("Matrix is singular");
+  }
+  matrix<T,N,K> x(b);
+  return details::lup_solve(LU, perm, x);
+}
 
 #if 0
 /**
@@ -684,6 +738,20 @@ matrix<T,2,2> inv(const matrix<T,2,2> &a)
 }
 
 /** @} */
+
+template <class T, size_t M, size_t N>
+std::ostream& operator<<(std::ostream &os, const matrix<T,M,N> &a)
+{
+  for (size_t i = 0; i < M; i++)
+  {
+    for (size_t j = 0; j < N; j++)
+    {
+      os << a(i, j) << " ";
+    }
+    os << std::endl;
+  }
+  return os;
+}
 
 } // namespace euler
 

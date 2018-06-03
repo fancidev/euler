@@ -114,6 +114,40 @@ TEST(matrix, mul_sm)
   EXPECT_EQ(true, euler::all_of(2 * A == C));
 }
 
+TEST(matrix, solve_1)
+{
+  euler::matrix<double,2,2> A = { {1, 2}, {3, 4} };
+  euler::matrix<double,2,3> B = { {2, 1, 3}, {1, 3, 5} };
+  euler::matrix<double,2,3> X = euler::solve(A, B);
+  euler::matrix<double,2,3> Y = { {-3, 1, -1}, {2.5, 0, 2} };
+  EXPECT_DOUBLE_EQ(Y(0, 0), X(0, 0));
+  EXPECT_DOUBLE_EQ(Y(0, 1), X(0, 1));
+  EXPECT_DOUBLE_EQ(Y(0, 2), X(0, 2));
+  EXPECT_DOUBLE_EQ(Y(1, 0), X(1, 0));
+  EXPECT_DOUBLE_EQ(Y(1, 1), X(1, 1));
+  EXPECT_DOUBLE_EQ(Y(1, 2), X(1, 2));
+}
+
+TEST(matrix, solve_2)
+{
+  euler::matrix<double,4,4> A = {
+    { -0.136282,  1.323737,  0.214845,  1.817561 },
+    {  1.355548, -0.290067,  0.700179, -0.915451 },
+    { -0.597025, -1.031077, -1.107693, -0.932821 },
+    {  0.729442, -0.609819, -1.444329,  0.041462 },
+  };
+  euler::matrix<double,4,4> B =
+      euler::solve(A, euler::matrix<double,4,4>::identity());
+  euler::matrix<double,4,4> I = A * B;
+  for (size_t i = 0; i < 4; i++)
+  {
+    for (size_t j = 0; j < 4; j++)
+    {
+      EXPECT_NEAR((i == j)? 1.0 : 0.0, I(i,j), 1e-14);
+    }
+  }
+}
+
 TEST(matrix, inv_1)
 {
   euler::matrix<double,1,1> A = { 4.0 };
