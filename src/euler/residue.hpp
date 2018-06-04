@@ -178,32 +178,25 @@ bool operator == (const T1 &a, const residue<T2,Modulus> &b)
  *
  * @ingroup residue
  */
-template <typename T, T M>
-residue<T, M> operator + (const residue<T, M> &a, const residue<T, M> &b)
+template <class T, T M>
+residue<T, M> operator+(const residue<T, M> &a, const residue<T, M> &b)
 {
   return residue<T, M>(modadd(a.value(), b.value(), M));
 }
 
-#if 0
-/// @complexity Constant.
-/// @ingroup residue
-template <typename T, T Modulus, class TArg>
-residue<T,Modulus> operator + (const residue<T,Modulus> &a, const TArg &b)
+template <class T, T M, class S>
+std::enable_if_t<std::is_convertible<S, T>::value, residue<T, M>>
+operator+(const residue<T, M> &a, const S &b)
 {
-  return operator + (a, residue<T,Modulus>(b));
+  return a + residue<T, M>(b);
 }
-#endif
 
-#if 0
-/// Adds two residues.
-/// @complexity Constant.
-/// @ingroup residue
-template <class T1, class T2>
-residue<T2> operator + (const T1 &a, const residue<T2> &b)
+template <class T, T M, class S>
+std::enable_if_t<std::is_convertible<S, T>::value, residue<T, M>>
+operator+(const S &a, const residue<T, M> &b)
 {
-  return residue<T2>(b) += a;
+  return residue<T, M>(a) + b;
 }
-#endif
 
 /**
  * Residue subtraction.
@@ -220,7 +213,7 @@ residue<T2> operator + (const T1 &a, const residue<T2> &b)
  * @ingroup residue
  */
 template <class T, T M>
-residue<T, M> operator - (const residue<T, M> &a, const residue<T, M> &b)
+residue<T, M> operator-(const residue<T, M> &a, const residue<T, M> &b)
 {
   return residue<T, M>(modsub(a.value(), b.value(), M));
 }
@@ -258,28 +251,24 @@ residue<T, M> operator-(const residue<T, M> &a)
  * @ingroup residue
  */
 template <class T, T M>
-residue<T, M> operator * (const residue<T, M> &a, const residue<T, M> &b)
+residue<T, M> operator*(const residue<T, M> &a, const residue<T, M> &b)
 {
   return residue<T, M>(modmul(a.value(), b.value(), M));
 }
 
-#if 0
-/// Multiplies two residues.
-/// @ingroup residue
-template <class T, T Modulus, class TArg>
-residue<T,Modulus> operator * (const residue<T,Modulus> &a, const TArg &b)
+template <class T, T M, class S>
+std::enable_if_t<std::is_convertible<S, T>::value, residue<T, M>>
+operator*(const residue<T, M> &a, const S &b)
 {
-  return operator * (a, residue<T,Modulus>(b));
+  return a * residue<T, M>(b);
 }
 
-/// Multiplies two residues.
-/// @ingroup residue
-template <class T, T Modulus, class TArg>
-residue<T,Modulus> operator * (const TArg &a, const residue<T,Modulus> &b)
+template <class T, T M, class S>
+std::enable_if_t<std::is_convertible<S, T>::value, residue<T, M>>
+operator*(const S &a, const residue<T, M> &b)
 {
-  return operator * (residue<T,Modulus>(a), b);
+  return residue<T, M>(a) * b;
 }
-#endif
 
 /**
  * Residue division.
