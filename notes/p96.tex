@@ -1,0 +1,92 @@
+\input{euler.tex}
+
+\begin{document}
+
+\problem[96]{Solving Sudoku Puzzles}
+
+Sudoku (Japanese meaning number place) is the name given to a popular puzzle concept. The objective of the puzzle is to replace the blanks (or zeros) in a 9 by 9 grid in such that each row, column, and 3 by 3 box contains each of the digits 1 to 9. Below is an example of a typical starting puzzle grid and its solution grid.
+
+\begin{center}
+\begin{tabular}{| c c c | c c c | c c c |}
+\hline
+0 & 0 & 3 & 0 & 2 & 0 & 6 & 0 & 0 \\
+9 & 0 & 0 & 3 & 0 & 5 & 0 & 0 & 1 \\
+0 & 0 & 1 & 8 & 0 & 6 & 4 & 0 & 0 \\
+\hline
+0 & 0 & 8 & 1 & 0 & 2 & 9 & 0 & 0 \\
+7 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 8 \\
+0 & 0 & 6 & 7 & 0 & 8 & 2 & 0 & 0 \\
+\hline
+0 & 0 & 2 & 6 & 0 & 9 & 5 & 0 & 0 \\
+8 & 0 & 0 & 2 & 0 & 3 & 0 & 0 & 9 \\
+0 & 0 & 5 & 0 & 1 & 0 & 3 & 0 & 0 \\
+\hline
+\end{tabular} $\Rightarrow$
+\begin{tabular}{| c c c | c c c | c c c |}
+\hline
+4 & 8 & 3 & 9 & 2 & 1 & 6 & 5 & 7 \\
+9 & 6 & 7 & 3 & 4 & 5 & 8 & 2 & 1 \\
+2 & 5 & 1 & 8 & 7 & 6 & 4 & 9 & 3 \\
+\hline
+5 & 4 & 8 & 1 & 3 & 2 & 9 & 7 & 6 \\
+7 & 2 & 9 & 5 & 6 & 4 & 1 & 3 & 8 \\
+1 & 3 & 6 & 7 & 9 & 8 & 2 & 4 & 5 \\
+\hline
+3 & 7 & 2 & 6 & 8 & 9 & 5 & 1 & 4 \\
+8 & 1 & 4 & 2 & 5 & 3 & 7 & 6 & 9 \\
+6 & 9 & 5 & 4 & 1 & 7 & 3 & 8 & 2 \\
+\hline
+\end{tabular}
+\end{center}
+
+A well constructed Sudoku puzzle has a unique solution and can be solved by logic, although it may be necessary to employ "trial and error" methods in order to eliminate options (there is much contested opinion over this). The complexity of the search determines the difficulty of the puzzle; the example above is considered easy because it can be solved by straight forward direct deduction.
+
+The text file, sudoku.txt, contains fifty different Sudoku puzzles ranging in difficulty, but all with unique solutions (the first puzzle in the file is the example above).
+
+By solving all fifty puzzles, find the sum of the 3-digit numbers found in the top left corner of each solution grid. For example, 483 is the 3-digit number found in the top left corner of the solution grid above.
+
+\solution
+
+The following algorithm is used to solve the Sudoku puzzle with heuristics. The general idea is to first find all candidate digits for each free cell, and then perform depth-first search on the cell with the fewest candidates. A few definitions are useful to describe the algorithm concisely.
+
+The layout of a Sudoku puzzle is a 9-by-9 grid where each \emph{cell} contains a single digit when solved. In addition, the grid is divided into nine 3-by-3 \emph{blocks}. The rows, columns, and blocks are labeled with zero-based indices. To find the block index, $k$, of the cell in row $i$ and column $j$, use the formula $k = \lfloor i/3 \rfloor \times 3 + \lfloor j / 3 \rfloor$.
+
+The cells in the grid are divided into two types: \emph{fixed} cells and \emph{free} cells. A fixed cell is a cell whose digit is known. A free cell is a cell whose digit is unknown. The union of digits contained in fixed cells are called \emph{fixed digits}. The union of digits contained in free cells are called \emph{free digits}.
+
+The \emph{candidate digits} for a free cell is the collection of digits that cell could possibly contain. This is found by \emph{reduction}, i.e. excluding from 123456789 all fixed digits in that cell's row / column / block. We mark a free cell as \emph{tainted} to indicate that it should be \emph{reduced} later. If a cell contains no candidate digits after reduction, the cell becomes \emph{void}. This could happen if the puzzle is unsolvable, or if a wrong guess was made in the trial and error process.
+
+Now the algorithm is described below.
+
+Step 0 [Initialization]. Set the candidates in all free cells to 123456789. Mark all free cells as tainted.
+
+The remaining steps are encapsulated in a routine named $f(P)$, and may be called recursively.
+
+Step 1 [Reduction]. For each tainted cell, compute the number of remaining candidates in the cell. If any cell becomes void, return failure. If a cell has only one candidate left after reduction, fix that cell and mark the free cells in its row / column / block as tainted. Repeat this process until no cell is tainted.
+
+Step 2 [Selection]. Choose the free cell with the fewest candidates. If no free cell exists, return success. If two or more free cells have the same number of candidates, choose the one that will impact the most number of free cells directly. If there still exist multiple choices, pick the first one in some order.
+
+Step 3 [Trial]. For each candidate in the chosen cell, assume it is the answer. Fix it, and mark the free cells in its row / column / block as tainted. Then call $f(P')$ where $P'$ is the updated layout. If $f(P')$ returns success, return success. Otherwise, try the next candidate in the chosen cell. If all candidates in the chosen cell return failure, return failure.
+
+A number of optimization techniques could be applied to speed up the solver. However, for this problem, a straightforward implementation of the above procedure is fast enough to yield the answer in no time.
+
+\complexity
+
+Let $N = 9$ be the dimension of the grid. Each free cell can contain at most $N$ candidates. If each candidate is tried, that will be $N$ calls to $f(P')$. Each call reduces the number of free cells by one, so the depth of the recursion is at most $N^2$. Hence the total number of calls to $f(P)$ is no more than $N^{N^2}$. (This is the same as a simplistic brute force algorithm. However, in practice the heuristic algorithm works much better.)
+
+Now examine the complexity of a single call of $f(P)$. In Step 1, each round of reduction traverses no more than $N^2$ cells, and reducing each cell takes $\BigO(N)$ bit-tests. This step is repeated if one or more free cells become fixed, so it can repeat no more than $N^2$ times. Hence the time complexity of Step 1 is $\BigO(N^5)$.
+
+In Step 2, computing the number of free cells impacted by a given cell takes $\BigO(N)$ bit-tests. There are no more than $N^2$ cells to compare, so the time complexity of step 2 is $\BigO(N^3)$.
+
+It is easy to see that the time complexity of Step 3 is $\BigO(N)$.
+
+The stack space of a single call of $f(P)$ is $\BigO(N^2)$ to store whether each cell is free / tainted. Therefore the maximum stack usage during execution is $\BigO(N^4)$.
+
+Time complexity: $\BigO(N^{N^2+5})$.
+
+Space complexity: $\BigO(N^4)$.
+
+\answer
+
+24702
+
+\end{document}
