@@ -1,0 +1,46 @@
+\input{euler.tex}
+
+\newcommand{\va}{\mathbf{a}}
+\newcommand{\vb}{\mathbf{b}}
+\newcommand{\vc}{\mathbf{c}}
+
+\begin{document}
+
+\problem[102]{Count Triangles that Contain the Origin}
+
+Consider the following two triangles on a Cartesian plane:
+\begin{align}
+A(-340,495), B(-153,-910), C(835,-947) , \notag \\
+X(-175,41), Y(-421,-714), Z(574,-645) . \notag
+\end{align}
+It can be verified that triangle $ABC$ contains the origin, whereas triangle $XYZ$ does not.
+
+Using triangles.txt, a text file containing the coordinates of one thousand triangles, find the number of triangles for which the interior contains the origin.
+
+\solution
+
+Connect the origin $O$ with each vertex of the triangle to form three vectors
+\[
+\va = OA, \vb = OB, \vc = OC ,
+\]
+and compute the cross product of each pair of vectors $\va \times \vb$, $\vb \times \vc$, and $\vc \times \va$. The cross product of two (three-dimensional) vectors $(x_1,y_1,0)$ and $(x_2,y_2,0)$ is
+\[
+\left( 0, 0, x_1 y_2 - x_2 y_1 \right ).
+\]
+It is perpendicular to the plane of the triangle, but the orientation depends on the order of the vectors and is determined by the right-hand rule. It can be seen that if the origin is contained in the interior of the triangle, then all three cross products have the same orientation. If the origin lies outside the triangle, then one of the cross products has opposite orientation as the rest. If the origin lies on the edge of the triangle, then at least one of the cross products is zero. With this observation, the problem can be readily solved.
+
+\complexity
+
+Time complexity: $\BigO(n)$.
+
+Space complexity: $\BigO(1)$.
+
+\answer
+
+228
+
+\reference
+
+http://en.wikipedia.org/wiki/Cross\_product
+
+\end{document}
