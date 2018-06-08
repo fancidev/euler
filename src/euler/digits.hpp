@@ -427,6 +427,29 @@ bool is_pandigital(InIt begin, InIt end, int lowest = 1, int highest = base - 1)
   return count == (highest - lowest + 1);
 }
 
+/**
+ * Checks whether the digit expansion sequence of an integer is pandigital.
+ *
+ * @tparam base Base of digit expansion.
+ * @tparam T Integral type.
+ *
+ * @param n Integer whose digits are expanded.
+ * @param from Smallest digit (inclusive) required to be present.
+ * @param to Largest digit (inclusive) required to be present.
+ *
+ * @returns @c true if the digit expansion of @c n in base @c base contains
+ *    each of the digits between @c from and @c to exactly once; @c false
+ *    otherwise.
+ *
+ * @ingroup Digits
+ */
+template <int base = 10, class T>
+bool is_pandigital(T n, int from = 1, int to = base - 1)
+{
+  auto d = digits(n);
+  return is_pandigital(d.begin(), d.end(), from, to);
+}
+
 } // namespace euler
 
 #endif
