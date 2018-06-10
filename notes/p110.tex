@@ -1,0 +1,102 @@
+\input{euler.tex}
+
+%\textstyle - default in the running text and in array environment
+%\displaystyle - default for displayed equations
+
+\begin{document}
+
+\problem[110]{Number of Solutions to the Equation $1/x + 1/y = 1/n$}
+
+In the following equation, $x$, $y$, and $n$ are positive integers.
+\begin{equation}
+\frac{1}{x} + \frac{1}{y} = \frac{1}{n} \label{eq:1}
+\end{equation}
+
+It can be verified that when $n = 1260$ there are 113 distinct solutions ($(x,y)$ and $(y,x)$ are considered duplicate solutions) and this is the least value of $n$ for which the total number of distinct solutions exceeds one hundred.
+ 
+What is the least value of $n$ for which the number of distinct solutions exceeds four million?
+
+\solution
+
+Equation \eqref{eq:1} can be rearranged as
+\[
+n^2=(x-n)(y-n).
+\]
+It is then obvious that each pair of divisors of $n^2$ corresponds to one solution of the equation. Thus the total number of distinct solutions is
+\[
+\frac{\sigma_0(n^2)+1}{2}
+\]
+where $\sigma_0(n^2)$ is the \emph{divisor function} that counts the number of divisors of $n^2$. To compute it, write the prime factorization of $n^2$ as
+\[
+n = p_1^{2k_1} \cdots p_m^{2k_m} ,
+\]
+and it follows that
+\[
+\sigma_0(n^2) = (2 k_1+1) \cdots (2 k_m+1) .
+\]
+
+Finding the smallest $n$ exceeding a given number of solutions, $A$, is equivalent to minimizing
+\[
+p_1^{k_1} \cdots p_m^{k_m}
+\]
+such that
+\[
+(2 k_1+1) \cdots (2 k_m+1) \ge 2A-1 .
+\]
+Since the constraint only involves the exponents of the prime factors and not the values of the primes, it is obvious that the primes must be the smallest primes and the exponents must satisfy $k_1 \ge \cdots \ge k_m$.
+
+To simplify the implementation, we rewrite the optimization problem in its equivalent form
+\[
+\textstyle
+\min \sum_{i=1}^m k_i \ln p_i
+\]
+subject to
+\[
+\textstyle
+\sum_{i=1}^m \ln(2 k_i+1) \ge \ln(2A-1) .
+\]
+
+We find the optimal solution using a recursive approach. Consider the first $j$ primes only. Let
+\[
+S_j(k,a,b) = \min_{k_1,\ldots,k_j \ge k} \, \sum_{i=1}^j k_i \ln p_i
+\]
+subject to
+\[
+\sum_{i=1}^j \ln(2k_i+1) \ge a \text{ and } S_j(k,a,b) < b .
+\]
+The first constraint comes from the original problem, and the second constraint is used for pruning. It is easy to see that the solution to the original problem is $S_m(0,\ln(2A-1),+\infty)$.
+
+Next, we write $S_j(k,a,b)$ in recursive form
+\[
+S_j(k,a,b) = \min_{k_j \ge k} \, k_j \ln p_j + S_{j-1}(k_j, a - \ln(2k_j+1), b-k_j \ln p_j)
+\]
+with boundary condition $S_0(k,a,b) = 0$ if $a \le 0$, or $+\infty$ if $a>0$.
+
+To estimate a useful upper bound of the optimal solution in order for pruning, note that $k_i \ge k_j$ for $i < j$, therefore
+\[
+\textstyle
+S_j(k,a,b) \ge k_j \left(\sum_{i=1}^{j} \ln p_i\right) .
+\]
+This gives $k_j \le \left \lfloor b / \sum_{i=1}^{j} \ln p_i \right\rfloor$. In the implementation, it is more efficient to iterate from the largest possible $k_j$ to the smallest.
+
+Finally, the initial upper bound of the optimal solution is the simple solution of multiplying the first $m$ smallest primes, where $m = \lceil \log_3 (2A-1) \rceil$.
+
+\answer
+
+9350130049860600
+
+\complexity
+
+Suppose we use trial division to find the first $m$ primes, the time complexity is $(m \ln m)^2$. Then, we need to count the number of evaluations of $S_j(k)$ for all combinations of $j,k$. We know that $j \le m$ and $k_j \le b / \ln 2$, where $b = \sum_{i=1}^m \ln p_i \le m \ln p_m$. So $k_j \le m \log_2 p_m \sim \BigO(m \ln m)$. So the overall time complexity is $\BigO((m \ln m)^2)$.
+
+Time complexity: $\BigO((\ln N \ln \ln N)^2)$
+
+Space complexity: $\BigO(\ln N)$
+
+\reference
+
+http://en.wikipedia.org/wiki/Divisor\_function
+
+http://en.wikipedia.org/wiki/Prime-counting\_function
+
+\end{document}
