@@ -84,5 +84,5 @@ static void solve_problem_113()
     }
   }
 
-  std::cout << (f[9] + f[10] - 2 - 10*N) << std::endl;
+  std::cout << (f[9] + f[10] - 2LL - 10LL*N) << std::endl;
 }

@@ -42,7 +42,7 @@ public:
     for (size_t i = 0; i < num_items; i++)
     {
       _list[i].next = -1;
-      _list[i].head = i;
+      _list[i].head = static_cast<int>(i);
     }
   }
 
@@ -105,8 +105,8 @@ static std::vector<edge> read_graph(const int (&edge_weights)[N][N])
       if (edge_weights[i][j] > 0)
       {
         edge e;
-        e.vertex1 = i;
-        e.vertex2 = j;
+        e.vertex1 = static_cast<int>(i);
+        e.vertex2 = static_cast<int>(j);
         e.weight = edge_weights[i][j];
         edges.push_back(e);
       }

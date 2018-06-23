@@ -80,9 +80,9 @@ static void print_factorial_chain(int start)
 // Cache of factorial chain length for a range of numbers.
 class factorial_chain
 {
-  std::vector<char> length; // Cache of known chain length of starting numbers
-  std::vector<int> chain;   // Current chain being computed. This variable is
-                            // declared here to reduce memory reallocations.
+  std::vector<int> length; // Cache of known chain length of starting numbers
+  std::vector<int> chain;  // Current chain being computed. This variable is
+                           // declared here to reduce memory reallocations.
 
 public:
 
@@ -111,7 +111,7 @@ public:
     if (length[n] == -1)
     {
       auto loop_begin = std::find(chain.cbegin(), chain.cend(), n);
-      char loop_length = (char)(chain.cend() - loop_begin);
+      int loop_length = static_cast<int>(chain.cend() - loop_begin);
       std::for_each(loop_begin, chain.cend(), [&](int k) {
         length[k] = loop_length;
       });

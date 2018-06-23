@@ -44,7 +44,7 @@ struct sudoku_state
   struct block_info
   {
     std::bitset<9> free_digits;
-    block_info() : free_digits(-1) { }
+    block_info() : free_digits(std::bitset<9>().set()) { }
   } row[9], col[9], blk[9];
 
   std::bitset<81> cell_tainted; // whether a given cell needs to be reduced
@@ -52,10 +52,9 @@ struct sudoku_state
 
 public:
 
-  sudoku_state() : cell_tainted(-1), cell_free(-1) { }
-
-  sudoku_state(const sudoku_layout &L)
-    : cell_tainted(std::bitset<81>().set()), cell_free(std::bitset<81>().set())
+  explicit sudoku_state(const sudoku_layout &L)
+    : cell_tainted(std::bitset<81>().set()),
+      cell_free(std::bitset<81>().set())
   {
     for (int i = 0; i < 9; i++)
     {

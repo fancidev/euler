@@ -62,7 +62,7 @@ T count_divisors(T n)
   T count = 1;
   for (std::pair<T, size_t> pk: distinct(factorize(n)))
   {
-    count *= (pk.second + 1);
+    count *= static_cast<T>(pk.second + 1);
   }
   return count;
 }
