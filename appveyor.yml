@@ -1,11 +1,11 @@
 image:
-  - Visual Studio 2015
+#  - Visual Studio 2015
   - Visual Studio 2017
-  
+
 configuration:
   - Release
 #  - Debug
-  
+
 platform:
   - Win32
   - x64
@@ -27,9 +27,9 @@ before_build:
   - cd build
   - cmake --version
   - cmake .. -G "%GENERATOR%"
-  
+
 build:
   project: build\euler.sln
-  
+
 test_script:
   - ctest -C %CONFIGURATION%
