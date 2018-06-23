@@ -1,0 +1,43 @@
+\input{euler.tex}
+
+\begin{document}
+
+\problem[133]{Prime Non-Factors of Repunits of $10^k$ Digits}
+
+A number consisting entirely of ones is called a \emph{repunit}. We shall define $R(n)$ to be a repunit of length $n$. For example, $R(6) = 111111$.
+
+Let us consider repunits of the form $R(10^k)$. Although $R(10)$, $R(100)$, or $R(1000)$ are not divisible by 17, $R(10000)$ is divisible by 17. Yet there is no value of $k$ for which $R(10^k)$ is divisible by 19. In fact, it is remarkable that 11, 17, 41, and 73 are the only four primes below 100 that can be a factor of $R(10^k)$.
+
+Find the sum of all the primes below 100 000 that will never be a factor of $R(10^k)$.
+
+\solution
+
+Using results from Solution 132, we know that a prime number $p$ is a divisor of $R(n)$ if and only if $p=3$ and 3 divides $n$, or $p \ge 7$ and
+\begin{equation}
+10^{\gcd(n, p-1)} \equiv 1 \pmod{p} . \label{eq:133.1}
+\end{equation}
+
+Now consider $n$ of the form $10^k$. Obviously 3 does not divide $10^k$, so we are left with the condition $p \ge 7$ and
+\begin{equation}
+10^{\gcd(10^k, p-1)} \equiv 1 \pmod{p} . \label{eq:133.2}
+\end{equation}
+Let $(p-1) = 2^r \cdot 5^s \cdot d$ where $d$ does not contain any factor of 2 or 5. Then for sufficiently large $k$, $\gcd(10^k, p-1) = 2^r \cdot 5^s$. So a solution in $k$ to equation \eqref{eq:133.2} exists if and only if
+\begin{equation}
+10^{2^r \cdot 5^s} \equiv 1 \pmod{p} . \label{eq:133.3}
+\end{equation}
+
+For this problem, we first generate all primes below the given limit. Then for each prime $p \ge 7$, test whether it satisfies condition \eqref{eq:133.3}. Include in the answer primes that don't satisfy the condition. Also include primes 2, 3, and 5.
+
+\complexity
+
+Let $M = 100000$ be the limit of the primes to test. For each number, primality testing takes $\BigO(\ln M)$; factorizing $(p-1) = 2^r \cdot 5^s$ takes $\BigO(\ln M)$; and testing condition \eqref{eq:133.3} takes $\BigO(\ln M)$.
+
+Time complexity: $\BigO(M \ln M)$.
+
+Space complexity: $\BigO(1)$.
+
+\answer
+
+453647705
+
+\end{document}
