@@ -65,5 +65,5 @@ static void solve_problem_135()
     }
   }
 
-  std::cout << std::count(count.begin(), count.end(), 10) << std::endl;
+  std::cout << std::count(count.begin(), count.end(), 10u) << std::endl;
 }
