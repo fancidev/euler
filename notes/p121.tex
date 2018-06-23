@@ -1,0 +1,37 @@
+\input{euler.tex}
+
+\begin{document}
+
+\problem[121]{The Game of Chance Involving Colored Discs}
+
+A bag contains one red disc and one blue disc. In a game of chance a player takes a disc at random and its color is noted. After each turn the disc is returned to the bag, an extra red disc is added, and another disc is taken at random.
+
+The player pays \$1 to play and wins if they have taken more blue discs than red discs at the end of the game.
+
+If the game is played for four turns, the probability of a player winning is $11/120$, and the maximum prize fund the banker should allocate for winning in this game would be \$10 before they would expect to incur a loss. Note that any payout will be a whole number of pounds and also includes the original \$1 paid to play the game, so in the example given the player actually wins \$9.
+
+Find the maximum prize fund that should be allocated to a single game in which fifteen turns are played.
+
+\solution
+
+Let $N$ be the number of turns played, and $M$ be the minimum number of blue discs to draw to win the game. It is easy to see that $M = \lfloor N/2 \rfloor + 1$.
+
+Let $P(n,m)$ be the probability that the player draws at least $m$ blue discs in the first $n$ trials. The probability that the player wins the game in the end is $P(N,M)$. Note that in the $n$th trial, there is one blue disc and $n$ red discs. Therefore,
+\[
+P(n,m) = \frac{1}{n+1} \times P(n-1,m-1) + \frac{n}{n+1} \times P(n-1,m) .
+\]
+The boundary conditions are $P(n,0) = 1$ and $P(n,m)=0$ if $m > n$. This recurrence relation allows us to find $P(N,M)$ easily.
+
+Once we find the probability of winning, $P(N,M)$, the maximum prize that ensures that the expected payout does not exceed the bet premium is simply $\lfloor 1/P(N,M) \rfloor$.
+
+\answer
+
+2269
+
+\complexity
+
+Time complexity: $\BigO(MN)$
+
+Space complexity: $\BigO(M)$
+
+\end{document}
