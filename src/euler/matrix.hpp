@@ -725,6 +725,18 @@ matrix<T,1,1> inv(const matrix<T,1,1> &a)
   return b;
 }
 
+/**
+ * 2-by-2 matrix inversion.
+ *
+ * @tparam T Type that satisfies Field requirement.
+ *
+ * @param a 2-by-2 matrix.
+ *
+ * @returns 2-by-2 matrix @c b such that <code>a * b == b * a == I</code> if
+ *    @c T supports exact arithmetic.
+ *
+ * @remarks If the matrix @c a is not invertible, the behavior is undefined.
+ */
 template <class T>
 matrix<T,2,2> inv(const matrix<T,2,2> &a)
 {

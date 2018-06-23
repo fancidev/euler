@@ -32,7 +32,7 @@ namespace euler {
  * @param a Numerator; must be within <c>[0, b]</c> and coprime to @c b.
  * @param b Denominator; must be within <c>[1, n]</c>.
  *
- * @returns If <c>a/b == 0/1<c> (the first term of the sequence), returns
+ * @returns If <c>a/b == 0/1</c> (the first term of the sequence), returns
  *    <c>0/0</c>. Otherwise, returns the largest reduced fraction <c>p/q</c>
  *    such that <c>q <= n</c> and <c>p/q < a/b</c>.
  *
@@ -72,7 +72,7 @@ std::pair<T,T> farey_prev(T n, T a, T b)
  * @param a Numerator; must be within <c>[0, b]</c> and coprime to @c b.
  * @param b Denominator; must be within <c>[1, n]</c>.
  *
- * @returns If <c>a/b == 1/1<c> (the last term of the sequence), returns
+ * @returns If <c>a/b == 1/1</c> (the last term of the sequence), returns
  *    <c>0/0</c>. Otherwise, returns the smallest reduced fraction <c>p/q</c>
  *    such that <c>q <= n</c> and <c>p/q > a/b</c>.
  *
@@ -115,7 +115,7 @@ std::pair<T,T> farey_next(T n, T a, T b)
  * @param c Numerator; must be within <c>[0, d]</c> and coprime to @c d.
  * @param d Denominator; must be within <c>[1, n]</c>.
  *
- * @returns If <c>a/b == 0/1<c> (the first term of the sequence), returns
+ * @returns If <c>a/b == 0/1</c> (the first term of the sequence), returns
  *    <c>0/0</c>. Otherwise, returns the largest reduced fraction <c>p/q</c>
  *    such that <c>q <= n</c> and <c>p/q < a/b</c>.
  *
@@ -152,7 +152,7 @@ std::pair<T,T> farey_prev(T n, T a, T b, T c, T d)
  * @param c Numerator; must be within <c>[0, d]</c> and coprime to @c d.
  * @param d Denominator; must be within <c>[1, n]</c>.
  *
- * @returns If <c>c/d == 1/1<c> (the last term of the sequence), returns
+ * @returns If <c>c/d == 1/1</c> (the last term of the sequence), returns
  *    <c>0/0</c>. Otherwise, returns the smallest reduced fraction <c>p/q</c>
  *    such that <c>q <= n</c> and <c>p/q > c/d</c>.
  *
@@ -214,11 +214,13 @@ class farey_iterator
 {
 public:
 
+  /// @cond doxygen_ignore
   using iterator_category = std::bidirectional_iterator_tag;
   using value_type = std::pair<T,T>;
   using difference_type = std::ptrdiff_t;
   using pointer = const value_type *;
   using reference = const value_type &;
+  /// @endcond
 
 private:
 
@@ -249,6 +251,10 @@ public:
   {
   }
 
+  /**
+   * Advances the iterator to point to the next term in the farey sequence.
+   * @returns <c>*this</c>
+   */
   farey_iterator& operator++()
   {
     assert(_is_dereferenceable());
@@ -267,6 +273,11 @@ public:
     return *this;
   }
 
+  /**
+   * Advances the iterator to point to the previous term in the farey
+   * sequence.
+   * @returns <c>*this</c>
+   */
   farey_iterator& operator--()
   {
     assert(_is_dereferenceable());
@@ -286,11 +297,11 @@ public:
   }
 
   /**
-   * Gets the current term of the sequence.
+   * Gets a reference to the current term of the sequence.
    *
-   * @returns Const reference to the current term. The reference is valid as
-   *    long as the iterator stays in-scope and is not altered (incremented,
-   *    decremented or assigned).
+   * @returns Const reference to the current term. The reference is
+   *    invalidated if the iterator is incremented, decremented, assigned to,
+   *    or destroyed.
    */
   reference operator*() const
   {
@@ -298,17 +309,29 @@ public:
     return _frac;
   }
 
+  /**
+   * Gets a pointer to the current term of the sequence.
+   *
+   * @returns Const pointer to the current term. The pointer is invalidated if
+   *    the iterator is incremented, decremented, assigned to, or destroyed.
+   */
   pointer operator->() const
   {
     assert(_is_dereferenceable());
     return &_frac;
   }
 
+  /**
+   * Iterator equality testing.
+   */
   friend bool operator==(const farey_iterator &a, const farey_iterator &b)
   {
     return (a._order == b._order) && (a._frac == b._frac);
   }
 
+  /**
+   * Iterator inequality testing.
+   */
   friend bool operator!=(const farey_iterator &a, const farey_iterator &b)
   {
     return !(a == b);

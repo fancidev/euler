@@ -34,18 +34,27 @@ class combination_iterator
 
 public:
 
+  /// @cond doxygen_ignore
   using iterator_category = std::forward_iterator_tag;
   using value_type = std::vector<TIndex>;
   using difference_type = std::ptrdiff_t;
   using reference = const value_type &;
   using pointer = const value_type *;
+  /// @endcond
 
 public:
 
+  /**
+   * Creates an iterator that points past-the-end.
+   */
   combination_iterator() : _n(0), _r(0), _choice(), _dereferenceable(false)
   {
   }
 
+  /**
+   * Creates an iterator that points to the lexically least combination of
+   * choosing @c r items out of @c n items.
+   */
   combination_iterator(TIndex n, TIndex r)
     : _n(n), _r(r), _choice(r), _dereferenceable(true)
   {
@@ -77,6 +86,9 @@ public:
     return &_choice;
   }
 
+  /**
+   * Advances the iterator to point to the next combination in lexical order.
+   */
   combination_iterator & operator++()
   {
     assert(_dereferenceable);
@@ -98,6 +110,9 @@ public:
     return *this;
   }
 
+  /**
+   * Iterator equality testing.
+   */
   bool operator==(const combination_iterator &other) const
   {
     if (_dereferenceable && other._dereferenceable)
@@ -110,6 +125,9 @@ public:
     }
   }
 
+  /**
+   * Iterator inequality testing.
+   */
   bool operator!=(const combination_iterator &other) const
   {
     return !operator==(other);
@@ -137,11 +155,13 @@ class product_iterator
 
 public:
 
+  /// @cond doxygen_ignore
   using iterator_category = std::forward_iterator_tag;
   using value_type = std::vector<TIndex>;
   using difference_type = std::ptrdiff_t;
   using reference = const value_type &;
   using pointer = const value_type *;
+  /// @endcond
 
 public:
 
@@ -217,6 +237,10 @@ public:
     return &_choice;
   }
 
+  /**
+   * Advances the iterator to point to the next Cartesian product in lexical
+   * order.
+   */
   product_iterator & operator++()
   {
     assert(_dereferenceable);
@@ -236,6 +260,9 @@ public:
     return *this;
   }
 
+  /**
+   * Iterator equality testing.
+   */
   bool operator==(const product_iterator &other) const
   {
     if (_dereferenceable && other._dereferenceable)
@@ -248,12 +275,20 @@ public:
     }
   }
 
+  /**
+   * Iterator inequality testing.
+   */
   bool operator!=(const product_iterator &other) const
   {
     return !operator==(other);
   }
 };
 
+/**
+ * Enumerates the Cartesian product of a collection of sets.
+ *
+ * @ingroup combination
+ */
 template <class InputIt>
 sequence<product_iterator<size_t>> cartesian(
     InputIt card_first, InputIt card_last)

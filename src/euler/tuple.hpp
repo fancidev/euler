@@ -1,6 +1,7 @@
 #ifndef EULER_TUPLE_H
 #define EULER_TUPLE_H
 
+#if 0
 #include <vector>
 
 namespace euler {
@@ -139,6 +140,7 @@ public:
     }
   }
 };
+#endif
 
 #if 0
 // Below is an example of a visitor for the tuple generator.
