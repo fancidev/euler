@@ -1,0 +1,52 @@
+\input{euler.tex}
+
+\begin{document}
+
+\problem[132]{Prime Factors of a Large Repunit}
+
+A number consisting entirely of ones is called a \emph{repunit}. We shall define $R(n)$ to be a repunit of length $n$.
+
+For example, $R(10) = 1111111111 = 11 \times 41 \times 271 \times 9091$, and the sum of these prime factors is 9414.
+
+Find the sum of the first forty prime factors of $R(10^9)$.
+
+\solution
+
+Given a prime number $p$, and check whether it divides $R(n)$. If $p=3$, then $p$ divides $R(n)$ if and only if the sum of the digits in $R(n)$, $n$, is a multiple of 3. If $p \ne 3$,write $R(n)$ as
+\begin{equation}
+R(n) = \sum_{k=0}^{n-1} 10^k = \frac{10^n-1}{9} .
+\end{equation}
+And $p$ divides $R(n)$ if and only if
+\begin{equation}
+10^n - 1 \equiv 0 \pmod{p} . \label{eq:132.2}
+\end{equation}
+
+Let $k$ denote the smallest positive integer such that $10^k \equiv 1 \pmod{p}$. Then equation \eqref{eq:132.2} holds if and only if $n$ is a multiple of $k$. On the other hand, note that 2 and 5 are not prime factors of a repunit. For prime numbers coprime to 10, we have $10^{p-1} \equiv 1 \pmod{p}$ according to Fermat's little theorem. Therefore, $(p-1)$ must also be a multiple of $k$.
+
+Since both $n$ and $(p-1)$ are multiples of $k$, so is $\gcd(n,p-1)$. It follows that
+\begin{equation}
+10^{\gcd(n,p-1)} \equiv 1 \pmod{p} . \label{eq:132.3}
+\end{equation}
+It is easy to see that the converse is true: if equation \eqref{eq:132.3} holds, then $p$ is a prime factor of $R(n)$.
+
+Hence, to find the first $m$ prime factors of $R(n)$, we can generate primes $p$ in order and check whether $p$ satisfies \eqref{eq:132.3}. Repeat until we have found $m$ such primes.
+
+\complexity
+
+Let $P$ be the $m$-th prime factor of $R(n)$. It takes $\BigO(P \ln P)$ to generate all the primes below $P$. For each prime, testing equation \eqref{eq:132.3} takes $\BigO(\ln P)$ to compute $\gcd(n,p-1)$ and $\BigO(\ln P)$ to compute modular exponentiation.
+
+Time complexity: $\BigO(P (\ln P)^2)$.
+
+Space complexity: $\BigO(1)$.
+
+\answer
+
+843296
+
+\reference
+
+http://en.wikipedia.org/wiki/Fermat's\_little\_theorem
+
+http://en.wikipedia.org/wiki/Repunit
+
+\end{document}
