@@ -1,0 +1,60 @@
+\input{euler.tex}
+
+\begin{document}
+
+\problem[137]{Polynomial Series with Fibonacci Coefficients}
+
+Consider the infinite polynomial series
+\[
+A(x) = \sum_{k=1}^{\infty} F_k x^k = F_1 x + F_2 x^2 + F_3 x^3 + \cdots ,
+\]
+where $F_k$ is the $k$th term in the Fibonacci sequence $\{ 1, 1, 2, 3, 5, 8, \ldots \}$. That is, $F_k = F_{k-1} + F_{k-2}$, $F_1 = 1$, $F_2 = 1$.
+
+We shall call $A(x)$ a \emph{golden nugget} if $A(x)$ is a positive integer and $x$ is rational, because they become increasingly rarer. For example, the first golden nugget is $2 = A(1/2)$, and the 10th golden nugget is $74049690$.
+
+Find the 15th golden nugget.
+
+\solution
+
+Observe the relation
+\begin{align}
+A(x) &= F_1 x + F_2 x^2 + \sum_{k=3}^{\infty} (F_{k-1}+F_{k-2}) x^k \notag \\
+&= F_1 x + F_2 x^2 + x \sum_{k=3}^{\infty} F_{k-1} x^{k-1} + x^2 \sum_{k=3}^{\infty} F_{k-2} x^{k-2} \notag \\
+&= F_1 x + F_2 x^2 + x[A(x) - F_1 x] + x^2 A(x)  \notag \\
+&= A(x) x^2 + [A(x)+1] x . \notag
+\end{align}
+Let $A(x) = a$ be an integer, and we have
+\[
+a x^2 + (a+1) x - a = 0 ,
+\]
+for which the solutions are
+\[
+x = \frac{-(a+1) \pm \sqrt{(a+1)^2 + 4a^2} }{2a} .
+\]
+This solution is rational if and only if $[(a+1)^2+4a^2]$ is a perfect square, i.e. there exists an integer $b$ such that
+\[
+(a+1)^2 + 4a^2 = b^2 .
+\]
+This equation can be rearranged as
+\[
+(5a+1)^2 - 5b^2 = -4.
+\]
+Substituting $x = 5a+1$ and $y = b$, the above equation can be transformed into the Pell equation
+\[
+x^2 - 5 y^2 = -4,
+\]
+for which the fundamental solutions are $(1,1)$, $(4,2)$, and $(11,5)$. The rest solutions can be readily generated from these fundamental solutions and the corresponding solution $(9, 4)$ to $x^2 - 5 y^2 = 1$.
+
+\complexity
+
+Let $n = 15$ be the index of the golden nugget to find.
+
+Time complexity: $\BigO(n)$.
+
+Space complexity: $\BigO(1)$.
+
+\answer
+
+1120149658760
+
+\end{document}
