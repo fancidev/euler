@@ -1,0 +1,60 @@
+\input{euler.tex}
+
+\begin{document}
+
+\problem[140]{Polynomial Series with Recursive Coefficients}
+
+Consider the infinite polynomial series
+\[
+A(x) = \sum_{k=1}^{\infty} F_k x^k = F_1 x + F_2 x^2 + F_3 x^3 + \cdots ,
+\]
+where $F_k$ is the $k$th term in the second order recurrence relation $F_k = F_{k-1} + F_{k-2}$, $F_1 = 1$, $F_2 = 4$. The first few values of $F_k$ are $\{ 1, 4, 5, 9, 14, 23, \ldots \}$.
+
+We shall call $A(x)$ a \emph{golden nugget} if $A(x)$ is a positive integer and $x$ is rational, because they become increasingly rarer. For example, the first golden nugget is $2 = A(2/5)$, and the 20th golden nugget is 211345365.
+
+Find the sum of the first 30 golden nuggets.
+
+\solution
+
+Observe the relation
+\begin{align}
+A(x) &= F_1 x + F_2 x^2 + \sum_{k=3}^{\infty} (F_{k-1}+F_{k-2}) x^k \notag \\
+&= F_1 x + F_2 x^2 + x \sum_{k=3}^{\infty} F_{k-1} x^{k-1} + x^2 \sum_{k=3}^{\infty} F_{k-2} x^{k-2} \notag \\
+&= F_1 x + F_2 x^2 + x[A(x) - F_1 x] + x^2 A(x)  \notag \\
+&= [A(x)+F_2-F_1] x^2 + [A(x)+F_1] x . \notag
+\end{align}
+Let $A(x) = a$ be an integer, and we have
+\[
+(a+3) x^2 + (a+1) x - a = 0 ,
+\]
+for which the solutions are
+\[
+x = \frac{-(a+3) \pm \sqrt{(a+1)^2 + 4a(a+3)} }{2(a+3)} .
+\]
+This solution is rational if and only if $[(a+1)^2+4a(a+3)]$ is a perfect square, i.e. there exists an integer $b$ such that
+\[
+(a+1)^2 + 4a(a+3) = b^2 .
+\]
+This equation can be rearranged as
+\[
+(5a+7)^2 - 5b^2 = 44.
+\]
+Substituting $x = 5a+1$ and $y = b$, the above equation can be transformed into the Pell equation
+\[
+x^2 - 5 y^2 = 44,
+\]
+for which the fundamental solutions are $(7,1)$, $(8,2)$, $(13,5)$, $(17,7)$, $(32,14)$, and $(43,19)$. The rest solutions can be readily generated from these fundamental solutions and the corresponding solution $(9, 4)$ to $x^2 - 5 y^2 = 1$.
+
+\complexity
+
+Let $n = 30$ be the number of golden nuggets to find.
+
+Time complexity: $\BigO(n)$.
+
+Space complexity: $\BigO(1)$.
+
+\answer
+
+5673835352990
+
+\end{document}
