@@ -1,0 +1,55 @@
+\input{euler.tex}
+
+\begin{document}
+
+\problem[141]{Investigating progressive numbers, $n$, which are also square}
+
+A positive integer, $n$, is divided by $p$ and the quotient and remainder are $q$ and $r$ respectively. In addition $p$, $q$, and $r$ are consecutive positive integer terms in a geometric sequence, but not necessarily in that order.
+
+For example, 58 divided by 6 has quotient 9 and remainder 4. It can also be seen that 4, 6, 9 are consecutive terms in a geometric sequence (common ratio $3/2$). We will call such numbers, $n$, progressive.
+
+Some progressive numbers, such as 9 and $10404 = 102^2$, happen to also be perfect squares.
+The sum of all progressive perfect squares below one hundred thousand is 124657.
+
+Find the sum of all progressive perfect squares below one trillion ($10^{12}$).
+
+\solution
+
+Let $n^2 = pq + r$, $p > r > 0$, be a progressive perfect square. We first investigate in what ways can $p, q, r$ form a geometric sequence. There are three cases:
+
+Case 1. $p > q > r$, then we $q^2 = pr$.
+
+Case 2. $q > p > r$, then we can exchange $p$ and $q$ and it becomes case 1.
+
+Case 3. $p > r > q$, then we have $r^2 = pq$. It follows that $n^2 = r^2+r = r(r+1)$. Obviously this can not be a perfect square.
+
+This leaves us with only case one. Rewrite
+\[
+p = \frac{q^2}{r}
+\]
+and we note that in order for $p$ to be an integer, $r$ must divide $q^2$. This means $q$ must contain all prime factors of $r$ with sufficient exponent. More precisely, write the factorization of $r$ as
+\[
+r = r_1^{l_1} \cdots r_k^{l_k} ,
+\]
+then $q$ must at least contain
+\[
+q_0 = r_1^{\lceil l_1/2 \rceil} \cdots r_k^{\lceil l_k/2 \rceil} .
+\]
+Since $q$ must also be greater than $r$, the minimum possible value of $q$ is
+\[
+q = \left( \left\lfloor \frac{r}{q_0} \right\rfloor + 1\right) q_0 .
+\]
+
+We enumerate each $r \ge 1$, and then enumerate each possible $q$ given $r$ until $(pq+r)$ exceeds the limit. For each candidate number, we check whether it is a perfect square. It turns out that the number of candidates grow roughly at a speed of $N^{0.58}$. So the algorithm finishes relatively quickly.
+
+\complexity
+
+Time complexity: $\BigO(N^{0.58})$ (empirical)
+
+Space complexity: $\BigO(1)$
+
+\answer
+
+878454337159
+
+\end{document}
