@@ -127,7 +127,6 @@
  */
 
 #include <iostream>
-#include <iomanip>
 #include "euler.h"
 
 BEGIN_PROBLEM(106, solve_problem_106)

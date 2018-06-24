@@ -63,6 +63,7 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
   endif()
+  target_compile_options(euler PUBLIC "/utf-8")
 
 endif()
 

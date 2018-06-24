@@ -12,8 +12,8 @@ BEGIN_PROBLEM(141, solve_problem_141)
   PROBLEM_ANSWER("878454337159")
   PROBLEM_DIFFICULTY(2)
   PROBLEM_FUN_LEVEL(2)
-  PROBLEM_TIME_COMPLEXITY("")
-  PROBLEM_SPACE_COMPLEXITY("")
+  PROBLEM_TIME_COMPLEXITY("N^0.58")
+  PROBLEM_SPACE_COMPLEXITY("1")
 END_PROBLEM()
 
 // Find all progressive numbers.
@@ -57,13 +57,6 @@ static void find_progressive_numbers(int64_t N, Func f)
   }
 }
 
-static int count_progressive_numbers(int64_t N)
-{
-  int count = 0;
-  find_progressive_numbers(N, [&count](int64_t n) { ++count; });
-  return count;
-}
-
 static int64_t sum_progressive_squares(int64_t N)
 {
   int64_t sum = 0;
@@ -85,14 +78,5 @@ static void solve_problem_141()
 #else
   const int64_t N = 999999999999LL;
 #endif
-
-  if (verbose())
-  {
-    for (int64_t N = 10; N <= 1000000000000LL; N *= 10)
-    {
-      std::cout << N << " " << count_progressive_numbers(N) << std::endl;
-    }
-  }
-
   std::cout << sum_progressive_squares(N) << std::endl;
 }
