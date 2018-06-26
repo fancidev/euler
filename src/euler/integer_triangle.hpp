@@ -110,7 +110,7 @@ void generate_60_degree_triangles(integer_t max_perimeter, Func f)
       }
 
       // make sure m and n are co-prime
-      if (greatest_common_divisor(m, n) != 1)
+      if (gcd(m, n) != 1)
       {
         continue;
       }
@@ -186,7 +186,7 @@ void generate_120_degree_triangles(integer_t max_perimeter, Func f)
       }
 
       // make sure m and n are co-prime
-      if (greatest_common_divisor(m, n) != 1)
+      if (gcd(m, n) != 1)
       {
         continue;
       }
